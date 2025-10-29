@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import API from "../../api/api";
-import "./leaderboardPage.css";
+import "./LeaderboardPage.css";
 import { toast } from "react-toastify";
 import { getRank } from "../../utils/getRank";
 import LoadingSpinner from "../../components/Loader/LoadingSpinner";
