@@ -1,0 +1,275 @@
+:root {
+    --un-primary: #0b6623;
+    --un-accent: #fbbf24;
+    --un-bg: #f9fafb;
+    --un-text: #1e293b;
+}
+
+/* ===== Global Layout Fix ===== */
+html,
+body {
+    width: 100%;
+    overflow-x: hidden !important;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* ===== Layout ===== */
+.admin-layout {
+    display: flex;
+    background: var(--un-bg);
+    font-family: "Poppins", sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+}
+
+/* ===== Sidebar ===== */
+.admin-sidebar {
+    width: 250px;
+    background: var(--un-primary);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
+    z-index: 200;
+    transition: left 0.3s ease;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+}
+
+.admin-logo {
+    text-align: center;
+    font-weight: 800;
+    font-size: 1.5rem;
+    padding: 1.5rem 0;
+    background: rgba(255, 255, 255, 0.1);
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.admin-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 0;
+}
+
+.admin-nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-link {
+    display: block;
+    padding: 0.9rem 1.5rem;
+    margin: 0.2rem 0.8rem;
+    color: #f1f5f9;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.admin-link:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateX(3px);
+}
+
+.admin-link.active {
+    background: var(--un-accent);
+    color: var(--un-text);
+    font-weight: 700;
+}
+
+/* ===== Main Area ===== */
+.admin-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin-left: 250px;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: var(--un-bg);
+    transition: margin-left 0.3s ease;
+}
+
+/* ===== Header ===== */
+.admin-header {
+    background: #fff;
+    padding: 1rem 1.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1.5px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: fixed;
+    top: 0;
+    left: 250px;
+    right: 0;
+    z-index: 150;
+    height: 70px;
+    width: calc(100% - 250px);
+    /* ✅ Fix header width overflow */
+}
+
+/* ===== Content Area ===== */
+.admin-content {
+    flex: 1;
+    margin-top: 70px;
+    padding: 2rem;
+    overflow-x: hidden;
+    overflow-y: auto;
+    min-height: calc(100vh - 70px);
+    box-sizing: border-box;
+    width: 100%;
+}
+
+/* ===== Burger Button ===== */
+.burger-btn {
+    background: none;
+    border: none;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    gap: 4px;
+    padding: 6px;
+}
+
+.burger-line {
+    width: 25px;
+    height: 3px;
+    background: var(--un-primary);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}
+
+/* ===== Profile Section ===== */
+.admin-profile {
+    position: relative;
+}
+
+.admin-avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: var(--un-accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.admin-avatar:hover {
+    transform: scale(1.05);
+}
+
+.admin-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* ===== Dropdown ===== */
+.admin-dropdown {
+    position: absolute;
+    right: 0;
+    top: 55px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    width: 180px;
+    z-index: 50;
+    animation: dropdownFade 0.3s ease forwards;
+}
+
+.admin-dropdown button {
+    width: 100%;
+    text-align: left;
+    padding: 10px 15px;
+    background: none;
+    border: none;
+    color: var(--un-text);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.25s ease;
+}
+
+.admin-dropdown button:hover {
+    background: var(--un-bg);
+}
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== Overlay (for mobile) ===== */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(30, 41, 59, 0.5);
+    z-index: 90;
+    display: none;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+    .burger-btn {
+        display: flex;
+    }
+
+    .admin-sidebar {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        height: 100%;
+        z-index: 300;
+    }
+
+    .admin-sidebar.active {
+        left: 0;
+    }
+
+    .admin-main {
+        margin-left: 0;
+    }
+
+    .admin-header {
+        left: 0;
+        width: 100%;
+        /* ✅ Full width header on mobile */
+    }
+
+    .sidebar-overlay {
+        display: block;
+    }
+
+    .admin-content {
+        padding: 1rem;
+    }
+}

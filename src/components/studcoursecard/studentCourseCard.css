@@ -1,0 +1,36 @@
+:root {
+    --un-primary: #0B6623;
+    --un-accent: #FBBF24;
+    --un-bg: #F9FAFB;
+    --un-text: #1E293B;
+}
+
+.course-card {
+    border-radius: 10px;
+    border: 1px solid #e7e7e7;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background-color: #fff;
+}
+
+.course-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 15px rgba(1, 105, 47, 0.1);
+    border-color: var(--un-primary);
+}
+
+.course-card .rank-img {
+    width: 45px;
+    height: 45px;
+}
+
+.course-card .attendance-info {
+    background: #f7fdf8;
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #e0efe6;
+}
+
+.badge.bg-success-subtle {
+    background-color: rgba(1, 105, 47, 0.1) !important;
+}

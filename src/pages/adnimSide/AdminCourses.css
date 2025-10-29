@@ -1,0 +1,304 @@
+:root {
+    --un-primary: #0b6623;
+    --un-accent: #fbbf24;
+    --un-bg: #f9fafb;
+    --un-text: #1e293b;
+}
+
+/* ===== Page Layout ===== */
+.admin-courses-page {
+    background: var(--un-bg);
+    min-height: 100vh;
+    padding: 2rem;
+    color: var(--un-text);
+    font-family: "Inter", "Segoe UI", sans-serif;
+    overflow-x: hidden;
+}
+
+.admin-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--un-primary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+/* ===== Form Grid ===== */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+@media (max-width: 992px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .Creset{
+        width: fit-content !important;
+        background: red !important;
+    }
+}
+
+
+
+/* ===== Form Box ===== */
+.admin-form {
+    background: #fff;
+    padding: 1.5rem 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease;
+    height: fit-content;
+}
+
+/* .filter-bar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--glass-bg, rgba(255, 255, 255, 0.8));
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+} */
+
+
+.admin-form:hover {
+    transform: translateY(-3px);
+}
+
+.admin-form h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--un-primary);
+    margin-bottom: 1rem;
+}
+
+/* ===== Inputs & Selects ===== */
+.admin-form input,
+.admin-form textarea,
+.admin-form select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    background: #fdfdfd;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-form input:focus,
+.admin-form textarea:focus,
+.admin-form select:focus {
+    border-color: var(--un-primary);
+    box-shadow: 0 0 0 3px rgba(11, 102, 35, 0.2);
+    outline: none;
+}
+
+/* ===== Buttons ===== */
+.btn-primary {
+    background: var(--un-primary) !important;
+    border: none !important;
+    color: #fff !important;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-primary:hover {
+    background-color: #09551c !important;
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: #6b7280 !important;
+    border: none !important;
+    color: #fff !important;
+    margin-left: 0.75rem;
+    padding: 0.5rem 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background-color: #4b5563 !important;
+}
+
+.btn-accent {
+    background: var(--un-accent) !important;
+    border: none !important;
+    color: #1e293b !important;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.btn-accent:hover {
+    background-color: #f9b41a !important;
+    transform: translateY(-2px);
+}
+
+/* ===== Form Actions ===== */
+.form-actions {
+    margin-top: 0.8rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+/* ===== Table Styling ===== */
+.table-container {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+    width: 100%;
+}
+
+.admin-table {
+    margin-bottom: 0;
+    border-radius: 10px;
+    min-width: 850px;
+    text-align: left;
+}
+
+.admin-table thead {
+    background: var(--un-primary);
+    color: #fff;
+    font-size: 0.95rem;
+}
+
+.admin-table th {
+    padding: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    white-space: nowrap;
+}
+
+.admin-table tbody td {
+    padding: 0.8rem;
+    font-size: 0.95rem;
+    color: var(--un-text);
+    vertical-align: middle;
+}
+
+.admin-table tbody tr:hover {
+    background: #f3f4f6;
+    transition: 0.2s ease;
+}
+
+/* ===== Table Actions ===== */
+.table-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: center;
+}
+
+.table-actions button {
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 5px;
+    white-space: nowrap;
+}
+
+/* ===== Pagination ===== */
+.custom-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.custom-pagination .page-item.active .page-link {
+    background-color: var(--un-primary);
+    border-color: var(--un-primary);
+}
+
+.custom-pagination .page-link {
+    color: var(--un-primary);
+    font-weight: 500;
+}
+
+.custom-pagination .page-link:hover {
+    background-color: var(--un-accent);
+    color: var(--un-text);
+}
+
+/* ===== Loading State ===== */
+.loading-text {
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--un-primary);
+    margin-top: 3rem;
+}
+
+/* ===== Status Buttons ===== */
+.warn {
+    background: var(--un-accent) !important;
+}
+
+.delt {
+    background: #dc2626 !important;
+}
+
+/* ===== Mobile Responsiveness ===== */
+@media (max-width: 768px) {
+    .admin-courses-page {
+        padding: 1rem;
+    }
+
+    .admin-title {
+        font-size: 1.5rem;
+    }
+
+    .admin-form {
+        padding: 1rem 1.2rem;
+    }
+
+    .admin-table {
+        font-size: 0.85rem;
+        min-width: 700px;
+    }
+
+    .table-actions button {
+        padding: 0.35rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .b-tn{
+        margin: 0 !important;
+    }
+}
+
+
+@media (max-width: 500px) {
+    .admin-form h3 {
+        font-size: 1rem;
+    }
+
+    .admin-table {
+        min-width: 600px;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-accent {
+        width: 100%;
+    }
+
+    .form-actions {
+        flex-direction: column;
+        gap: 0.6rem;
+    }
+
+    .form-grid {
+        gap: 1rem;
+    }
+}

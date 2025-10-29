@@ -1,0 +1,256 @@
+:root {
+    --un-primary: #0b6623;
+    --un-accent: #fbbf24;
+    --un-bg: #f9fafb;
+    --un-text: #1e293b;
+}
+
+.admin-attendance-container {
+    background: var(--un-bg);
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    overflow-x: hidden;
+    /* Prevent horizontal scroll */
+    max-width: 100%;
+}
+
+.page-title {
+    color: var(--un-primary);
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 1.8rem;
+}
+
+.error-text {
+    color: red;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+/* FORM + FILTERS (Desktop Layout) */
+.attendance-form,
+.filter-section {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.attendance-form select,
+.filter-section select,
+.filter-section input,
+.attendance-form input {
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    min-width: 160px;
+    background: #fff;
+    color: var(--un-text);
+}
+
+.attendance-form button,
+.filter-section button {
+    background: var(--un-primary);
+    border: none;
+    color: white;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 8px 16px;
+    transition: 0.3s;
+    white-space: nowrap;
+}
+
+.attendance-form button:hover,
+.filter-section button:hover {
+    background: var(--un-accent);
+    color: var(--un-text);
+}
+
+.ExportEx {
+    width: fit-content;
+}
+
+/* TABLE */
+.table-container {
+    margin-top: 20px;
+    overflow-x: auto;
+    /* Enables horizontal scroll on mobile without breaking layout */
+    border-radius: 8px;
+}
+
+.table-container table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    min-width: 600px;
+}
+
+td {
+    transition: color 0.3s ease, transform 0.2s ease;
+    white-space: nowrap;
+}
+
+td:hover {
+    transform: scale(1.03);
+}
+
+/* CALENDAR */
+.custom-calendar {
+    background: #fff;
+    border-radius: 16px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    max-width: 520px;
+    margin: 20px auto;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: #2b2b52;
+    margin-bottom: 10px;
+}
+
+.calendar-header button {
+    background: none;
+    border: none;
+    color: #4a90e2;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.calendar-header button:hover {
+    color: #2b2b52;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    text-align: center;
+}
+
+.weekday {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+}
+
+.calendar-day {
+    padding: 10px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-weight: 500;
+    color: #333;
+    user-select: none;
+}
+
+.calendar-day:hover {
+    background: rgba(74, 144, 226, 0.08);
+    color: #4a90e2;
+}
+
+.present-day {
+    background: var(--un-primary);
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(11, 102, 35, 0.12);
+}
+
+.absent-day {
+    background: #f44336;
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.12);
+}
+
+.selected-day {
+    border: 2px solid #4a90e2;
+    font-weight: 700;
+    color: #4a90e2 !important;
+    background: #eaf3ff;
+}
+
+.empty-day {
+    visibility: hidden;
+}
+
+.calendar-section {
+    margin-top: 40px;
+}
+
+/* ====================== RESPONSIVENESS ====================== */
+
+@media (max-width: 992px) {
+
+    .attendance-form,
+    .filter-section {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .attendance-form select,
+    .filter-section select,
+    .filter-section input,
+    .attendance-form input {
+        width: 100%;
+    }
+
+    .attendance-form button,
+    .filter-section button {
+        width: 100%;
+    }
+
+    .page-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .calendar-grid {
+        gap: 6px;
+    }
+
+    .calendar-day {
+        padding: 8px 0;
+        font-size: 0.85rem;
+    }
+
+    .custom-calendar {
+        max-width: 100%;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .page-title {
+        font-size: 1.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-attendance-container {
+        padding: 15px;
+    }
+
+    .attendance-form button,
+    .filter-section button {
+        font-size: 0.9rem;
+        padding: 6px 10px;
+    }
+
+    .calendar-grid {
+        gap: 4px;
+    }
+
+    .calendar-day {
+        font-size: 0.75rem;
+    }
+}

@@ -1,0 +1,232 @@
+:root {
+    --un-primary: #0b6623;
+    --un-accent: #fbbf24;
+    --un-bg: #f9fafb;
+    --un-text: #1e293b;
+}
+
+/* ===== Container ===== */
+.admin-dept-container {
+    background: var(--un-bg) !important;
+    padding: 30px;
+    border-radius: 10px;
+    color: var(--un-text) !important;
+    min-height: 100vh;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+.dept-title {
+    color: var(--un-primary) !important;
+    font-weight: 700;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+/* ===== FORM ===== */
+.dept-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 25px;
+}
+
+.dept-form input {
+    flex: 1;
+    min-width: 250px;
+    border: 1px solid #d1d5db;
+    padding: 10px 12px;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.dept-form input:focus {
+    outline: none;
+    border-color: var(--un-primary) !important;
+    box-shadow: 0 0 0 3px rgba(11, 102, 35, 0.15);
+}
+
+.dept-btns {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.add-btn {
+    background: var(--un-primary) !important;
+    border: none;
+    color: white;
+    padding: 8px 16px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+.add-btn:hover {
+    background: #09581f !important;
+}
+
+.cancel-btn {
+    background: var(--un-accent) !important;
+    border: none;
+    color: #000 !important;
+    padding: 8px 16px;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: 0.3s;
+}
+
+.cancel-btn:hover {
+    background: #e5a91e !important;
+}
+
+/* ===== TABLE ===== */
+.dept-table-wrapper {
+    background: #fff !important;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+}
+
+.dept-table {
+    min-width: 600px;
+}
+
+.dept-table th {
+    background: var(--un-primary) !important;
+    color: white !important;
+    text-align: center;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.dept-table td {
+    vertical-align: middle;
+    text-align: center;
+    color: var(--un-text);
+}
+
+.edit-btn {
+    background: var(--un-accent) !important;
+    border: none;
+    color: #000 !important;
+    margin-right: 8px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.edit-btn:hover {
+    background: #f1b615 !important;
+}
+
+.delete-btn {
+    background: #dc2626 !important;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.delete-btn:hover {
+    background: #b91c1c !important;
+}
+
+/* ===== PAGINATION ===== */
+.dept-pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+/* ===== LOADER ===== */
+.dept-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 100px;
+    color: var(--un-primary) !important;
+}
+
+/* ===== RESPONSIVE BREAKPOINTS ===== */
+
+/* Medium screens (≤992px) */
+@media (max-width: 992px) {
+    .dept-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dept-form input {
+        width: 100%;
+    }
+
+    .dept-btns {
+        justify-content: flex-start;
+    }
+
+    .add-btn,
+    .cancel-btn {
+        width: 100%;
+    }
+
+    .dept-table-wrapper {
+        padding: 10px;
+    }
+
+    .dept-table {
+        font-size: 0.95rem;
+    }
+}
+
+/* Small screens (≤600px) */
+@media (max-width: 600px) {
+    .admin-dept-container {
+        padding: 15px;
+    }
+
+    .dept-title {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+
+    .dept-form {
+        padding: 15px;
+    }
+
+    .dept-form input {
+        min-width: 100%;
+    }
+
+    .add-btn,
+    .cancel-btn {
+        font-size: 0.95rem;
+    }
+
+    .dept-table-wrapper {
+        padding: 5px;
+    }
+
+    .dept-table th,
+    .dept-table td {
+        font-size: 0.85rem;
+        padding: 6px;
+    }
+
+    .dept-pagination {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+}
+
+/* Prevent horizontal overflow */
+html,
+body {
+    overflow-x: hidden;
+}

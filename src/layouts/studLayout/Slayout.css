@@ -1,0 +1,93 @@
+/* ===== Top Navbar Fixed ===== */
+.un-navbar {
+    position: fixed !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 72px;
+    /* Approx Bootstrap navbar height */
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    z-index: 1050;
+    display: flex;
+    align-items: center;
+}
+
+/* ===== Page Layout Spacing ===== */
+.student-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: #f9fafb !important;
+}
+
+/* ✅ Prevent content being hidden behind navbar */
+.student-main {
+    flex: 1;
+    padding: 100px 1.5rem 1.5rem;
+    /* Top padding matches navbar height + some gap */
+    background: #f9fafb !important;
+    overflow-y: auto;
+}
+
+/* ===== Optional Smooth Scroll ===== */
+html {
+    scroll-behavior: smooth;
+}
+
+/* ===== Navbar Colors & Hover ===== */
+.un-navbar .navbar-brand {
+    color: #0b6623 !important;
+    font-weight: 700;
+}
+
+.un-navbar .un-nav-link {
+    color: #222 !important;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.un-navbar .un-nav-link:hover {
+    color: #fbbf24 !important;
+}
+
+/* ===== Profile Avatar ===== */
+.profile-avatarX {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e0e0e0 !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #0b6623;
+    overflow: hidden;
+}
+
+.profile-avatarX img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ===== Dropdown Menu ===== */
+.un-dropdown-menu {
+    border-radius: 8px;
+    font-size: 0.9rem;
+    overflow: hidden;
+    background: #ffffff !important;
+}
+
+/* ===== Responsive Adjustments ===== */
+@media (max-width: 768px) {
+    .student-main {
+        padding-top: 90px;
+        /* extra space for expanded navbar */
+    }
+
+    /* .student-layout {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    } */
+}

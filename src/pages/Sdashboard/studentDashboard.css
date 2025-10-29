@@ -1,0 +1,58 @@
+:root {
+    --un-primary: #0B6623;
+    --un-accent: #FBBF24;
+    --un-bg: #F9FAFB;
+    --un-text: #1E293B;
+}
+
+.student-dashboard {
+    background-color: #f9faf9;
+    min-height: 100vh;
+    color: #212529;
+    /* margin-top: 10vh; */
+}
+
+.dashboard-header h2 {
+    font-size: 1.6rem;
+    color: var(--un-primary);
+}
+
+.user-info i {
+    color: #01692f;
+}
+
+.vr {
+    height: 18px;
+    background-color: #ccc;
+    width: 1px;
+}
+
+.courses-grid {
+    display: grid;
+    gap: 1.5rem;
+}
+
+/* 🔍 Search Bar Styling */
+.search-bar {
+    width: 100%;
+    max-width: 350px;
+    padding: 8px 14px;
+    border-radius: 25px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    transition: all 0.3s ease;
+}
+
+.search-bar:focus {
+    border-color: #198754;
+    box-shadow: 0 0 6px rgba(25, 135, 84, 0.3);
+    outline: none;
+}
+
+/* Responsive tweak for mobile */
+@media (max-width: 576px) {
+    .search-bar {
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+}

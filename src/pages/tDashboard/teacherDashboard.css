@@ -1,0 +1,163 @@
+:root {
+    --un-primary: #0B6623;
+    --un-accent: #FBBF24;
+    --un-bg: #F9FAFB;
+    --un-text: #1E293B;
+}
+
+.teacher-dashboard {
+    /* margin-top: 12vh; */
+    padding: 2rem;
+    background-color: var(--un-bg);
+    min-height: 100vh;
+    color: var(--un-text);
+    font-family: "Inter", sans-serif;
+    /* background-color: red !important; */
+}
+
+/* ===== HEADER CARD ===== */
+.teacher-header-card {
+    background: linear-gradient(135deg, var(--un-primary), var(--un-accent));
+    color: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    margin-bottom: 2rem;
+    transition: transform 0.2s ease;
+}
+
+.teacher-header-card:hover {
+    transform: translateY(-3px);
+}
+
+.teacher-info h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.teacher-info p {
+    margin: 0.25rem 0;
+    font-size: 0.95rem;
+}
+
+/* ===== COURSE SECTION ===== */
+.courses-section h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+    color: var(--un-primary);
+}
+
+.courses-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+/* ===== COURSE CARD ===== */
+.course-card {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 1.2rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-top: 4px solid var(--un-primary);
+}
+
+.course-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+}
+
+.course-card h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--un-primary);
+}
+
+.course-card .code-tag {
+    display: inline-block;
+    background-color: var(--un-accent);
+    color: #000;
+    font-weight: 600;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    padding: 2px 6px;
+    margin-left: 6px;
+}
+
+.course-card .desc {
+    margin: 0.8rem 0;
+    font-size: 0.9rem;
+    color: #444;
+    min-height: 40px;
+}
+
+.course-card .meta {
+    border-top: 1px solid #eee;
+    padding-top: 0.6rem;
+    font-size: 0.85rem;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 2rem;
+    text-align: center;
+    color: #555;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.empty-state p {
+    font-size: 1rem;
+}
+
+/* ===== ERROR TEXT ===== */
+.error-text {
+    color: red;
+    font-weight: 500;
+    text-align: center;
+    padding: 1rem;
+}
+
+.course-card .meta p {
+    margin: 0.3rem 0;
+}
+
+.search-input {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 8px 12px;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    border-color: #198754;
+    box-shadow: 0 0 4px rgba(25, 135, 84, 0.3);
+    outline: none;
+}
+
+
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .teacher-header-card {
+        padding: 1.5rem;
+    }
+
+    .teacher-info h1 {
+        font-size: 1.5rem;
+    }
+
+    .courses-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .teacher-dashboard {
+        /* margin-top: 12vh; */
+        padding: 0 !important;
+    }
+}

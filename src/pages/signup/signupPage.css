@@ -1,0 +1,221 @@
+/* UNIOSUN palette & bootstrap override */
+:root {
+    --un-primary: #0B6623 !important;
+    /* deep UNIOSUN green */
+    --un-accent: #FBBF24;
+    /* gold */
+    --un-bg: #F9FAFB;
+    --un-text: #1E293B;
+    
+    /* override bootstrap primary */
+}
+
+.signup-wrapper {
+    padding: 80px 0;
+    background-color: var(--un-bg);
+    min-height: 100vh;
+}
+
+/* Card that mimics the screenshot */
+.signup-card {
+    border: none;
+    border-radius: 12px;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+}
+
+/* header - logo + title */
+.header-top {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    /* background-color: red; */
+    gap: 40px;
+}
+
+.header-top h3 {
+    font-size: 22px !important;
+}
+
+.signup-logo {
+    width: 58px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Google button */
+.google-btn {
+    display: flex !important;
+    align-items: center;
+    background: none !important;
+    justify-content: left;
+    gap: 10px !important;
+    border-radius: 4px !important;
+    border: 1px solid #e6e6e6 !important;
+    padding: 10px 10px 10px 40px !important;
+    background-color: #fff;
+    font-weight: 400;
+    color: #444 !important;
+    margin: 20px 0 0;
+}
+
+.google-btn img {
+    width: 18px;
+    /* height: 18px; */
+}
+
+/* OR divider centered */
+.or-divider {
+    text-align: center;
+    margin: 1rem 0;
+    position: relative;
+}
+
+.or-divider span {
+    background: #fff;
+    padding: 0 12px;
+    color: #6b7280;
+    font-weight: 600;
+    font-size: 0.85rem;
+    position: relative;
+    z-index: 2;
+}
+
+.or-divider::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    background: #e5e7eb;
+    top: 50%;
+    left: 0;
+    z-index: 1;
+}
+
+/* Input styles (keeps form control look but tuned) */
+.form-control-custom {
+    border-radius: 4px !important;
+    font-size: 14px !important;
+    padding: 12px 14px;
+    border: 1px solid #e6e6e6;
+    box-shadow: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-control-custom::placeholder{
+    font-size: 14px !important;
+}
+
+
+select.form-select {
+    border-radius: 4px !important;
+}
+
+
+.form-control-custom:focus {
+    outline: none;
+    border-color: var(--un-primary);
+    box-shadow: 0 0 0 3px rgba(11, 102, 35, 0.06);
+}
+
+/* password toggle button inside input group */
+.password-toggle-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 1px solid #e6e6e6;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* padding: 0 !important; */
+    background: #e6e6e6 !important;
+    border-radius: 0 4px 4px 0 !important;
+}
+
+.pass{
+    border-radius: 4px 0 0 4px !important;
+}
+
+/* Password strength bar */
+.password-strength {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.password-strength .bar {
+    height: 6px;
+    border-radius: 10px !important;
+    background: #e6e6e6;
+    transition: width 0.25s ease, background-color 0.25s ease;
+    width: 0%;
+}
+
+/* different states - widths come from class name applied in jsx */
+.password-strength .bar.weak {
+    width: 33%;
+    background-color: #ef4444;
+    /* red */
+}
+
+.password-strength .bar.medium {
+    width: 66%;
+    background-color: #f59e0b;
+    /* orange/gold-ish */
+}
+
+.password-strength .bar.strong {
+    width: 100%;
+    background-color: #16a34a;
+    /* green */
+}
+
+/* main signup button - ensure UNIOSUN green */
+.signup-btn {
+    background: var(--un-primary) !important;
+    border: none;
+    border-radius: 4px !important;
+    padding: 10px 12px;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 6px;
+    transition: background-color 0.15s ease, transform 0.08s ease;
+    font-size: 16px !important;
+}
+
+.signup-btn:hover {
+    background-color: #09581e;
+    transform: translateY(-1px);
+}
+
+/* login link */
+.login-link {
+    color: var(--un-primary);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.login-link:hover {
+    text-decoration: underline;
+}
+
+.text-muted{
+    font-size: 13px !important;
+}
+
+/* small screens */
+@media (max-width: 576px) {
+    .signup-card {
+        padding: 18px;
+    }
+
+    .signup-logo {
+        width: 60px;
+    }
+
+    .header-top {
+       
+        gap: 10px;
+    }
+}

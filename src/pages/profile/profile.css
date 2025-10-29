@@ -1,0 +1,192 @@
+:root {
+    --un-primary: #0b6623;
+    --un-accent: #fbbf24;
+    --un-bg: #f9fafb;
+    --un-text: #1e293b;
+}
+
+/* ===== Layout Container ===== */
+.profile-container {
+    /* margin-top: 12vh; */
+    background: var(--un-bg);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+
+/* ===== Profile Card ===== */
+.profile-card {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.08);
+    padding: 36px 28px;
+    width: 100%;
+    max-width: 520px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.profile-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+}
+
+.profile-title {
+    text-align: center;
+    color: var(--un-primary);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    font-size: 1.5rem;
+    margin-bottom: 28px;
+}
+
+/* ===== Avatar Section ===== */
+.profile-avatar {
+    background: none;
+    width: 100%;
+    padding: 10px 0;
+    height: fit-content;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.profile-avatar img,
+.profile-initials {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: top;
+    border: 3px solid var(--un-primary);
+    box-shadow: 0 4px 10px rgba(11, 102, 35, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.profile-avatar img:hover,
+.profile-initials:hover {
+    transform: scale(1.05);
+}
+
+.profile-initials {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--un-accent);
+    color: var(--un-primary);
+    font-size: 42px;
+    font-weight: 700;
+}
+
+/* ===== Upload Button ===== */
+.upload-btn {
+    margin-top: 10px;
+    background: var(--un-primary);
+    color: #fff;
+    padding: 9px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.upload-btn:hover {
+    background: #094f1b;
+    transform: translateY(-1px);
+}
+
+.upload-btn input {
+    display: none;
+}
+
+/* ===== Form Styling ===== */
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    color: var(--un-text);
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.6px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: border 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus {
+    border-color: var(--un-primary);
+    box-shadow: 0 0 0 2px rgba(11, 102, 35, 0.15);
+    outline: none;
+}
+
+.form-group input[readonly] {
+    background: #f3f4f6;
+    cursor: not-allowed;
+    color: #6b7280;
+}
+
+/* ===== Update Button ===== */
+.update-btn {
+    background: var(--un-accent);
+    color: var(--un-text);
+    font-weight: 700;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.update-btn:hover {
+    background: #e6a500;
+    transform: translateY(-1px);
+}
+
+.update-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 600px) {
+    .profile-card {
+        padding: 28px 20px;
+    }
+
+    .profile-avatar img,
+    .profile-initials {
+        width: 100px;
+        height: 100px;
+    }
+
+    .profile-title {
+        font-size: 1.25rem;
+    }
+
+    .upload-btn {
+        padding: 7px 14px;
+        font-size: 13px;
+    }
+
+    .profile-container {
+        padding: 1rem;
+        min-height: fit-content;
+    }
+}

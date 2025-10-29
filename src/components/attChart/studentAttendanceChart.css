@@ -1,0 +1,53 @@
+:root {
+    --un-primary: #0B6623;
+    --un-accent: #FBBF24;
+    --un-bg: #F9FAFB;
+    --un-text: #1E293B;
+}
+
+
+.attendance-chart {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.attendance-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--un-primary);
+    /* ✅ Uniosun Green */
+    margin-bottom: 4px;
+    animation: fadeIn 1s ease-in;
+}
+
+.attendance-label {
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}

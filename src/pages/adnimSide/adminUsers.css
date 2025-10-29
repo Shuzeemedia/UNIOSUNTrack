@@ -1,0 +1,125 @@
+:root {
+    --un-primary: #0b6623;
+    --un-accent: #fbbf24;
+    --un-bg: #f9fafb;
+    --un-text: #1e293b;
+}
+
+/* Page Wrapper */
+.admin-users-page {
+    background: var(--un-bg);
+    padding: 30px;
+    border-radius: 12px;
+    color: var(--un-text);
+}
+
+/* Title */
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--un-primary);
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+/* Filter Bar */
+.filter-bar {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.filter-select {
+    width: 200px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: var(--un-text);
+    transition: 0.3s ease;
+}
+
+.filter-select:focus {
+    border-color: var(--un-primary);
+    box-shadow: 0 0 4px rgba(11, 102, 35, 0.3);
+}
+
+/* Table Wrapper */
+.user-table-wrapper {
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+}
+
+/* Table Styling */
+.user-table th {
+    background: var(--un-primary);
+    color: #fff;
+    text-align: center;
+    vertical-align: middle;
+    font-weight: 600;
+}
+
+.user-table td {
+    text-align: center;
+    vertical-align: middle;
+    color: var(--un-text);
+}
+
+.user-table td button {
+    background: #dc2626;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 6px;
+    color: #fff;
+    transition: 0.3s ease;
+}
+
+.user-table td button:hover {
+    background: #b91c1c;
+}
+
+/* Pagination */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--un-primary);
+    border-color: var(--un-primary);
+}
+
+.pagination .page-link {
+    color: var(--un-primary);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    .filter-bar {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .filter-select {
+        width: 90%;
+    }
+
+    .user-table th,
+    .user-table td {
+        font-size: 0.9rem;
+    }
+
+    .admin-users-page {
+        padding: 1rem;
+    }
+}

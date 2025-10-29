@@ -1,0 +1,194 @@
+:root {
+    --un-primary: #0b6623;
+    /* deep uniosun green */
+    --un-accent: #fbbf24;
+    /* gold */
+    --un-bg: #f9fafb;
+    --un-text: #1e293b;
+}
+
+/* Navbar base */
+.un-navbar {
+    background-color: #fff !important;
+    padding: 12px 20px;
+    border-bottom: 2px solid rgba(11, 102, 35, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+}
+
+/* Brand */
+.un-navbar-brand {
+    color: var(--un-primary) !important;
+    font-size: 22px;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+}
+
+.un-navbar-brand:hover {
+    color: var(--un-primary) !important;
+    opacity: 0.85;
+}
+
+/* Nav links */
+.un-nav-link {
+    color: var(--un-text) !important;
+    font-weight: 500;
+    font-size: 15px;
+    transition: color 0.2s ease, border-bottom 0.2s ease;
+    border-bottom: 2px solid transparent;
+}
+
+.un-nav-link:hover {
+    color: var(--un-primary) !important;
+    border-bottom: 2px solid var(--un-accent);
+}
+
+/* Profile avatar */
+.profile-avatarX {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--un-accent) !important;
+    color: #fff;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-size: 15px;
+}
+
+.profile-initialsX{
+    background: var(--un-accent) !important;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-avatarX img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+}
+
+/* Toggle hover */
+.un-profile-toggle:hover .profile-avatarX {
+    filter: brightness(0.95);
+}
+
+/* Dropdown */
+.un-dropdown-menu {
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    padding: 6px 0;
+    font-size: 15px;
+}
+
+.un-dropdown-menu .dropdown-item {
+    padding: 10px 16px;
+    color: var(--un-text);
+}
+
+.un-dropdown-menu .dropdown-item:hover {
+    background-color: #f9fafb !important;
+    color: var(--un-primary);
+}
+
+.un-navbar {
+    position: sticky;
+
+    top: 0;
+    z-index: 1030;
+
+    background-color: #fff !important;
+
+}
+
+
+/* Mobile responsiveness */
+@media (max-width: 992px) {
+    .un-navbar {
+        padding: 10px 14px;
+    }
+
+    .profile-avatarX {
+        width: 36px;
+        height: 36px;
+    }
+
+    .un-nav-link {
+        padding: 6px 0;
+    }
+}
+
+/* === Fix dropdown visibility and styling === */
+.un-dropdown-menu {
+    background: #fff !important;
+    /* ensure visible background */
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 6px 0;
+    min-width: 180px;
+    z-index: 2000 !important;
+    /* ensures it's above navbar */
+    position: absolute !important;
+}
+
+/* Ensure dropdown items are visible and nicely spaced */
+.un-dropdown-menu .dropdown-item {
+    padding: 10px 16px;
+    color: var(--un-text);
+    transition: all 0.2s ease;
+}
+
+.un-dropdown-menu .dropdown-item:hover {
+    background: var(--un-accent);
+    color: var(--un-primary);
+}
+
+/* Fix burger collapse background for mobile */
+.navbar-collapse {
+    /* background: #fff; */
+    z-index: 1500;
+    padding: 10px;
+    border-radius: 10px;
+    margin-top: 10px;
+    /* box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1); */
+}
+
+
+.un-profile-toggle {
+    cursor: pointer;
+}
+
+.un-profile-toggle svg {
+    color: var(--un-text);
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+.un-profile-toggle:hover svg {
+    opacity: 1;
+}
+
+
+/* Keep dropdown inside burger visible on small screens */
+@media (max-width: 991px) {
+    .dropdown-menu {
+        position: static !important;
+        float: none;
+        background: #fff !important;
+        box-shadow: none !important;
+    }
+
+    .navbar-collapse {
+        background: #fff;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+}

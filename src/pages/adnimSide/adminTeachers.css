@@ -1,0 +1,130 @@
+:root {
+    --un-primary: #0b6623;
+    --un-accent: #fbbf24;
+    --un-bg: #f9fafb;
+    --un-text: #1e293b;
+}
+
+/* Page Container */
+.admin-teachers-page {
+    background: var(--un-bg);
+    color: var(--un-text);
+    padding: 30px;
+    border-radius: 12px;
+}
+
+/* Title */
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--un-primary);
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* Form Card */
+.teacher-form-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 25px;
+}
+
+.teacher-form-card h3 {
+    color: var(--un-primary);
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.teacher-form input,
+.teacher-form select {
+    margin-bottom: 10px;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    padding: 10px;
+    font-size: 0.95rem;
+    transition: border 0.3s ease;
+}
+
+.teacher-form input:focus,
+.teacher-form select:focus {
+    border-color: var(--un-primary);
+    outline: none;
+    box-shadow: 0 0 4px rgba(11, 102, 35, 0.3);
+}
+
+.btn-create {
+    background: var(--un-primary);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    color: #fff;
+    transition: 0.3s ease;
+}
+
+.btn-create:hover {
+    background: #09591e;
+}
+
+/* Table Styling */
+.teacher-table-wrapper {
+    overflow-x: auto;
+    background: #fff;
+    border-radius: 12px;
+    padding: 10px;
+}
+
+.teacher-table th {
+    background: var(--un-primary);
+    color: #fff;
+    text-align: center;
+    vertical-align: middle;
+}
+
+.teacher-table td {
+    vertical-align: middle;
+    text-align: center;
+    color: var(--un-text);
+}
+
+.teacher-table select {
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    padding: 6px;
+    font-size: 0.9rem;
+}
+
+/* Buttons */
+button.btn-danger {
+    background: #dc2626;
+    border: none;
+    transition: background 0.3s ease;
+}
+
+button.btn-danger:hover {
+    background: #b91c1c;
+}
+
+/* Pagination */
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination .page-item.active .page-link {
+    background-color: var(--un-primary);
+    border-color: var(--un-primary);
+}
+
+.pagination .page-link {
+    color: var(--un-primary);
+}
+
+@media (max-width: 768px) {
+    .admin-teachers-page {
+        padding: 1rem;
+    }
+}

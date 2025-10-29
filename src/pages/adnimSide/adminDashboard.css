@@ -1,0 +1,247 @@
+:root {
+    --un-primary: #0b6623;
+    --un-accent: #fbbf24;
+    --un-bg: #f9fafb;
+    --un-text: #1e293b;
+}
+
+/* ===== MAIN CONTAINER ===== */
+.admin-dashboard {
+    background: var(--un-bg);
+    color: var(--un-text);
+    padding: 2rem;
+    min-height: 100vh;
+    font-family: "Poppins", sans-serif;
+    overflow-x: hidden;
+    /* ✅ Prevents page overflow */
+}
+
+/* ===== HEADER ===== */
+.admin-headerX {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 2.5rem;
+}
+
+.admin-headerX h2 {
+    font-size: 2rem;
+    color: var(--un-primary);
+    margin-bottom: 0.4rem;
+}
+
+.admin-headerX p {
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+/* ===== STATS GRID ===== */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 2.5rem;
+}
+
+.stat-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card h4 {
+    color: #64748b;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+}
+
+.stat-card p {
+    font-size: 1.8rem;
+    color: var(--un-primary);
+    font-weight: 700;
+}
+
+/* ===== CHARTS SECTION ===== */
+.charts-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.chart-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+    overflow-x: auto;
+    /* ✅ Prevent chart overflow */
+}
+
+.chart-card h3 {
+    color: var(--un-primary);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.chart-card canvas {
+    width: 100% !important;
+    height: auto !important;
+    /* ✅ Makes charts scale down properly */
+}
+
+/* ===== DATA TABLES ===== */
+.data-table {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    /* ✅ Enables horizontal scroll for tables */
+}
+
+.data-table h3 {
+    color: var(--un-primary);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.data-table table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+    /* ✅ Prevents table squishing */
+    font-size: 0.95rem;
+}
+
+.data-table th,
+.data-table td {
+    padding: 0.8rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+    /* ✅ Prevents text wrapping that breaks layout */
+}
+
+.data-table th {
+    background: var(--un-accent);
+    color: #111;
+    font-weight: 600;
+}
+
+.data-table tr:hover {
+    background: #f3f4f6;
+}
+
+/* ===== BADGES ===== */
+.role-badge,
+.status-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 25px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.role-badge.admin {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.role-badge.Lecturer {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.role-badge.student {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-badge.present {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge.absent {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+    .admin-dashboard {
+        padding: 1.5rem;
+    }
+
+    .charts-section {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-card {
+        padding: 1rem;
+    }
+
+    .data-table table {
+        min-width: 500px;
+    }
+}
+
+@media (max-width: 768px) {
+    .admin-headerX h2 {
+        font-size: 1.6rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        /* grid-template-columns: repeat(1, 1fr); */
+
+        gap: 1rem;
+    }
+
+    .chart-card,
+    .data-table,
+    .stat-card {
+        padding: 1rem;
+    }
+
+    .data-table table {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .admin-dashboard {
+        padding: 1rem;
+    }
+
+    .chart-card,
+    .data-table {
+        border-radius: 10px;
+    }
+
+    .chart-card h3,
+    .data-table h3 {
+        font-size: 1rem;
+    }
+
+    .stat-card p {
+        font-size: 1.4rem;
+    }
+
+    .data-table table {
+        min-width: 400px;
+    }
+}
