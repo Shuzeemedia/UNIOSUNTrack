@@ -1,18 +1,18 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import api from "../../api/api";
+import { useParams, useNavigate } from "react-router-dom";
+import api from "../../api/api"; // ✅ use global offline-aware Axios
 import { Spinner, Alert, ProgressBar } from "react-bootstrap";
+import { Html5Qrcode } from "html5-qrcode";
 
 const StudentScanPage = () => {
-    const { sessionToken } = useParams();
+    const { sessionToken } = useParams(); 
     const [sessionInfo, setSessionInfo] = useState(null);
-    const [status, setStatus] = useState("loading"); // loading | valid | expired | error | marked
+    const [status, setStatus] = useState("loading"); // loading | valid | expired | error | marked | no-camera
     const [message, setMessage] = useState("");
     const [timeLeft, setTimeLeft] = useState(0);
     const [nextQRRefresh, setNextQRRefresh] = useState(0);
+    const navigate = useNavigate();
     const html5QrCodeRef = useRef(null);
-    const countdownRef = useRef(null);
-    const refreshRef = useRef(null);
 
     useEffect(() => {
         fetchSessionInfo();
@@ -24,35 +24,34 @@ const StudentScanPage = () => {
             const res = await api.get(`/sessions/${sessionToken}`);
             const data = res.data.session;
 
+            setSessionInfo(data);
             if (!data || data.expired) {
                 setStatus("expired");
                 setMessage("This session has expired. Ask your lecturer for a new QR.");
             } else {
-                setSessionInfo(data);
                 setStatus("valid");
                 startCountdown(data.expiresAt);
                 startRefreshCountdown();
             }
         } catch (err) {
-            setStatus("error");
-            setMessage(
-                err.isOffline
-                    ? "You are offline. Cannot fetch session info."
-                    : err.response?.data?.msg || "Invalid or expired session."
-            );
+            if (err.isOffline) {
+                setStatus("error");
+                setMessage("You are offline. Cannot fetch session info.");
+            } else {
+                setStatus("error");
+                setMessage(err.response?.data?.msg || "Invalid or expired session.");
+            }
         }
     };
 
     const startCountdown = (expiresAt) => {
-        const expiryTime = new Date(expiresAt).getTime();
-        clearInterval(countdownRef.current);
-
-        countdownRef.current = setInterval(() => {
-            const diff = expiryTime - Date.now();
+        const expiry = new Date(expiresAt).getTime();
+        const timer = setInterval(() => {
+            const diff = expiry - Date.now();
             if (diff <= 0) {
                 setStatus("expired");
                 setMessage("Session expired. Ask lecturer for a new QR.");
-                clearInterval(countdownRef.current);
+                clearInterval(timer);
                 stopScanner();
             } else {
                 setTimeLeft(Math.ceil(diff / 1000));
@@ -62,31 +61,24 @@ const StudentScanPage = () => {
 
     const startRefreshCountdown = () => {
         setNextQRRefresh(10);
-        clearInterval(refreshRef.current);
-
-        refreshRef.current = setInterval(() => {
+        const interval = setInterval(() => {
             setNextQRRefresh((prev) => (prev <= 1 ? 10 : prev - 1));
         }, 1000);
+        return () => clearInterval(interval);
     };
 
     useEffect(() => {
-        if (status === "valid" && typeof window !== "undefined" && !html5QrCodeRef.current) {
-            // Dynamic import ensures camera code runs only on client
-            import("html5-qrcode").then(({ Html5Qrcode }) => {
-                startScanner(Html5Qrcode);
-            }).catch(() => {
-                setStatus("error");
-                setMessage("Failed to load QR scanner. Please refresh.");
-            });
-        }
+        if (status === "valid" && !html5QrCodeRef.current) startScanner();
     }, [status]);
 
-    const startScanner = async (Html5Qrcode) => {
+    const startScanner = async () => {
         try {
             const cameras = await Html5Qrcode.getCameras();
-            if (!cameras?.length) {
+            if (!cameras || cameras.length === 0) {
                 setStatus("error");
-                setMessage("No camera detected. Use a device with a webcam or mobile camera.");
+                setMessage(
+                    "No camera detected on this device. Please use a device with a webcam or mobile phone."
+                );
                 return;
             }
 
@@ -95,46 +87,51 @@ const StudentScanPage = () => {
 
             await html5QrCode.start(
                 { facingMode: "environment" },
-                { fps: 10, qrbox: 250 },
+                { fps: 10, qrbox: { width: 250, height: 250 } },
                 async (decodedText) => {
                     if (decodedText) {
                         stopScanner();
                         await markAttendance(decodedText);
                     }
-                }
+                },
+                () => {}
             );
-        } catch {
+        } catch (err) {
             setStatus("error");
-            setMessage("Unable to start camera. Check permissions or webcam.");
+            setMessage("Unable to start camera. Check permissions or device webcam.");
         }
     };
 
     const stopScanner = async () => {
         const html5QrCode = html5QrCodeRef.current;
-        if (html5QrCode?.isScanning) {
+        if (html5QrCode && html5QrCode.isScanning) {
             try {
                 await html5QrCode.stop();
                 await html5QrCode.clear();
-            } catch { }
+            } catch {}
         }
         html5QrCodeRef.current = null;
     };
 
-    const markAttendance = async (decodedText) => {
+    const markAttendance = async (scannedToken) => {
         try {
             setStatus("loading");
-            const token = decodedText.split("/").pop();
-            const res = await api.post(`/sessions/scan/${token}`);
+            const res = await api.post(`/sessions/scan/${scannedToken}`);
             setStatus("marked");
             setMessage(res.data.msg || "Attendance marked successfully!");
         } catch (err) {
-            const backendMsg = err.response?.data?.msg || "Failed to mark attendance.";
-            if (backendMsg.includes("QR expired") || backendMsg.includes("Invalid")) {
-                setStatus("expired");
-                setMessage("This QR is no longer valid — wait for the next one.");
-            } else {
+            if (err.isOffline) {
                 setStatus("error");
-                setMessage(err.isOffline ? "You are offline." : backendMsg);
+                setMessage("You are offline. Cannot mark attendance.");
+            } else {
+                const backendMsg = err.response?.data?.msg || "Failed to mark attendance.";
+                if (backendMsg.includes("QR expired") || backendMsg.includes("Invalid")) {
+                    setStatus("expired");
+                    setMessage("This QR is no longer valid — wait for the next one.");
+                } else {
+                    setStatus("error");
+                    setMessage(backendMsg);
+                }
             }
         }
     };
@@ -161,15 +158,15 @@ const StudentScanPage = () => {
             {status === "valid" && sessionInfo && (
                 <>
                     <Alert variant="success" className="w-75">
-                        <strong>Session Active:</strong> {sessionInfo.course?.code || "Course"}
+                        <strong>Session Active:</strong> {sessionInfo?.course?.code || "Course"}
                         <br />
                         <small className="text-muted">
-                            Lecturer: {sessionInfo.teacher?.name || "Instructor"}
+                            Lecturer: {sessionInfo?.teacher?.name || "Instructor"}
                         </small>
                     </Alert>
 
                     <div className="qr-code-container">
-                        <div id="reader" style={{ width: 300, height: 300 }}></div>
+                        <div id="reader" style={{ width: "300px", height: "300px" }}></div>
                     </div>
 
                     <div className="w-75 my-3">
@@ -197,3 +194,5 @@ const StudentScanPage = () => {
 };
 
 export default StudentScanPage;
+
+
