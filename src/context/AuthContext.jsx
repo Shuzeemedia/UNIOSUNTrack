@@ -29,7 +29,8 @@ export function AuthProvider({ children }) {
       const storedUser = localStorage.getItem("user");
       const token = localStorage.getItem("token");
 
-      if (!token) {
+      // ⛔ No token, just finish loading
+      if (!token || !storedUser) {
         setLoading(false);
         return;
       }
@@ -38,13 +39,14 @@ export function AuthProvider({ children }) {
         const decoded = jwtDecode(token);
         const now = Date.now() / 1000;
 
-        // 🧠 Token is valid if it expires more than 30s from now
-        if (decoded.exp && decoded.exp > now + 30) {
-          if (storedUser) setUser(JSON.parse(storedUser));
-          scheduleLogout(decoded.exp);
+        // ✅ Only log out if token is expired (<= now)
+        // ⏳ If exp is missing (some tokens), assume valid
+        if (!decoded.exp || decoded.exp > now) {
+          setUser(JSON.parse(storedUser));
+          if (decoded.exp) scheduleLogout(decoded.exp);
         } else {
-          console.warn("Token expired or invalid.");
-          logout(); // only clears, doesn’t redirect immediately
+          console.warn("⚠️ Token expired, logging out");
+          logout(); // clears localStorage, no redirect
         }
       } catch (err) {
         console.error("Auth init error:", err);
@@ -85,7 +87,6 @@ export function AuthProvider({ children }) {
     if (logoutTimer.current) clearTimeout(logoutTimer.current);
 
     if (redirect) {
-      // ⏱ small delay for toast to show before redirect
       setTimeout(() => {
         window.location.href = "/login";
       }, 1000);
@@ -99,7 +100,7 @@ export function AuthProvider({ children }) {
         setUser,
         login,
         logout,
-        loadingX: loading, // renamed to match your profile usage
+        loading: loading, // renamed to match your profile usage
       }}
     >
       {children}
