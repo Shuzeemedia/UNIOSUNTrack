@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../../api/api";
 import { Spinner, Alert, ProgressBar } from "react-bootstrap";
-import { Html5Qrcode } from "html5-qrcode";
 
 const StudentScanPage = () => {
     const { sessionToken } = useParams();
@@ -71,17 +70,23 @@ const StudentScanPage = () => {
     };
 
     useEffect(() => {
-        if (status === "valid" && !html5QrCodeRef.current) startScanner();
+        if (status === "valid" && typeof window !== "undefined" && !html5QrCodeRef.current) {
+            // Dynamic import ensures camera code runs only on client
+            import("html5-qrcode").then(({ Html5Qrcode }) => {
+                startScanner(Html5Qrcode);
+            }).catch(() => {
+                setStatus("error");
+                setMessage("Failed to load QR scanner. Please refresh.");
+            });
+        }
     }, [status]);
 
-    const startScanner = async () => {
+    const startScanner = async (Html5Qrcode) => {
         try {
             const cameras = await Html5Qrcode.getCameras();
             if (!cameras?.length) {
                 setStatus("error");
-                setMessage(
-                    "No camera detected. Use a device with a webcam or mobile camera."
-                );
+                setMessage("No camera detected. Use a device with a webcam or mobile camera.");
                 return;
             }
 
