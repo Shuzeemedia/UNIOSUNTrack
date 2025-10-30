@@ -6,7 +6,7 @@ import { AuthContext } from "../../context/AuthContext";
 import "./profile.css";
 
 const Profile = () => {
-  const { setUser, loadingX } = useContext(AuthContext);
+  const { user, setUser, loadingX } = useContext(AuthContext);
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -18,6 +18,8 @@ const Profile = () => {
   const [departmentName, setDepartmentName] = useState("");
   const [departmentId, setDepartmentId] = useState("");
   const [profilePic, setProfilePic] = useState("");
+  const [showPreview, setShowImageModal] = useState(false);
+
 
   const extractUser = (resData) => resData?.user || resData || null;
 
@@ -36,24 +38,25 @@ const Profile = () => {
       : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
-  // Load profile on mount
+  // Load profile when AuthContext is ready
   useEffect(() => {
-    if (loadingX) return; // Wait for AuthContext
+    if (loadingX) return;
 
     let cancelled = false;
 
     const loadProfile = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        toast.error("Not authenticated. Please log in.");
-        setLoading(false);
-        return;
-      }
-
       try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          toast.error("Session expired. Please log in again.");
+          window.location.href = "/login";
+          return;
+        }
+
         const res = await axios.get("/api/profile/me", {
           headers: { Authorization: `Bearer ${token}` },
         });
+
         if (cancelled) return;
 
         const foundUser = extractUser(res.data);
@@ -67,7 +70,9 @@ const Profile = () => {
           foundUser.department?.name ||
           (typeof foundUser.department === "string" ? foundUser.department : "")
         );
-        setDepartmentId(foundUser.department?._id || foundUser.department || "");
+        setDepartmentId(
+          foundUser.department?._id || foundUser.department || ""
+        );
         setProfilePic(
           foundUser.profileImage ||
           foundUser.profilePic ||
@@ -75,22 +80,28 @@ const Profile = () => {
           ""
         );
       } catch (err) {
-        console.error("Profile load error:", err);
-        toast.error("Failed to load profile. Please log in again.");
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        window.location.href = "/login";
+        console.error("❌ Profile load error:", err.response?.data || err.message);
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          toast.error("Session expired. Please log in again.");
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setTimeout(() => (window.location.href = "/login"), 1000);
+        } else {
+          toast.error("Failed to load profile. Please try again.");
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
     };
 
     loadProfile();
+
     return () => {
       cancelled = true;
     };
   }, [loadingX]);
 
+  // Handle profile picture upload
   const handleProfilePicChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) {
@@ -102,6 +113,8 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem("token");
+      if (!token) throw new Error("Missing token");
+
       const formData = new FormData();
       formData.append("image", file);
 
@@ -136,6 +149,7 @@ const Profile = () => {
     }
   };
 
+  // Handle update info
   const handleUpdate = async (e) => {
     e.preventDefault();
     if (!userData) return;
@@ -143,8 +157,9 @@ const Profile = () => {
     setUpdating(true);
     try {
       const token = localStorage.getItem("token");
-      const payload = {};
+      if (!token) throw new Error("Missing token");
 
+      const payload = {};
       if (name !== userData.name) payload.name = name;
       if (email !== userData.email) payload.email = email;
       if (level !== (userData.level ?? "")) payload.level = level;
@@ -175,13 +190,20 @@ const Profile = () => {
       }
     } catch (err) {
       console.error("Profile update error:", err);
-      toast.error("Failed to update profile");
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        toast.error("Session expired. Please log in again.");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setTimeout(() => (window.location.href = "/login"), 1000);
+      } else {
+        toast.error("Failed to update profile");
+      }
     } finally {
       setUpdating(false);
     }
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (loading || loadingX) return <LoadingSpinner />;
 
   const initials = getInitials(userData?.name || "");
 
@@ -198,6 +220,7 @@ const Profile = () => {
               className="profImg"
               src={profilePic}
               alt="profile"
+              onClick={() => setShowImageModal(true)}
               onError={() => {
                 setProfilePic("");
                 updateUserEverywhere({ ...userData, profileImage: "" });
@@ -207,11 +230,7 @@ const Profile = () => {
             <div className="profile-initials">{initials}</div>
           )}
           <label className="upload-btn">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleProfilePicChange}
-            />
+            <input type="file" accept="image/*" onChange={handleProfilePicChange} />
             Change Photo
           </label>
         </div>
@@ -249,11 +268,7 @@ const Profile = () => {
               </div>
               <div className="form-group">
                 <label>Student ID</label>
-                <input
-                  type="text"
-                  value={userData.studentId || ""}
-                  readOnly
-                />
+                <input type="text" value={userData.studentId || ""} readOnly />
               </div>
             </>
           )}
@@ -270,6 +285,22 @@ const Profile = () => {
           </button>
         </form>
       </div>
+
+      {/* Image Preview Modal */}
+      {showPreview && (
+        <div
+          className="img-preview-overlay"
+          onClick={() => setShowImageModal(false)}
+        >
+          <div
+            className="img-preview-wrapper"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img src={profilePic} alt="Full Preview" className="img-preview-full" />
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
