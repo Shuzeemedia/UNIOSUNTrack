@@ -20,6 +20,9 @@ const Profile = () => {
   const [profilePic, setProfilePic] = useState("");
   const [showPreview, setShowImageModal] = useState(false);
 
+  // ✅ Base URL setup (auto switches between local and live)
+  const API_BASE_URL =
+    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const extractUser = (resData) => resData?.user || resData || null;
 
@@ -53,7 +56,7 @@ const Profile = () => {
           return;
         }
 
-        const res = await axios.get("/api/profile/me", {
+        const res = await axios.get(`${API_BASE_URL}/profile/me`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -68,7 +71,9 @@ const Profile = () => {
         setLevel(foundUser.level ?? "");
         setDepartmentName(
           foundUser.department?.name ||
-          (typeof foundUser.department === "string" ? foundUser.department : "")
+          (typeof foundUser.department === "string"
+            ? foundUser.department
+            : "")
         );
         setDepartmentId(
           foundUser.department?._id || foundUser.department || ""
@@ -80,7 +85,7 @@ const Profile = () => {
           ""
         );
       } catch (err) {
-        console.error("❌ Profile load error:", err.response?.data || err.message);
+        console.error("Profile load error:", err.response?.data || err.message);
         if (err.response?.status === 401 || err.response?.status === 403) {
           toast.error("Session expired. Please log in again.");
           localStorage.removeItem("token");
@@ -118,12 +123,16 @@ const Profile = () => {
       const formData = new FormData();
       formData.append("image", file);
 
-      const res = await axios.post("/api/profile/me/profile-pic", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axios.post(
+        `${API_BASE_URL}/profile/me/profile-pic`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       const userFromRes = extractUser(res.data);
       const returnedUrl =
@@ -177,7 +186,7 @@ const Profile = () => {
         return;
       }
 
-      const res = await axios.put("/api/profile/me", payload, {
+      const res = await axios.put(`${API_BASE_URL}/profile/me`, payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -300,7 +309,6 @@ const Profile = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };
