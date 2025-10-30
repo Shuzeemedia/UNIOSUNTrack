@@ -5,7 +5,7 @@ import { Spinner, Alert, ProgressBar } from "react-bootstrap";
 import { Html5Qrcode } from "html5-qrcode";
 
 const StudentScanPage = () => {
-    const { sessionToken } = useParams(); 
+    const { sessionToken } = useParams();
     const [sessionInfo, setSessionInfo] = useState(null);
     const [status, setStatus] = useState("loading"); // loading | valid | expired | error | marked | no-camera
     const [message, setMessage] = useState("");
@@ -91,10 +91,12 @@ const StudentScanPage = () => {
                 async (decodedText) => {
                     if (decodedText) {
                         stopScanner();
-                        await markAttendance(decodedText);
+                        // ✅ Extract the token from the scanned QR
+                        const token = decodedText.split("/").pop();
+                        await markAttendance(token);
                     }
                 },
-                () => {}
+                () => { }
             );
         } catch (err) {
             setStatus("error");
@@ -108,7 +110,7 @@ const StudentScanPage = () => {
             try {
                 await html5QrCode.stop();
                 await html5QrCode.clear();
-            } catch {}
+            } catch { }
         }
         html5QrCodeRef.current = null;
     };
@@ -194,5 +196,3 @@ const StudentScanPage = () => {
 };
 
 export default StudentScanPage;
-
-
