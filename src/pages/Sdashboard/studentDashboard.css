@@ -55,4 +55,9 @@
         width: 100%;
         margin-top: 0.5rem;
     }
+
+    .student-dashboard{
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+    }
 }

@@ -136,11 +136,17 @@
 @media (max-width: 576px) {
     .login-card {
         padding: 20px;
+        
     }
 
-    .login-header {
+    .login-header, .header-top {
         flex-direction: column;
         align-items: center;
         text-align: center;
+    }
+
+    .login-wrapper {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
     }
 }
