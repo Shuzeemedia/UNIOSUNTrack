@@ -9,12 +9,12 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const logoutTimer = useRef(null);
 
-  // Schedule auto logout when token is about to expire
+  // 🕒 Helper: Schedule auto logout when token expires
   const scheduleLogout = (exp) => {
     if (logoutTimer.current) clearTimeout(logoutTimer.current);
-
     const now = Date.now();
     const expiryTime = exp * 1000 - now;
+
     if (expiryTime > 0) {
       logoutTimer.current = setTimeout(() => {
         toast.info("Your session has expired. Please login again.");
@@ -23,44 +23,48 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // Initialize authentication state
+  // 🚀 Initialize user from localStorage on mount
   useEffect(() => {
-    const initAuth = async () => {
+    const initializeAuth = () => {
+      const storedUser = localStorage.getItem("user");
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        const storedUser = localStorage.getItem("user");
-        const token = localStorage.getItem("token");
+        const decoded = jwtDecode(token);
+        const now = Date.now() / 1000;
 
-        if (token) {
-          const decoded = jwtDecode(token);
-          const now = Date.now() / 1000;
-
-          if (decoded.exp && decoded.exp > now) {
-            if (storedUser) {
-              const parsedUser = JSON.parse(storedUser);
-              setUser(parsedUser);
-            }
-            scheduleLogout(decoded.exp);
-          } else {
-            logout();
-          }
+        // 🧠 Token is valid if it expires more than 30s from now
+        if (decoded.exp && decoded.exp > now + 30) {
+          if (storedUser) setUser(JSON.parse(storedUser));
+          scheduleLogout(decoded.exp);
+        } else {
+          console.warn("Token expired or invalid.");
+          logout(); // only clears, doesn’t redirect immediately
         }
       } catch (err) {
         console.error("Auth init error:", err);
         logout();
       } finally {
-        setLoading(false); // Always end loading, even if error
+        setLoading(false);
       }
     };
 
-    initAuth();
+    initializeAuth();
 
+    // 🧹 Clean timeout when unmounting
     return () => {
       if (logoutTimer.current) clearTimeout(logoutTimer.current);
     };
   }, []);
 
-  // Login and store user/token
+  // ✅ Login method — called after successful login
   const login = (userData, token) => {
+    if (!userData || !token) return;
     localStorage.setItem("user", JSON.stringify(userData));
     localStorage.setItem("token", token);
     setUser(userData);
@@ -68,28 +72,36 @@ export function AuthProvider({ children }) {
     try {
       const decoded = jwtDecode(token);
       if (decoded.exp) scheduleLogout(decoded.exp);
-    } catch {
-      console.warn("Token decode failed during login.");
+    } catch (err) {
+      console.error("Failed to decode token at login:", err);
     }
   };
 
-  // Logout and optionally redirect
+  // ✅ Logout method — can redirect or just clear session
   const logout = (redirect = false) => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     setUser(null);
-
     if (logoutTimer.current) clearTimeout(logoutTimer.current);
 
     if (redirect) {
+      // ⏱ small delay for toast to show before redirect
       setTimeout(() => {
         window.location.href = "/login";
-      }, 1500);
+      }, 1000);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, login, logout, loading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser,
+        login,
+        logout,
+        loadingX: loading, // renamed to match your profile usage
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
