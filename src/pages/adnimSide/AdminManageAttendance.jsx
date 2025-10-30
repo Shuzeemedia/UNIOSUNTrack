@@ -7,7 +7,8 @@ import { getRank } from "../../utils/getRank";
 import "./adminManageAttendance.css";
 import LoadingSpinner from "../../components/Loader/LoadingSpinner";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = import.meta.env.VITE_API_URL;
+
 
 const toDateKey = (d) => {
   // produce a local YYYY-MM-DD string (avoids timezone shifts from toISOString)
