@@ -222,7 +222,7 @@ select.form-select {
         gap: 10px;
     }
 
-    .signup-wrapper, .course-details-container, .profile-container{
+    .signup-wrapper, .course-details-container, .profile-container, .leaderboard-wrapper{
         padding-left: 0 !important;
         padding-right: 0 !important;
     }
