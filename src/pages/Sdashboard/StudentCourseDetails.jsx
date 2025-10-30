@@ -141,7 +141,7 @@ const StudentCourseDetails = () => {
                 alt="ScanQRCode Gen"
                 className="qricon scanX"
               />
-              {activeSession ? "Scan QR" : "No Active Session"}
+              {activeSession ? "Scan QR" : "No Active Sessionx"}
             </Button>
           )}
         </div>
