@@ -136,7 +136,7 @@ const StudentScanPage = () => {
 
     return (
         <div className="student-scan-container">
-            <h3>Scan Attendance QR</h3>
+            <h3>Scan Attendance QRs</h3>
 
             {status === "loading" && (
                 <>
