@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useContext } from "react";
-import axios from "axios";
 import LoadingSpinner from "../../components/Loader/LoadingSpinner";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/AuthContext";
+import API from "../../api/api"; // ✅ use your configured axios instance
 import "./profile.css";
 
 const Profile = () => {
@@ -19,10 +19,6 @@ const Profile = () => {
   const [departmentId, setDepartmentId] = useState("");
   const [profilePic, setProfilePic] = useState("");
   const [showPreview, setShowImageModal] = useState(false);
-
-  // ✅ Base URL setup (auto switches between local and live)
-  const API_BASE_URL =
-    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
   const extractUser = (resData) => resData?.user || resData || null;
 
@@ -49,16 +45,7 @@ const Profile = () => {
 
     const loadProfile = async () => {
       try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          toast.error("Session expired. Please log in again.");
-          window.location.href = "/login";
-          return;
-        }
-
-        const res = await axios.get(`${API_BASE_URL}/profile/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await API.get("/profile/me");
 
         if (cancelled) return;
 
@@ -71,21 +58,21 @@ const Profile = () => {
         setLevel(foundUser.level ?? "");
         setDepartmentName(
           foundUser.department?.name ||
-          (typeof foundUser.department === "string"
-            ? foundUser.department
-            : "")
+            (typeof foundUser.department === "string"
+              ? foundUser.department
+              : "")
         );
         setDepartmentId(
           foundUser.department?._id || foundUser.department || ""
         );
         setProfilePic(
           foundUser.profileImage ||
-          foundUser.profilePic ||
-          foundUser.profile ||
-          ""
+            foundUser.profilePic ||
+            foundUser.profile ||
+            ""
         );
       } catch (err) {
-        console.error("Profile load error:", err.response?.data || err.message);
+        console.error("❌ Profile load error:", err.response?.data || err.message);
         if (err.response?.status === 401 || err.response?.status === 403) {
           toast.error("Session expired. Please log in again.");
           localStorage.removeItem("token");
@@ -117,22 +104,12 @@ const Profile = () => {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Missing token");
-
       const formData = new FormData();
       formData.append("image", file);
 
-      const res = await axios.post(
-        `${API_BASE_URL}/profile/me/profile-pic`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await API.post("/profile/me/profile-pic", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
       const userFromRes = extractUser(res.data);
       const returnedUrl =
@@ -165,9 +142,6 @@ const Profile = () => {
 
     setUpdating(true);
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("Missing token");
-
       const payload = {};
       if (name !== userData.name) payload.name = name;
       if (email !== userData.email) payload.email = email;
@@ -175,7 +149,7 @@ const Profile = () => {
       if (
         departmentId &&
         departmentId !==
-        (userData.department?._id || userData.department || "")
+          (userData.department?._id || userData.department || "")
       ) {
         payload.department = departmentId;
       }
@@ -186,10 +160,7 @@ const Profile = () => {
         return;
       }
 
-      const res = await axios.put(`${API_BASE_URL}/profile/me`, payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
+      const res = await API.put("/profile/me", payload);
       const updatedUser = extractUser(res.data);
       if (updatedUser) {
         updateUserEverywhere(updatedUser);
