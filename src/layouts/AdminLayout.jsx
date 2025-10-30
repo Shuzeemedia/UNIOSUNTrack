@@ -84,7 +84,7 @@ const AdminLayout = () => {
 
           <div className="admin-profile">
             <div className="admin-avatar" onClick={() => setOpen(!open)}>
-              {user?.profilePic ? (
+              {user?.profileImage ? (
                 <img src={user.profileImage} alt="profile" />
               ) : (
                 getInitials(user?.name)
