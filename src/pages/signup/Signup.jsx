@@ -113,7 +113,7 @@ const Signup = () => {
               <div className="header-top text-center">
                 {/* logo is in public/rank folder as you indicated */}
                 <img src="/ranks/uniosunlogo.png" alt="UNIOSUN Logo" className="signup-logo" />
-                <h3 className="mt-2 fw-bold ">Create an accountX</h3>
+                <h3 className="mt-2 fw-bold ">Create an account</h3>
               </div>
 
               {/* <Button
@@ -130,7 +130,7 @@ const Signup = () => {
                 <span>OR</span>
               </div> */}
 
-              <Form onSubmit={handleSubmit} className="mt-4">
+              <Form onSubmit={handleSubmit} className="mt-4 frm">
                 <Form.Group className="mb-3">
                   <Form.Control
                     type="text"
