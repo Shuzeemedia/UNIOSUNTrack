@@ -6,7 +6,7 @@
     /* gold */
     --un-bg: #F9FAFB;
     --un-text: #1E293B;
-    
+
     /* override bootstrap primary */
 }
 
@@ -14,6 +14,7 @@
     padding: 80px 0;
     background-color: var(--un-bg);
     min-height: 100vh;
+
 }
 
 /* Card that mimics the screenshot */
@@ -23,7 +24,9 @@
     padding: 20px;
     background: #fff;
     box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+    /* margin: 0 !important; */
 }
+
 
 /* header - logo + title */
 .header-top {
@@ -103,7 +106,7 @@
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.form-control-custom::placeholder{
+.form-control-custom::placeholder {
     font-size: 14px !important;
 }
 
@@ -133,7 +136,7 @@ select.form-select {
     border-radius: 0 4px 4px 0 !important;
 }
 
-.pass{
+.pass {
     border-radius: 4px 0 0 4px !important;
 }
 
@@ -200,11 +203,12 @@ select.form-select {
     text-decoration: underline;
 }
 
-.text-muted{
+.text-muted {
     font-size: 13px !important;
 }
 
 /* small screens */
+
 @media (max-width: 576px) {
     .signup-card {
         padding: 18px;
@@ -215,7 +219,13 @@ select.form-select {
     }
 
     .header-top {
-       
         gap: 10px;
+    }
+
+    .signup-wrapper,
+    .course-details-container,
+    .profile-container {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
     }
 }
