@@ -146,6 +146,7 @@ function App() {
         />
 
         {/* ================== MISC ================== */}
+        <Route path="/verify-email/:token" element={<VerifyEmail />} />
         <Route path="/403" element={<Forbidden />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
