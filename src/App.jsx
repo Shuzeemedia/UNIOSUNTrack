@@ -42,6 +42,7 @@ import LecturerQRPage from "./pages/tDashboard/LecturerQRPage";
 // Offline banner
 
 import "./index.css";
+import VerifyEmail from "./pages/VerifyEmail";
 
 function App() {
   const user = JSON.parse(localStorage.getItem("user"));
