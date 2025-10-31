@@ -39,6 +39,9 @@ import LeaderboardPage from "./pages/Leaderboard/LeaderboardPage";
 import StudentScanPage from "./pages/Sdashboard/StudentScanPage";
 import LecturerQRPage from "./pages/tDashboard/LecturerQRPage";
 
+//verify email
+import VerifyEmail from "./pages/VerifyEmail";
+
 // Offline banner
 
 import "./index.css";
@@ -146,6 +149,7 @@ function App() {
         />
 
         {/* ================== MISC ================== */}
+        <Route path="/verify-email/:token" element={<VerifyEmail />} />
         <Route path="/403" element={<Forbidden />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
