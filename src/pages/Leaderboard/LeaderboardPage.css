@@ -111,12 +111,26 @@
     transition: 0.2s;
 }
 
-.rank-icon {
-    width: 22px;
-    height: 22px;
+/* .rank-icon {
+    width: 40px;
+    height: 40px;
     vertical-align: middle;
     margin-right: 6px;
+} */
+
+.rank-icon {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    transition: transform 0.2s;
 }
+
+.rank-icon:hover {
+    transform: scale(1.1);
+    /* slightly bigger on hover */
+}
+
+
 
 .no-data {
     text-align: center;
@@ -142,6 +156,23 @@
     box-shadow: 0 0 12px rgba(205, 127, 50, 0.4);
     animation: bronze-glow 2s infinite alternate;
 }
+
+.rank-tooltip {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: #fff;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0.9;
+}
+
 
 /* ===== GLOW ANIMATIONS ===== */
 @keyframes gold-glow {
@@ -211,10 +242,15 @@
     }
 
     .rank-icon {
-        width: 18px;
-        height: 18px;
-        margin-right: 4px;
+        width: 30px;
+        height: 30px;
     }
+
+    /* .rank-icon {
+        width: 22px;
+        height: 22px;
+        margin-right: 4px;
+    } */
 
     /* Add subtle scroll hint */
     .table-container::after {
