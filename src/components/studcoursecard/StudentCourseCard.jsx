@@ -41,7 +41,7 @@ const StudentCourseCard = ({ course, summary }) => {
         </Card.Text>
 
         <div className="text-muted small mb-2">
-          <strong>Instructor:</strong> {course.teacher?.name || "N/A"}
+          <strong>Lecturer:</strong> {course.teacher?.name || "N/A"}
         </div>
 
         {summary ? (
