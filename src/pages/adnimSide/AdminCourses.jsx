@@ -197,36 +197,51 @@ const AdminCourses = () => {
 
   const handleModalEnroll = async (e) => {
     e.preventDefault();
-    if (!modalEnrollStudent) return;
+    if (!modalEnrollStudent) return toast.error("Please select a student");
+
     try {
+      // Call API to enroll the student
       await api.post(`/courses/${selectedCourse._id}/enroll`, {
         studentId: modalEnrollStudent,
       });
+
+      // Find the enrolled student from the students list
+      const enrolledStudent = students.find((s) => s._id === modalEnrollStudent);
+
       toast.success("Student enrolled successfully");
+
+      // Update the main courses list
       setCourses((prev) =>
         prev.map((c) =>
           c._id === selectedCourse._id
-            ? {
-              ...c,
-              students: [
-                ...(c.students || []),
-                students.find((s) => s._id === modalEnrollStudent),
-              ],
-            }
+            ? { ...c, students: [...(c.students || []), enrolledStudent] }
             : c
         )
       );
+
+      // Update the modal table instantly
+      setSelectedCourse((prev) => ({
+        ...prev,
+        students: [...(prev.students || []), enrolledStudent],
+      }));
+
+      // Reset select input
       setModalEnrollStudent("");
     } catch (err) {
+      console.error("Enroll failed:", err);
       toast.error(err.response?.data?.msg || "Failed to enroll student");
     }
   };
 
+
   const handleModalUnenroll = async (studentId) => {
     if (!window.confirm("Are you sure you want to unenroll this student?")) return;
+
     try {
       await api.post(`/courses/${selectedCourse._id}/unenroll`, { studentId });
       toast.success("Student unenrolled successfully");
+
+      // ✅ Update main courses list
       setCourses((prev) =>
         prev.map((c) =>
           c._id === selectedCourse._id
@@ -237,10 +252,18 @@ const AdminCourses = () => {
             : c
         )
       );
-    } catch {
+
+      // ✅ Instantly update the modal view
+      setSelectedCourse((prev) => ({
+        ...prev,
+        students: (prev.students || []).filter((s) => s._id !== studentId),
+      }));
+    } catch (err) {
+      console.error("Unenroll failed:", err);
       toast.error("Failed to unenroll student");
     }
   };
+
 
   // Unassign a lecturer from a course
   const handleUnassignLecturer = async (courseId) => {
@@ -396,7 +419,7 @@ const AdminCourses = () => {
       >
         <Modal.Header closeButton className="bg-light">
           <Modal.Title className="fw-semibold">
-            Manage Students for "{selectedCourse?.name}"
+            Manage Students for {selectedCourse?.name}
           </Modal.Title>
         </Modal.Header>
 
