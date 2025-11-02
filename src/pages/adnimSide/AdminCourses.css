@@ -248,6 +248,16 @@
     background: #dc2626 !important;
 }
 
+.unl{
+    width: fit-content !important;
+}
+
+.mang{
+    background: var(--un-primary) !important;
+    color: var(--un-bg) !important;
+    border: none !important;
+}
+
 /* ===== Mobile Responsiveness ===== */
 @media (max-width: 768px) {
     .admin-courses-page {

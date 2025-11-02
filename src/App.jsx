@@ -42,6 +42,10 @@ import LecturerQRPage from "./pages/tDashboard/LecturerQRPage";
 //verify email
 import VerifyEmail from "./pages/VerifyEmail";
 
+import StudentCourses from "./pages/Sdashboard/StudentCourses";
+
+
+
 // Offline banner
 
 import "./index.css";
@@ -92,6 +96,7 @@ function App() {
           }
         >
           <Route path="dashboard/student" element={<StudentDashboard />} />
+          <Route path="student/courses" element={<StudentCourses />} />
           <Route path="student/courses/:id" element={<StudentCourseDetails />} />
           <Route path="student/profile" element={<Profile />} />
           <Route
