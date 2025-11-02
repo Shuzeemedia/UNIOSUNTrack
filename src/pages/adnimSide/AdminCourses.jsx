@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import api from "../../api/api";
-import { Table, Button, Pagination, Form, Row, Col } from "react-bootstrap";
+import { Table, Button, Pagination, Form, Row, Col, Modal } from "react-bootstrap";
 import "./AdminCourses.css";
 import LoadingSpinner from "../../components/Loader/LoadingSpinner";
 
@@ -35,6 +35,11 @@ const AdminCourses = () => {
   const [filterDept, setFilterDept] = useState("");
   const [filterLevel, setFilterLevel] = useState("");
   const [filterLevels, setFilterLevels] = useState([]);
+
+  // Manage Students Modal
+  const [showModal, setShowModal] = useState(false);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [modalEnrollStudent, setModalEnrollStudent] = useState("");
 
   // =============== FETCH DATA ===============
   useEffect(() => {
@@ -177,6 +182,83 @@ const AdminCourses = () => {
     return matchSearch && matchDept && matchLevel;
   });
 
+  // =============== Manage Students Modal ===============
+  // Open the modal for a specific course
+  const openManageStudentsModal = async (course) => {
+    try {
+      const res = await api.get(`/courses/${course._id}`);
+      setSelectedCourse(res.data.course || res.data);
+      setModalEnrollStudent("");
+      setShowModal(true);
+    } catch (err) {
+      toast.error("Failed to fetch course details");
+    }
+  };
+
+  const handleModalEnroll = async (e) => {
+    e.preventDefault();
+    if (!modalEnrollStudent) return;
+    try {
+      await api.post(`/courses/${selectedCourse._id}/enroll`, {
+        studentId: modalEnrollStudent,
+      });
+      toast.success("Student enrolled successfully");
+      setCourses((prev) =>
+        prev.map((c) =>
+          c._id === selectedCourse._id
+            ? {
+              ...c,
+              students: [
+                ...(c.students || []),
+                students.find((s) => s._id === modalEnrollStudent),
+              ],
+            }
+            : c
+        )
+      );
+      setModalEnrollStudent("");
+    } catch (err) {
+      toast.error(err.response?.data?.msg || "Failed to enroll student");
+    }
+  };
+
+  const handleModalUnenroll = async (studentId) => {
+    if (!window.confirm("Are you sure you want to unenroll this student?")) return;
+    try {
+      await api.post(`/courses/${selectedCourse._id}/unenroll`, { studentId });
+      toast.success("Student unenrolled successfully");
+      setCourses((prev) =>
+        prev.map((c) =>
+          c._id === selectedCourse._id
+            ? {
+              ...c,
+              students: (c.students || []).filter((s) => s._id !== studentId),
+            }
+            : c
+        )
+      );
+    } catch {
+      toast.error("Failed to unenroll student");
+    }
+  };
+
+  // Unassign a lecturer from a course
+  const handleUnassignLecturer = async (courseId) => {
+    if (!window.confirm("Are you sure you want to unassign this lecturer?")) return;
+    try {
+      const res = await api.post(`/courses/${courseId}/unassign-lecturer`);
+      toast.success(res.data.msg || "Lecturer unassigned successfully");
+      setCourses((prev) =>
+        prev.map((c) =>
+          c._id === courseId ? { ...c, teacher: null } : c
+        )
+      );
+    } catch (err) {
+      toast.error(err.response?.data?.msg || "Failed to unassign lecturer");
+    }
+  };
+
+
   // Pagination
   const indexOfLastCourse = currentPage * coursesPerPage;
   const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
@@ -192,7 +274,7 @@ const AdminCourses = () => {
     <div className="admin-courses-page">
       <h2 className="admin-title">Manage Courses</h2>
 
-      {/* ================== Forms ================== */}
+      {/* Forms */}
       <div className="form-grid">
         <CourseForm
           formData={formData}
@@ -214,7 +296,7 @@ const AdminCourses = () => {
         />
       </div>
 
-      {/* ================= Filter Bar above Table ================= */}
+      {/* Filter Bar */}
       <div className="filter-bar glass-card mt-4 mb-3 p-3">
         <Row className="align-items-end g-2">
           <Col md={4}>
@@ -272,14 +354,16 @@ const AdminCourses = () => {
         </Row>
       </div>
 
-      {/* ================== Table ================== */}
+      {/* Courses Table */}
       <CoursesTable
         courses={currentCourses}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
+        openManageStudentsModal={openManageStudentsModal}
+        handleUnassignLecturer={handleUnassignLecturer}
       />
 
-      {/* ================= Pagination ================= */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <Pagination className="custom-pagination">
           <Pagination.Prev
@@ -296,13 +380,102 @@ const AdminCourses = () => {
             </Pagination.Item>
           ))}
           <Pagination.Next
-            onClick={() =>
-              setCurrentPage((p) => Math.min(p + 1, totalPages))
-            }
+            onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
             disabled={currentPage === totalPages}
           />
         </Pagination>
       )}
+
+      {/* Manage Students Modal */}
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        size="lg"
+        centered
+        scrollable
+      >
+        <Modal.Header closeButton className="bg-light">
+          <Modal.Title className="fw-semibold">
+            Manage Students for "{selectedCourse?.name}"
+          </Modal.Title>
+        </Modal.Header>
+
+        <Modal.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
+          <h5 className="mb-3 text-secondary">Enrolled Students</h5>
+
+          {/* ✅ Responsive Table Wrapper */}
+          <div className="table-responsive">
+            <Table striped bordered hover className="align-middle">
+              <thead className="table-light">
+                <tr>
+                  <th>Name</th>
+                  <th>Matric No.</th>
+                  <th className="text-center">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedCourse?.students?.length ? (
+                  selectedCourse.students.map((s) => (
+                    <tr key={s._id}>
+                      <td>{s.name}</td>
+                      <td>{s.studentId || "N/A"}</td>
+                      <td className="text-center">
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          onClick={() => handleModalUnenroll(s._id)}
+                        >
+                          Unenroll
+                        </Button>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="3" className="text-center text-muted">
+                      No students enrolled
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </Table>
+          </div>
+
+          <hr />
+
+          <Form onSubmit={handleModalEnroll} className="mt-3">
+            <Row className="align-items-end g-2">
+              <Col md={8} sm={12}>
+                <Form.Select
+                  value={modalEnrollStudent}
+                  onChange={(e) => setModalEnrollStudent(e.target.value)}
+                  required
+                >
+                  <option value="">Select Student to Enroll</option>
+                  {students
+                    .filter(
+                      (s) =>
+                        !(selectedCourse?.students || []).some(
+                          (en) => en._id === s._id
+                        )
+                    )
+                    .map((s) => (
+                      <option key={s._id} value={s._id}>
+                        {s.name} ({s.studentId})
+                      </option>
+                    ))}
+                </Form.Select>
+              </Col>
+              <Col md={4} sm={12}>
+                <Button type="submit" className="w-100 btn-accent">
+                  Enroll Student
+                </Button>
+              </Col>
+            </Row>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
     </div>
   );
 };
@@ -472,7 +645,7 @@ const EnrollmentForm = ({
 /* -------------------------
    CoursesTable component
    ------------------------- */
-const CoursesTable = ({ courses, handleEdit, handleDelete }) => (
+const CoursesTable = ({ courses, handleEdit, handleDelete, openManageStudentsModal, handleUnassignLecturer }) => (
   <div className="table-container">
     <Table hover responsive className="admin-table">
       <thead>
@@ -500,10 +673,34 @@ const CoursesTable = ({ courses, handleEdit, handleDelete }) => (
               <td>{c.level || "-"}</td>
               <td>{c.unit || "-"}</td>
               <td>{c.totalClasses || 0}</td>
-              <td className="table-actions">
-                <Button variant="warning" size="sm" onClick={() => handleEdit(c)}>
+              <td>
+                <Button
+                  variant="info"
+                  size="sm"
+                  onClick={() => openManageStudentsModal(c)}
+                  className="me-2 mang"
+                >
+                  Manage
+                </Button>
+                <Button
+                  variant="warning"
+                  size="sm"
+                  onClick={() => handleEdit(c)}
+                  className="me-2"
+                >
                   Edit
-                </Button>{" "}
+                </Button>
+
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => handleUnassignLecturer(c._id)}
+                  className="me-2 unl"
+                >
+                  Unassign Lecturer
+                </Button>
+
+
                 <Button
                   variant="danger"
                   size="sm"

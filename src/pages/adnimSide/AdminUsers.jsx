@@ -112,7 +112,7 @@ const AdminUsers = () => {
           <thead>
             <tr>
               <th>Name</th>
-              <th>Email</th>
+              <th>Matric No.</th>
               <th>Department</th>
               <th>Level</th>
               <th>Actions</th>
@@ -123,7 +123,7 @@ const AdminUsers = () => {
               currentStudents.map((s) => (
                 <tr key={s._id}>
                   <td>{s.name}</td>
-                  <td>{s.email}</td>
+                  <td>{s.studentId}</td>
                   <td>{s.department?.name || "N/A"}</td>
                   <td>{s.level ? String(s.level) : "N/A"}</td>
                   <td>
