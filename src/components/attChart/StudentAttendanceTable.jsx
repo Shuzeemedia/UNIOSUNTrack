@@ -203,61 +203,63 @@ function StudentAttendanceTable({
           {showAtRisk ? "Show All Students" : "Show At-Risk Students"}
         </button>
 
-        <table className="attendance-table">
-          <thead>
-            <tr>
-              <th>Student</th>
-              <th>Matric No.</th>
-              <th>Present</th>
-              <th>Absent</th>
-              <th>Attendance %</th>
-              <th>Score (XP)</th>
-              <th>Rank</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pageData.map((rec) => {
-              const isLow = rec.attendancePct < ATTENDANCE_THRESHOLD;
-              const rankInfo = getRank(
-                rec.totalPresent ?? 0,
-                rec.totalPlanned ?? course?.totalClasses ?? 0
-              );
-              return (
-                <tr
-                  key={rec.student?._id || Math.random()}
-                  className={isLow ? "low-row" : ""}
-                >
-                  <td
-                    className="student-name"
-                    onClick={() => onStudentClick?.(rec.student?._id)}
+        <div className="table-wrapper">
+          <table className="attendance-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Matric No.</th>
+                <th>Present</th>
+                <th>Absent</th>
+                <th>Attendance %</th>
+                <th>Score (XP)</th>
+                <th>Rank</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pageData.map((rec) => {
+                const isLow = rec.attendancePct < ATTENDANCE_THRESHOLD;
+                const rankInfo = getRank(
+                  rec.totalPresent ?? 0,
+                  rec.totalPlanned ?? course?.totalClasses ?? 0
+                );
+                return (
+                  <tr
+                    key={rec.student?._id || Math.random()}
+                    className={isLow ? "low-row" : ""}
                   >
-                    {rec.student?.name || "Unknown"}
-                  </td>
-                  <td>
-                    {rec.student?.studentId ||
-                      rec.student?.matricNumber ||
-                      "N/A"}
-                  </td>
-                  <td>{rec.totalPresent ?? 0}</td>
-                  <td>{rec.totalAbsent ?? 0}</td>
-                  <td>{formatPercent(rec.attendancePct)}%</td>
-                  <td>{formatXP(rec.score)}</td>
-                  <td className="rank-cell">
-                    <img src={rankInfo.img} alt={rankInfo.name} />
-                    <span>{rankInfo.name}</span>
-                  </td>
-                </tr>
-              );
-            })}
-            <tr className="summary-row">
-              <td colSpan={2}>Class Totals</td>
-              <td>{totalPresent}</td>
-              <td>{totalAbsent}</td>
-              <td>{formatPercent(overallPct)}%</td>
-              <td colSpan={2}>—</td>
-            </tr>
-          </tbody>
-        </table>
+                    <td
+                      className="student-name"
+                      onClick={() => onStudentClick?.(rec.student?._id)}
+                    >
+                      {rec.student?.name || "Unknown"}
+                    </td>
+                    <td>
+                      {rec.student?.studentId ||
+                        rec.student?.matricNumber ||
+                        "N/A"}
+                    </td>
+                    <td>{rec.totalPresent ?? 0}</td>
+                    <td>{rec.totalAbsent ?? 0}</td>
+                    <td>{formatPercent(rec.attendancePct)}%</td>
+                    <td>{formatXP(rec.score)}</td>
+                    <td className="rank-cell">
+                      <img src={rankInfo.img} alt={rankInfo.name} />
+                      <span>{rankInfo.name}</span>
+                    </td>
+                  </tr>
+                );
+              })}
+              <tr className="summary-row">
+                <td colSpan={2}>Class Totals</td>
+                <td>{totalPresent}</td>
+                <td>{totalAbsent}</td>
+                <td>{formatPercent(overallPct)}%</td>
+                <td colSpan={2}>—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         {totalPages > 1 && (
           <div className="pagination">

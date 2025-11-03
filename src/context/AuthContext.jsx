@@ -9,7 +9,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const logoutTimer = useRef(null);
 
-  // 🕒 Helper: Schedule auto logout when token expires
+  // Helper: Schedule auto logout when token expires
   const scheduleLogout = (exp) => {
     if (logoutTimer.current) clearTimeout(logoutTimer.current);
     const now = Date.now();
@@ -23,30 +23,39 @@ export function AuthProvider({ children }) {
     }
   };
 
-  // 🚀 Initialize user from localStorage on mount
+  // Initialize user from localStorage on mount
   useEffect(() => {
     const initializeAuth = () => {
       const storedUser = localStorage.getItem("user");
       const token = localStorage.getItem("token");
-
-      // ⛔ No token, just finish loading
+    
       if (!token || !storedUser) {
         setLoading(false);
         return;
       }
-
+    
       try {
         const decoded = jwtDecode(token);
         const now = Date.now() / 1000;
-
-        // ✅ Only log out if token is expired (<= now)
-        // ⏳ If exp is missing (some tokens), assume valid
+    
         if (!decoded.exp || decoded.exp > now) {
-          setUser(JSON.parse(storedUser));
+          const parsedUser = JSON.parse(storedUser);
+    
+          // ✅ Normalize here
+          const normalized = { ...parsedUser, id: parsedUser.id || parsedUser._id };
+          if (normalized.department) {
+            normalized.department = {
+              ...normalized.department,
+              id: normalized.department.id || normalized.department._id,
+            };
+            delete normalized.department._id;
+          }
+          delete normalized._id;
+    
+          setUser(normalized);
           if (decoded.exp) scheduleLogout(decoded.exp);
         } else {
-          console.warn("⚠️ Token expired, logging out");
-          logout(); // clears localStorage, no redirect
+          logout(); // clears localStorage
         }
       } catch (err) {
         console.error("Auth init error:", err);
@@ -55,7 +64,7 @@ export function AuthProvider({ children }) {
         setLoading(false);
       }
     };
-
+    
     initializeAuth();
 
     // 🧹 Clean timeout when unmounting
@@ -67,9 +76,20 @@ export function AuthProvider({ children }) {
   // ✅ Login method — called after successful login
   const login = (userData, token) => {
     if (!userData || !token) return;
-    localStorage.setItem("user", JSON.stringify(userData));
+
+    const normalized = { ...userData, id: userData.id || userData._id };
+    if (normalized.department) {
+      normalized.department = {
+        ...normalized.department,
+        id: normalized.department.id || normalized.department._id,
+      };
+      delete normalized.department._id;
+    }
+    delete normalized._id;
+
+    localStorage.setItem("user", JSON.stringify(normalized));
     localStorage.setItem("token", token);
-    setUser(userData);
+    setUser(normalized);
 
     try {
       const decoded = jwtDecode(token);
@@ -78,6 +98,7 @@ export function AuthProvider({ children }) {
       console.error("Failed to decode token at login:", err);
     }
   };
+
 
   // ✅ Logout method — can redirect or just clear session
   const logout = (redirect = false) => {

@@ -4,7 +4,7 @@ import api from "../api/api";
 
 /* eslint-disable react/prop-types */
 function MarkAttendance({ courseId, students = [], onMarked, sessionActive = false }) {
-  const [loadingId, setLoadingId] = useState(null);
+  const [loadingState, setLoadingState] = useState({ id: null, status: null });
   const [message, setMessage] = useState("");
 
   if (!students || students.length === 0) {
@@ -13,8 +13,9 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive = fal
 
   const markAttendance = async (studentId, status) => {
     try {
-      setLoadingId(studentId);
+      setLoadingState({ id: studentId, status });
       setMessage("");
+
       const res = await api.post(`/attendance/${courseId}/mark/${studentId}`, { status });
 
       setMessage(res.data.msg || `Marked ${status}`);
@@ -23,13 +24,13 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive = fal
       console.error("Error marking attendance:", err.response?.data || err);
       setMessage(err.response?.data?.msg || "Error marking attendance");
     } finally {
-      setLoadingId(null);
+      setLoadingState({ id: null, status: null });
     }
   };
 
   return (
     <div className="mark-attendance glass-card">
-      <h3 className="section-title">Mark Attendance (Manual Override)</h3>
+      <h3 className="section-title">Mark Attendance</h3>
 
       {sessionActive && (
         <p className="info-text warning mb-3">
@@ -39,7 +40,8 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive = fal
 
       <ul className="student-list">
         {students.map((student, index) => {
-          const isLoading = loadingId === student._id;
+          const isLoading = loadingState.id === student._id; // ✅ fixed line
+
           return (
             <li key={student._id} className="student-item">
               <div className="student-info">
@@ -52,19 +54,23 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive = fal
 
               <div className="attendance-btns">
                 <button
-                  disabled={isLoading || sessionActive}
+                  disabled={(loadingState.id === student._id && loadingState.status === "Present") || sessionActive}
                   onClick={() => markAttendance(student._id, "Present")}
                   className={`btn-present ${sessionActive ? "disabled" : ""}`}
                 >
-                  {isLoading ? "Marking..." : "Present"}
+                  {loadingState.id === student._id && loadingState.status === "Present"
+                    ? "Marking..."
+                    : "Present"}
                 </button>
 
                 <button
-                  disabled={isLoading || sessionActive}
+                  disabled={(loadingState.id === student._id && loadingState.status === "Absent") || sessionActive}
                   onClick={() => markAttendance(student._id, "Absent")}
                   className={`btn-absent ${sessionActive ? "disabled" : ""}`}
                 >
-                  {isLoading ? "Marking..." : "Absent"}
+                  {loadingState.id === student._id && loadingState.status === "Absent"
+                    ? "Marking..."
+                    : "Absent"}
                 </button>
               </div>
             </li>

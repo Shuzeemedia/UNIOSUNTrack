@@ -111,9 +111,10 @@
     font-size: 16px !important;
 }
 
-.login-btn:hover {
-    background-color: #09581e;
+.btnz:hover {
+    background-color: #09581e !important;
     transform: translateY(-1px);
+    box-shadow: 0 0 10px #09581e;
 }
 
 /* Links */
@@ -132,14 +133,23 @@
     text-decoration: underline;
 }
 
+.input-error {
+    color: red;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
+
+
 /* Responsive */
 @media (max-width: 576px) {
     .login-card {
         padding: 20px;
-        
+
     }
 
-    .login-header, .header-top {
+    .login-header,
+    .header-top {
         flex-direction: column;
         align-items: center;
         text-align: center;
