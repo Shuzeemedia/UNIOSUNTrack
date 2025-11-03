@@ -133,6 +133,12 @@
     text-decoration: underline;
 }
 
+.input-error {
+    color: red;
+    font-size: 0.85rem;
+    margin-top: 4px;
+}
+
 /* Responsive */
 @media (max-width: 576px) {
     .login-card {
