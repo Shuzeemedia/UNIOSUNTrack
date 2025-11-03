@@ -50,7 +50,7 @@ const ForgotPassword = () => {
             />
           </div>
 
-          <button type="submit" className="forgot-btn" disabled={loading}>
+          <button type="submit" className="forgot-btn btnz" disabled={loading}>
             {loading ? "Sending..." : "Send Reset Link"}
           </button>
         </form>

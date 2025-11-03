@@ -10,33 +10,46 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({ email: "", password: "" });
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setErrors({ email: "", password: "" });
 
     try {
       const { data } = await API.post("/auth/login", { email, password });
       const { user, token } = data;
 
-      // Always clear previous data before saving new one
       localStorage.clear();
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", token);
 
-      // Update context
       login(user, token);
       toast.success("Login successful");
 
-      // Redirect by role
       const role = user?.role?.toLowerCase();
       if (role === "teacher") navigate("/dashboard/teacher");
       else if (role === "student") navigate("/dashboard/student");
       else if (role === "admin") navigate("/admin/dashboard");
       else navigate("/");
+
     } catch (err) {
-      toast.error(err.response?.data?.msg || "Login failed");
+      const resData = err.response?.data;
+
+      if (err.response?.status === 403 && resData?.msg) {
+        toast.info(resData.msg);
+        return;
+      }
+
+      if (resData?.field && resData?.msg) {
+        setErrors((prev) => ({ ...prev, [resData.field]: resData.msg }));
+      } else if (resData?.msg) {
+        toast.error(resData.msg);
+      } else {
+        toast.error("Login failed");
+      }
     }
   };
 
@@ -58,27 +71,32 @@ const Login = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
+            {errors.email && <div className="input-error">{errors.email}</div>}
           </div>
 
-          <div className="mb-3 password-input-group">
-            <input
-              type={showPassword ? "text" : "password"}
-              className="form-control-custom pass"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <button
-              type="button"
-              className="password-toggle-btn"
-              onClick={() => setShowPassword(!showPassword)}
-            >
-              {showPassword ? <FaEyeSlash /> : <FaEye />}
-            </button>
+          <div className="mb-3">
+            <div className="password-input-group">
+              <input
+                type={showPassword ? "text" : "password"}
+                className="form-control-custom pass"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <button
+                type="button"
+                className="password-toggle-btn"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <FaEyeSlash /> : <FaEye />}
+              </button>
+            </div>
+            {/* Error is now outside the flex wrapper */}
+            {errors.password && <div className="input-error">{errors.password}</div>}
           </div>
 
-          <button type="submit" className="login-btn">
+          <button type="submit" className="login-btn btnz">
             Login
           </button>
         </form>

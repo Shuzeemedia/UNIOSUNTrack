@@ -8,6 +8,15 @@ import "./profile.css";
 const Profile = () => {
   const { user, setUser, loadingX } = useContext(AuthContext);
 
+  // ✅ Redirect only if AuthContext has finished loading and user is null
+  useEffect(() => {
+    if (!loadingX && !user) {
+      toast.error("Session expired. Please log in again.");
+      window.location.href = "/login";
+    }
+  }, [user, loadingX]);
+
+
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -20,17 +29,40 @@ const Profile = () => {
   const [profilePic, setProfilePic] = useState("");
   const [showPreview, setShowImageModal] = useState(false);
 
-  // ✅ Base URL setup (auto switches between local and live)
   const API_BASE_URL =
-    import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    import.meta.env.VITE_API_URL || "[http://localhost:5000/api](http://localhost:5000/api)";
 
   const extractUser = (resData) => resData?.user || resData || null;
 
+  // ✅ Normalize user so 'id' always exists
+  const normalizeUser = (userObj) => {
+    if (!userObj) return null;
+
+    const normalized = { ...userObj, id: userObj.id || userObj._id };
+
+    // Recursively normalize nested objects (like department)
+    if (normalized.department) {
+      normalized.department = {
+        ...normalized.department,
+        id: normalized.department.id || normalized.department._id,
+      };
+      delete normalized.department._id;
+    }
+
+    // Remove top-level _id
+    delete normalized._id;
+
+    return normalized;
+  };
+
+
+
   const updateUserEverywhere = (newUser) => {
     if (!newUser) return;
-    setUserData(newUser);
-    setUser(newUser);
-    localStorage.setItem("user", JSON.stringify(newUser));
+    const normalized = normalizeUser(newUser);
+    setUserData(normalized);
+    setUser(normalized);
+    localStorage.setItem("user", JSON.stringify(normalized));
   };
 
   const getInitials = (fullName) => {
@@ -41,9 +73,9 @@ const Profile = () => {
       : (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
-  // Load profile when AuthContext is ready
   useEffect(() => {
     if (loadingX) return;
+
 
     let cancelled = false;
 
@@ -51,10 +83,9 @@ const Profile = () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          toast.error("Session expired. Please log in again.");
-          window.location.href = "/login";
           return;
         }
+        
 
         const res = await axios.get(`${API_BASE_URL}/profile/me`, {
           headers: { Authorization: `Bearer ${token}` },
@@ -85,7 +116,10 @@ const Profile = () => {
           ""
         );
       } catch (err) {
-        console.error("❌ Profile load error:", err.response?.data || err.message);
+        console.error(
+          "❌ Profile load error:",
+          err.response?.data || err.message
+        );
         if (err.response?.status === 401 || err.response?.status === 403) {
           toast.error("Session expired. Please log in again.");
           localStorage.removeItem("token");
@@ -104,9 +138,10 @@ const Profile = () => {
     return () => {
       cancelled = true;
     };
+
+
   }, [loadingX]);
 
-  // Handle profile picture upload
   const handleProfilePicChange = async (e) => {
     const file = e.target.files?.[0];
     if (!file) {
@@ -115,6 +150,7 @@ const Profile = () => {
       toast.info("Profile picture cleared.");
       return;
     }
+
 
     try {
       const token = localStorage.getItem("token");
@@ -156,12 +192,14 @@ const Profile = () => {
       console.error("Profile upload error:", err);
       toast.error("Failed to upload profile picture");
     }
+
+
   };
 
-  // Handle update info
   const handleUpdate = async (e) => {
     e.preventDefault();
     if (!userData) return;
+
 
     setUpdating(true);
     try {
@@ -210,106 +248,106 @@ const Profile = () => {
     } finally {
       setUpdating(false);
     }
+
+
   };
 
   if (loading || loadingX) return <LoadingSpinner />;
 
   const initials = getInitials(userData?.name || "");
 
-  return (
-    <div className="profile-container">
-      <div className="profile-card">
-        <h2 className="profile-title">
-          {userData?.role ? userData.role.toUpperCase() : "ACCOUNT"} SETTINGS
-        </h2>
+  return (<div className="profile-container"> <div className="profile-card"> <h2 className="profile-title">
+    {userData?.role ? userData.role.toUpperCase() : "ACCOUNT"} SETTINGS </h2>
 
-        <div className="profile-avatar">
-          {profilePic ? (
-            <img
-              className="profImg"
-              src={profilePic}
-              alt="profile"
-              onClick={() => setShowImageModal(true)}
-              onError={() => {
-                setProfilePic("");
-                updateUserEverywhere({ ...userData, profileImage: "" });
-              }}
-            />
-          ) : (
-            <div className="profile-initials">{initials}</div>
-          )}
-          <label className="upload-btn">
-            <input type="file" accept="image/*" onChange={handleProfilePicChange} />
-            Change Photo
-          </label>
-        </div>
 
-        <form onSubmit={handleUpdate} className="profile-form">
-          <div className="form-group">
-            <label>Full Name</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
+    <div className="profile-avatar">
+      {profilePic ? (
+        <img
+          className="profImg"
+          src={profilePic}
+          alt="profile"
+          onClick={() => setShowImageModal(true)}
+          onError={() => {
+            setProfilePic("");
+            updateUserEverywhere({ ...userData, profileImage: "" });
+          }}
+        />
+      ) : (
+        <div className="profile-initials">{initials}</div>
+      )}
+      <label className="upload-btn">
+        <input type="file" accept="image/*" onChange={handleProfilePicChange} />
+        Change Photo
+      </label>
+    </div>
 
-          <div className="form-group">
-            <label>Email Address</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-
-          {userData?.role === "student" && (
-            <>
-              <div className="form-group">
-                <label>Level</label>
-                <input type="text" value={level} readOnly />
-              </div>
-              <div className="form-group">
-                <label>Department</label>
-                <input type="text" value={departmentName} readOnly />
-              </div>
-              <div className="form-group">
-                <label>Student ID</label>
-                <input type="text" value={userData.studentId || ""} readOnly />
-              </div>
-            </>
-          )}
-
-          {userData?.role === "teacher" && (
-            <div className="form-group">
-              <label>Department</label>
-              <input type="text" value={departmentName} readOnly />
-            </div>
-          )}
-
-          <button type="submit" className="update-btn" disabled={updating}>
-            {updating ? "Updating..." : "Update Profile"}
-          </button>
-        </form>
+    <form onSubmit={handleUpdate} className="profile-form">
+      <div className="form-group">
+        <label>Full Name</label>
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
       </div>
 
-      {/* Image Preview Modal */}
-      {showPreview && (
-        <div
-          className="img-preview-overlay"
-          onClick={() => setShowImageModal(false)}
-        >
-          <div
-            className="img-preview-wrapper"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <img src={profilePic} alt="Full Preview" className="img-preview-full" />
+      <div className="form-group">
+        <label>Email Address</label>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+      </div>
+
+      {userData?.role === "student" && (
+        <>
+          <div className="form-group">
+            <label>Level</label>
+            <input type="text" value={level} readOnly />
           </div>
+          <div className="form-group">
+            <label>Department</label>
+            <input type="text" value={departmentName} readOnly />
+          </div>
+          <div className="form-group">
+            <label>Student ID</label>
+            <input type="text" value={userData.studentId || ""} readOnly />
+          </div>
+        </>
+      )}
+
+      {userData?.role === "teacher" && (
+        <div className="form-group">
+          <label>Department</label>
+          <input type="text" value={departmentName} readOnly />
         </div>
       )}
-    </div>
+
+      <button type="submit" className="update-btn" disabled={updating}>
+        {updating ? "Updating..." : "Update Profile"}
+      </button>
+    </form>
+  </div>
+
+    {showPreview && (
+      <div
+        className="img-preview-overlay"
+        onClick={() => setShowImageModal(false)}
+      >
+        <div
+          className="img-preview-wrapper"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <img src={profilePic} alt="Full Preview" className="img-preview-full" />
+        </div>
+      </div>
+    )}
+  </div>
+
+
   );
 };
 

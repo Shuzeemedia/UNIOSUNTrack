@@ -80,7 +80,7 @@ const ResetPassword = () => {
             </button>
           </div>
 
-          <button type="submit" className="reset-btn">
+          <button type="submit" className="reset-btn btnz">
             Reset Password
           </button>
         </form>

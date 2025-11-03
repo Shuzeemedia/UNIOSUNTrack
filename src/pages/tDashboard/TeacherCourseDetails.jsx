@@ -216,7 +216,7 @@ const TeacherCourseDetails = () => {
               </div>
 
               <div className="chart-card glass-card mt-5">
-                <h3 className="section-title">Attendance Chart</h3>
+                {/* <h3 className="section-title">Attendance Chart</h3> */}
                 <TeacherAttendanceChart data={filteredAttendanceSummary} />
               </div>
             </>
@@ -226,10 +226,10 @@ const TeacherCourseDetails = () => {
         <div className="student-history glass-card">
           <div className="flex items-center justify-between mb-3">
             <h3>
-              Attendance History —{" "}
+              Attendance History: {" "}
               {students.find((s) => s._id === selectedStudent)?.name || "Student"}
             </h3>
-            <button onClick={handleBackToSummary} className="back-btn">← Back to Summary</button>
+            <button onClick={handleBackToSummary} className="back-btn">Back to Summary</button>
           </div>
 
           {studentHistory.length === 0 ? (
@@ -238,7 +238,7 @@ const TeacherCourseDetails = () => {
             <ul className="history-list">
               {studentHistory.map((r) => (
                 <li key={r._id}>
-                  {new Date(r.date).toLocaleDateString()} —{" "}
+                  {new Date(r.date).toLocaleDateString()} {" "}
                   <span className={r.status === "Present" ? "text-green-600 font-medium" : "text-red-500 font-medium"}>
                     {r.status}
                   </span>
