@@ -312,40 +312,42 @@ function StudentAttendanceTable({
         </div>
       </div>
 
-      <table className="attendance-table">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {attendanceSummary.map((r) => (
-            <tr
-              key={r._id}
-              className={
-                r.status === "Absent"
-                  ? "absent"
-                  : r.status === "Present"
-                    ? "present"
-                    : ""
-              }
-            >
-              <td>{new Date(r.date).toLocaleDateString()}</td>
-              <td>{r.status}</td>
+      <div className="table-wrapper">
+        <table className="attendance-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Status</th>
             </tr>
-          ))}
-          <tr className="summary-row">
-            <td>Summary</td>
-            <td>
-              Present: {presentCount} | Absent: {absentCount} |{" "}
-              {formatPercent(attendancePct)}% <br />
-              Score: {formatXP(score)} ({presentCount}/{totalPlanned}) <br />
-              Rank: {rankInfo?.name || "-"}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {attendanceSummary.map((r) => (
+              <tr
+                key={r._id}
+                className={
+                  r.status === "Absent"
+                    ? "absent"
+                    : r.status === "Present"
+                      ? "present"
+                      : ""
+                }
+              >
+                <td>{new Date(r.date).toLocaleDateString()}</td>
+                <td>{r.status}</td>
+              </tr>
+            ))}
+            <tr className="summary-row">
+              <td>Summary</td>
+              <td>
+                Present: {presentCount} | Absent: {absentCount} |{" "}
+                {formatPercent(attendancePct)}% <br />
+                Score: {formatXP(score)} ({presentCount}/{totalPlanned}) <br />
+                Rank: {rankInfo?.name || "-"}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

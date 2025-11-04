@@ -12,7 +12,6 @@
     padding: 20px;
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
-    /* overflow-x: auto; */
 }
 
 .table-wrapper {
@@ -29,7 +28,6 @@
     background-color: rgba(0, 0, 0, 0.2);
     border-radius: 10px;
 }
-
 
 /* ===================== Header Section ===================== */
 .table-header {
@@ -96,12 +94,13 @@
 /* ===================== Table ===================== */
 .attendance-table {
     width: 100%;
+    max-width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
-    overflow-x: auto;
     border-radius: 6px;
     font-size: 0.95rem;
-    min-width: 600px;
+    min-width: 0;
+    /* allow table to shrink on mobile */
 }
 
 .attendance-table th {
@@ -186,6 +185,16 @@
     font-style: italic;
 }
 
+.editable-cell.editable {
+    cursor: pointer;
+    background-color: #f0f8ff;
+    transition: background 0.2s;
+}
+
+.editable-cell.editable:hover {
+    background-color: #d0e6ff;
+}
+
 /* ===================== RESPONSIVENESS ===================== */
 
 /* Tablets */
@@ -193,6 +202,7 @@
     .attendance-table-container {
         padding: 16px;
     }
+
 
     .table-header h3 {
         font-size: 1.1rem;
@@ -212,6 +222,8 @@
     .attendance-table {
         font-size: 0.9rem;
     }
+
+
 }
 
 /* Phones */
@@ -221,6 +233,7 @@
         align-items: flex-start;
         margin-bottom: 8px;
     }
+
 
     .table-header h3 {
         margin-bottom: 6px;
@@ -235,9 +248,15 @@
         padding: 12px;
     }
 
-    .attendance-table {
-        display: block;
+    .table-wrapper {
         overflow-x: auto;
+    }
+
+    .attendance-table {
+        display: table;
+        table-layout: auto;
+        /* fix extra horizontal space */
+        width: 100%;
         white-space: nowrap;
     }
 
@@ -256,6 +275,8 @@
         flex-direction: column;
         gap: 6px;
     }
+
+
 }
 
 /* Extra small phones */
@@ -264,6 +285,7 @@
         width: 100%;
         padding: 8px;
     }
+
 
     .attendance-table th,
     .attendance-table td {
@@ -278,4 +300,6 @@
     .filter-btn {
         font-size: 0.85rem;
     }
+
+
 }
