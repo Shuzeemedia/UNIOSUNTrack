@@ -24,7 +24,7 @@
     margin-top: 10px;
     padding: 8px 14px;
     border: none;
-    background: #0b6623;
+    background: #05684a;
     color: #fff;
     border-radius: 5px;
     cursor: pointer;
@@ -32,5 +32,37 @@
 
 .enroll-btn:disabled {
     background: gray;
+    cursor: not-allowed;
+}
+
+.enroll-btn {
+    margin-top: 10px;
+    padding: 8px 14px;
+    border: none;
+    background: #05684a;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.enroll-btn:hover {
+    background: #049a6b;
+    transform: scale(1.05);
+}
+
+.enroll-btn:active {
+    transform: scale(0.95);
+}
+
+.enroll-btn.loading {
+    background: #049a6b;
+    cursor: wait;
+    opacity: 0.8;
+}
+
+.enroll-btn.enrolled {
+    background: #2ecc71;
+    color: #fff;
     cursor: not-allowed;
 }
