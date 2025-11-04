@@ -195,7 +195,7 @@ const StudentCourseDetails = () => {
 
       {/* ATTENDANCE RECORDS TABLE */}
       <div className="records-card">
-        <h3>My Attendance Records</h3>
+        {/* <h3>My Attendance Records</h3> */}
         <StudentAttendanceTable
           attendanceSummary={records}
           studentView
