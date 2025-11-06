@@ -11,12 +11,14 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false); // ✅ loading state added
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrors({ email: "", password: "" });
+    setLoading(true);
 
     try {
       const { data } = await API.post("/auth/login", { email, password });
@@ -34,13 +36,15 @@ const Login = () => {
       else if (role === "student") navigate("/dashboard/student");
       else if (role === "admin") navigate("/admin/dashboard");
       else navigate("/");
-
     } catch (err) {
       const resData = err.response?.data;
 
+      // prevent unwanted reload or redirect
+      window.onbeforeunload = null;
+
       if (err.response?.status === 403 && resData?.msg) {
-        toast.info(resData.msg);
-        return;
+        toast.info(resData.msg, { autoClose: 4000 });
+        return; // stop execution safely here
       }
 
       if (resData?.field && resData?.msg) {
@@ -50,8 +54,11 @@ const Login = () => {
       } else {
         toast.error("Login failed");
       }
+    } finally {
+      setLoading(false);
     }
   };
+
 
   return (
     <div className="login-wrapper">
@@ -92,12 +99,11 @@ const Login = () => {
                 {showPassword ? <FaEyeSlash /> : <FaEye />}
               </button>
             </div>
-            {/* Error is now outside the flex wrapper */}
             {errors.password && <div className="input-error">{errors.password}</div>}
           </div>
 
-          <button type="submit" className="login-btn btnz">
-            Login
+          <button type="submit" className="login-btn btnz" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 

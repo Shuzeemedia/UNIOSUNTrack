@@ -1,9 +1,8 @@
-// src/pages/ForgotPassword.jsx
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import API from "../../api/api";
 import { toast } from "react-toastify";
-import "./ForgotPassword.css"; //Styled exactly like login.css
+import "./ForgotPassword.css"; // Styled like login.css
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -12,8 +11,9 @@ const ForgotPassword = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) return toast.error("Please enter your email address");
+
+    setLoading(true);
     try {
-      setLoading(true);
       await API.post("/auth/forgot-password", { email });
       toast.success("Password reset email sent! Check your inbox.");
       setEmail("");
@@ -27,7 +27,6 @@ const ForgotPassword = () => {
   return (
     <div className="forgot-wrapper">
       <div className="forgot-card">
-        {/* Header */}
         <div className="forgot-header">
           <img
             src="/ranks/uniosunlogo.png"
@@ -37,7 +36,6 @@ const ForgotPassword = () => {
           <h3>Reset Your Password</h3>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <input
@@ -51,11 +49,17 @@ const ForgotPassword = () => {
           </div>
 
           <button type="submit" className="forgot-btn btnz" disabled={loading}>
-            {loading ? "Sending..." : "Send Reset Link"}
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2"></span>
+                Sending...
+              </>
+            ) : (
+              "Send Reset Link"
+            )}
           </button>
         </form>
 
-        {/* Links */}
         <div className="forgot-links text-muted">
           <p>
             <Link to="/login" className="forgot-link">
