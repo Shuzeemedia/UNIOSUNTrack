@@ -31,6 +31,7 @@ const Signup = () => {
   const [levels, setLevels] = useState([]);
   const [passwordStrength, setPasswordStrength] = useState({ score: 0, label: "" });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false); // <-- NEW STATE for button interaction
 
   useEffect(() => {
     const fetchDepartments = async () => {
@@ -47,7 +48,7 @@ const Signup = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    setFormErrors((prev) => ({ ...prev, [name]: "" })); // Clear field error when typing
+    setFormErrors((prev) => ({ ...prev, [name]: "" }));
 
     if (name === "departmentId") {
       const selectedDept = departments.find((d) => d._id === value);
@@ -75,7 +76,7 @@ const Signup = () => {
     const errors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
-    const studentIdRegex = /^\d{4}\/\d{5}$/; // e.g. 2021/42049
+    const studentIdRegex = /^\d{4}\/\d{5}$/;
 
     if (!formData.name.trim()) errors.name = "Name is required";
     if (!studentIdRegex.test(formData.studentId))
@@ -95,6 +96,7 @@ const Signup = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
+    setLoading(true); // <-- set button to loading state
     try {
       const { data } = await API.post("/auth/signup", formData);
       toast.success("Signup successful! Check your email for verification.");
@@ -102,6 +104,8 @@ const Signup = () => {
     } catch (err) {
       const msg = err.response?.data?.msg || "Signup failed";
       toast.error(msg);
+    } finally {
+      setLoading(false); // <-- reset button state
     }
   };
 
@@ -242,8 +246,12 @@ const Signup = () => {
                   </div>
                 )}
 
-                <Button type="submit" className="w-100 signup-btn btnz">
-                  Create A New Account
+                <Button
+                  type="submit"
+                  className="w-100 signup-btn btnz"
+                  disabled={loading} // <-- disable while loading
+                >
+                  {loading ? "Creating Account..." : "Create A New Account"} {/* <-- Interactive Text */}
                 </Button>
               </Form>
 

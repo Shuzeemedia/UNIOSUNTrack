@@ -12,6 +12,7 @@ const ResetPassword = () => {
   const [confirm, setConfirm] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [loading, setLoading] = useState(false); // ✅ Added loading state
 
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
 
@@ -26,12 +27,15 @@ const ResetPassword = () => {
         "Password must be at least 8 characters, include uppercase, lowercase, and a number"
       );
 
+    setLoading(true);
     try {
       await API.post(`/auth/reset-password/${token}`, { password });
       toast.success("Password reset successful! Please log in.");
       navigate("/login");
     } catch (err) {
       toast.error(err.response?.data?.msg || "Invalid or expired reset link");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -39,7 +43,11 @@ const ResetPassword = () => {
     <div className="reset-wrapper">
       <div className="reset-card">
         <div className="reset-header">
-          <img src="/ranks/uniosunlogo.png" alt="Uniosun Logo" className="reset-logo" />
+          <img
+            src="/ranks/uniosunlogo.png"
+            alt="Uniosun Logo"
+            className="reset-logo"
+          />
           <h3>Reset Password</h3>
         </div>
 
@@ -80,8 +88,15 @@ const ResetPassword = () => {
             </button>
           </div>
 
-          <button type="submit" className="reset-btn btnz">
-            Reset Password
+          <button type="submit" className="reset-btn btnz" disabled={loading}>
+            {loading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2"></span>
+                Resetting...
+              </>
+            ) : (
+              "Reset Password"
+            )}
           </button>
         </form>
 
