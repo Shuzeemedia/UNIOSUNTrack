@@ -678,3 +678,298 @@
 
 
 }
+
+
+/* =========================
+   MARK ATTENDANCE ENHANCEMENTS
+   ========================= */
+
+/* ===== SEARCH & SORT ===== */
+.search-input {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+    flex: 1;
+    transition: border-color 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--un-primary);
+}
+
+.sort-select {
+    padding: 0.6rem 1rem;
+    margin-left: 10px !important;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+    background: white;
+    color: var(--un-text);
+    transition: border-color 0.3s;
+}
+
+.sort-select:hover,
+.sort-select:focus {
+    border-color: var(--un-primary);
+    outline: none;
+}
+
+/* ===== BULK BUTTONS ===== */
+.mark-attendance .flex.gap-2 button {
+    padding: 0.55rem 1.2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.mark-attendance .btn-rollcall {
+    background: linear-gradient(135deg, var(--un-primary), var(--un-accent));
+    color: #fff;
+}
+
+.mark-attendance .btn-rollcall:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(11, 102, 35, 0.25);
+}
+
+.mark-attendance .btn-na {
+    background: #64748b;
+    color: #fff;
+}
+
+.mark-attendance .btn-na:hover {
+    background: #475569;
+}
+
+.mark-attendance .btn-present {
+    background: var(--un-primary);
+    color: #fff;
+}
+
+.mark-attendance .btn-absent {
+    background: #dc2626;
+    color: #fff;
+}
+
+.blk_btn{
+    display: flex !important;
+    flex-direction: row;
+    gap: 10px !important;
+}
+
+/* ===== STUDENT DROPDOWN ===== */
+.attendance-dropdown {
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.attendance-dropdown:focus {
+    outline: none;
+    border-color: var(--un-primary);
+}
+
+/* ===== PAGINATION ===== */
+.page-btn {
+    border: 1px solid #d1d5db;
+    background: #fff;
+    padding: 0.45rem 0.9rem;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.page-btn:hover {
+    background: var(--un-primary);
+    color: #fff;
+    border-color: var(--un-primary);
+}
+
+.page-btn.active {
+    background: var(--un-accent);
+    border-color: var(--un-accent);
+    color: #fff;
+}
+
+/* ===== ROLL CALL MODE ===== */
+.rollcall-mode {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 480px;
+    margin: 2rem auto;
+    animation: fadeIn 0.35s ease-in;
+}
+
+.rollcall-mode h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--un-primary);
+    margin-bottom: 0.5rem;
+}
+
+.rollcall-mode p {
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+.roll_btn{
+    display: flex !important;
+    flex-direction: row;
+    gap: 15px;
+}
+
+#badge_stat{
+    margin-left: 10px !important;
+}
+
+.can_roll{
+    border: none !important;
+}
+
+/* For initials fallback */
+.avatar-initials {
+  width: 48px;         /* same as image */
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--un-accent); /* light gray */
+  color: var(--un-bg) !important;           /* dark text */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 1rem;          /* adjust as needed */
+  text-transform: uppercase;
+}
+
+/* For actual images */
+.avatar-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.hld_studlist{
+    display: flex;
+}
+
+.hld_rollprof{
+    width: 100%;
+    /* background-color: red; */
+    display: flex;
+    justify-content: center;
+}
+
+.rollcall-mode img {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 1rem;
+    border: 3px solid var(--un-primary);
+}
+
+.rollcall-mode .btn-present,
+.rollcall-mode .btn-absent {
+    flex: 1;
+    padding: 0.8rem 1.4rem;
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* ===== STATUS MESSAGE ===== */
+.status-message {
+    background: rgba(11, 102, 35, 0.1);
+    color: var(--un-primary);
+    font-weight: 500;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin-top: 1.2rem;
+}
+
+/* ===== RESPONSIVE ENHANCEMENTS ===== */
+@media (max-width: 768px) {
+    .student-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+    }
+
+    .attendance-dropdown {
+        width: 100%;
+    }
+
+    .mark-attendance .flex.gap-2 {
+        flex-direction: column;
+    }
+
+    .rollcall-mode {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    .rollcall-mode img {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .rollcall-mode h2 {
+        font-size: 1.5rem;
+    }
+
+    .rollcall-mode p {
+        font-size: 0.9rem;
+    }
+
+    .rollcall-mode img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .page-btn {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.85rem;
+    }
+}
+
+
+.student-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    /* text-transform: uppercase; */
+    padding: 0.25rem 0.6rem;
+    border-radius: 12px;
+    color: #fff;
+    min-width: 50px;
+    text-align: center;
+    transition: all 0.3s ease, transform 0.3s ease;
+    animation: badgePop 0.35s ease forwards;
+}
+
+.student-badge.present { background: var(--un-primary); box-shadow: 0 0 6px rgba(11,102,35,0.6);}
+.student-badge.absent { background: #dc2626; box-shadow: 0 0 6px rgba(220,38,38,0.6);}
+.student-badge.na { background: #64748b; }
+
+@keyframes badgePop {
+    0% { transform: scale(0.6); opacity: 0; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); }
+}
+
