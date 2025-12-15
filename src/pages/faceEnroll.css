@@ -1,0 +1,108 @@
+/* ===========================
+   UNIOSUN FACE ENROLL PAGE STYLE
+   Matches Login Page UI
+=========================== */
+
+:root {
+    --un-primary: #0B6623;
+    --un-accent: #FBBF24;
+    --un-bg: #F9FAFB;
+    --un-text: #1E293B;
+}
+
+/* Wrapper */
+.face-enroll-wrapper {
+    padding: 80px 0;
+    background-color: var(--un-bg);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Card */
+.face-enroll-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+    padding: 40px 30px;
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Header */
+.face-enroll-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.face-enroll-logo {
+    width: 58px;
+    height: auto;
+}
+
+.face-enroll-header h3 {
+    color: var(--un-text);
+    font-size: 22px;
+    font-weight: 700;
+}
+
+/* Video wrapper */
+.face-video-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.face-video-wrapper video {
+    border-radius: 8px;
+    border: 1px solid #e6e6e6;
+}
+
+/* Status message */
+.face-video-wrapper .status-message {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: var(--un-text);
+    text-align: center;
+}
+
+/* Button */
+.face-enroll-btn {
+    background: var(--un-primary) !important;
+    border: none;
+    border-radius: 4px !important;
+    padding: 10px 12px;
+    font-weight: 600;
+    color: #fff;
+    width: 100%;
+    font-size: 16px !important;
+    transition: background-color 0.15s ease, transform 0.08s ease;
+}
+
+.face-enroll-btn:hover {
+    background-color: #09581e !important;
+    transform: translateY(-1px);
+    box-shadow: 0 0 10px #09581e;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .face-enroll-card {
+        padding: 20px;
+    }
+
+    .face-enroll-header {
+        text-align: center;
+    }
+
+    .face-enroll-wrapper {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+}

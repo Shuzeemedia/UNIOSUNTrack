@@ -12,5 +12,5 @@ export const getRank = (present, total) => {
     if (ratio < 0.9) return { name: "Diamond", img: "/ranks/diamond.png" };
     if (ratio < 0.97) return { name: "Champion", img: "/ranks/champ.png" };
     if (ratio < 1) return { name: "Grand Champion", img: "/ranks/Gchamp.png" };
-    return { name: "Supersonic Legend", img: "/ranks/super.png" };
+    return { name: "Star Student League", img: "/ranks/super.png" };
 };

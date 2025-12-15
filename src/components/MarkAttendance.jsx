@@ -2,6 +2,8 @@
 import { useState, useMemo, useEffect } from "react";
 import api from "../api/api";
 import StudentAvatar from "./StudentAvatar";
+import { RiVolumeUpFill } from "react-icons/ri";
+
 
 function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
   const [loadingState, setLoadingState] = useState({ id: null, status: null });
@@ -103,9 +105,31 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
 
   const speakName = (name) => {
     if (!name) return;
+
     const utter = new SpeechSynthesisUtterance(name);
+
+    const voices = window.speechSynthesis.getVoices();
+
+    // PRIORITY: look for Nigerian / African / Google voices
+    const preferredVoice =
+      voices.find(v => v.name.toLowerCase().includes("nigeria")) ||
+      voices.find(v => v.name.toLowerCase().includes("africa")) ||
+      voices.find(v => v.name.includes("Google UK English")) ||
+      voices.find(v => v.lang === "en-NG") || // Nigeria English code
+      voices.find(v => v.lang === "en-GB") || // fallback
+      voices[0];
+
+    if (preferredVoice) {
+      utter.voice = preferredVoice;
+    }
+
+    utter.rate = 0.95; // slower for name clarity
+    utter.pitch = 1;
+
+    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utter);
   };
+
 
   const handleNext = (status = "Present") => {
     const student = rollCallData[rollCallIndex];
@@ -223,7 +247,7 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
                     <option value="N/A">N/A</option>
                   </select>
 
-                  <span
+                  <span id="badge_stat"
                     className={`student-badge ${studentStatus[
                       s._id
                     ]?.toLowerCase()}`}
@@ -261,6 +285,13 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
           <div className="hld_rollprof">
             <StudentAvatar student={currentRollCallStudent} size={128} />
           </div>
+
+          <button
+            onClick={() => speakName(currentRollCallStudent.name)}
+            className="btn-repeat callagain text-white px-4 py-2 rounded"
+          >
+            <RiVolumeUpFill size={22} color="#0b6623"/>
+          </button>
 
           <div className="roll_btn flex gap-4 mt-4">
             <button

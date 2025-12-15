@@ -5,6 +5,7 @@ import QRCode from "react-qr-code";
 import { useParams } from "react-router-dom";
 
 const LecturerQRPage = () => {
+    const refreshIntervalRef = useRef(null);
     const { courseId } = useParams();
     const [qrData, setQrData] = useState(null);
     const [expiresAt, setExpiresAt] = useState(null);
@@ -18,6 +19,9 @@ const LecturerQRPage = () => {
     const [restoring, setRestoring] = useState(true);
     const [error, setError] = useState("");
     const qrRef = useRef(null);
+    const fullscreenWindowRef = useRef(null);
+    const token = localStorage.getItem("token");
+
 
     // Restore active session on mount
     useEffect(() => {
@@ -75,14 +79,22 @@ const LecturerQRPage = () => {
 
     const handleAutoEnd = async () => {
         try {
+            if (refreshIntervalRef.current) {
+                clearInterval(refreshIntervalRef.current);
+                refreshIntervalRef.current = null;
+            }
+
             const token = localStorage.getItem("token");
             const res = await axios.post(
                 `${import.meta.env.VITE_API_URL}/sessions/${sessionId}/end`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+
             setEndMsg(res.data.msg || "Session auto-ended due to expiry.");
             setEnded(true);
+            setExpired(true);
+            setSessionId(null);
         } catch (err) {
             console.error("Auto end error:", err.message);
         }
@@ -90,27 +102,34 @@ const LecturerQRPage = () => {
 
     const handleCreateSession = async () => {
         if (!courseId) return alert("Course ID missing.");
+
         try {
             setLoading(true);
+            setError("");
+
             const token = localStorage.getItem("token");
+
             const res = await axios.post(
                 `${import.meta.env.VITE_API_URL}/sessions/${courseId}/create`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            const { token: sessionToken, expiresAt } = res.data;
+            const {
+                token: sessionToken,
+                expiresAt,
+                sessionId, // ✅ USE THIS
+            } = res.data;
+
             const qrUrl = `${import.meta.env.VITE_FRONTEND_URL}/student/scan/${sessionToken}`;
+
+            // ✅ SET ALL STATE AT ONCE
             setQrData(qrUrl);
             setExpiresAt(expiresAt);
+            setSessionId(sessionId);
             setExpired(false);
             setEnded(false);
             setEndMsg("");
-
-            const sessionRes = await axios.get(
-                `${import.meta.env.VITE_API_URL}/sessions/${sessionToken}`
-            );
-            setSessionId(sessionRes.data.session.id);
         } catch (err) {
             setError(err.response?.data?.msg || "Failed to create session.");
         } finally {
@@ -118,10 +137,32 @@ const LecturerQRPage = () => {
         }
     };
 
-    // Auto-refresh QR token every 10s
+    const sendQrToFullscreen = () => {
+        const win = fullscreenWindowRef.current;
+        if (!win || win.closed || !qrRef.current) return;
+
+        const svg = qrRef.current.querySelector("svg");
+        if (!svg) return;
+
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const svgBlob = new Blob([svgData], { type: "image/svg+xml" });
+        const url = URL.createObjectURL(svgBlob);
+
+        win.postMessage(
+            { type: "QR_UPDATE", payload: url },
+            "*"
+        );
+    };
+
     useEffect(() => {
         if (!sessionId || expired || ended) return;
-        const interval = setInterval(async () => {
+
+        // ✅ CLEAR BEFORE SETTING
+        if (refreshIntervalRef.current) {
+            clearInterval(refreshIntervalRef.current);
+        }
+
+        refreshIntervalRef.current = setInterval(async () => {
             try {
                 const token = localStorage.getItem("token");
                 const res = await axios.post(
@@ -129,6 +170,7 @@ const LecturerQRPage = () => {
                     {},
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
+
                 const { token: newToken } = res.data;
                 const newQrUrl = `${import.meta.env.VITE_FRONTEND_URL}/student/scan/${newToken}`;
                 setQrData(newQrUrl);
@@ -137,22 +179,49 @@ const LecturerQRPage = () => {
             }
         }, 10000);
 
-        return () => clearInterval(interval);
+        return () => {
+            clearInterval(refreshIntervalRef.current);
+            refreshIntervalRef.current = null;
+        };
     }, [sessionId, expired, ended]);
+
+
+    useEffect(() => {
+        sendQrToFullscreen();
+    }, [qrData]);
+
+    useEffect(() => {
+        if (ended && fullscreenWindowRef.current) {
+            fullscreenWindowRef.current.close();
+        }
+    }, [ended]);
+
+
+
 
     const handleEndSession = async () => {
         if (!sessionId) return alert("No active session.");
+
         try {
             setEnding(true);
+
+            // STOP QR REFRESH FIRST
+            if (refreshIntervalRef.current) {
+                clearInterval(refreshIntervalRef.current);
+                refreshIntervalRef.current = null;
+            }
+
             const token = localStorage.getItem("token");
             const res = await axios.post(
                 `${import.meta.env.VITE_API_URL}/sessions/${sessionId}/end`,
                 {},
                 { headers: { Authorization: `Bearer ${token}` } }
             );
+
             setEndMsg(res.data.msg || "Session ended successfully.");
             setEnded(true);
             setExpired(true);
+            setSessionId(null); // 🔑 IMPORTANT
         } catch (err) {
             setError(err.response?.data?.msg || "Failed to end session.");
         } finally {
@@ -160,25 +229,58 @@ const LecturerQRPage = () => {
         }
     };
 
+
     const handleViewFullscreen = () => {
         if (!qrRef.current) return;
-        const svg = qrRef.current.querySelector("svg");
-        if (!svg) return alert("QR not found yet.");
 
-        const svgData = new XMLSerializer().serializeToString(svg);
-        const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-        const svgUrl = URL.createObjectURL(svgBlob);
+        if (fullscreenWindowRef.current && !fullscreenWindowRef.current.closed) {
+            fullscreenWindowRef.current.focus();
+            return;
+        }
 
-        const newWindow = window.open("", "_blank", "width=800,height=600");
-        newWindow.document.write(`
-      <html>
-        <head><title>Attendance QR</title></head>
-        <body style="display:flex;align-items:center;justify-content:center;height:100vh;background:#f9fafb">
-          <img src="${svgUrl}" alt="QR Code" style="width:350px;height:350px" />
-        </body>
-      </html>
-    `);
+        const win = window.open("", "_blank", "width=700,height=700");
+        fullscreenWindowRef.current = win;
+
+        win.document.write(`
+          <html>
+            <head>
+              <title>Attendance QR</title>
+              <style>
+                body {
+                  margin: 0;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  height: 100vh;
+                  background: #0f172a;
+                }
+                img {
+                  width: 85vmin;
+                  height: 85vmin;
+                }
+              </style>
+            </head>
+            <body>
+              <img id="qrImg" />
+              <script>
+                window.addEventListener("message", (e) => {
+                  if (e.data?.type === "QR_UPDATE") {
+                    document.getElementById("qrImg").src = e.data.payload;
+                  }
+                });
+              </script>
+            </body>
+          </html>
+        `);
+
+        win.document.close();
+
+        sendQrToFullscreen(); // initial render
     };
+
+
+
+
 
     const handleCopyLink = async () => {
         if (!qrData) return;

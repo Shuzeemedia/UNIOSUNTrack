@@ -5,6 +5,7 @@ import api from "../../api/api";
 import { Table, Button, Pagination, Form, Row, Col, Modal } from "react-bootstrap";
 import "./AdminCourses.css";
 import LoadingSpinner from "../../components/Loader/LoadingSpinner";
+import SemesterForm from "../adnimSide/SemesterForm";
 
 const AdminCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -12,6 +13,7 @@ const AdminCourses = () => {
   const [students, setStudents] = useState([]);
   const [departments, setDepartments] = useState([]);
   const [levels, setLevels] = useState([]);
+  const [semesters, setSemesters] = useState([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -21,6 +23,7 @@ const AdminCourses = () => {
     level: "",
     totalClasses: 0,
     unit: 3,
+    semesterId: "",
   });
   const [editingId, setEditingId] = useState(null);
   const [enrollData, setEnrollData] = useState({ courseId: "", studentId: "" });
@@ -35,34 +38,62 @@ const AdminCourses = () => {
   const [filterDept, setFilterDept] = useState("");
   const [filterLevel, setFilterLevel] = useState("");
   const [filterLevels, setFilterLevels] = useState([]);
+  const [filterSemester, setFilterSemester] = useState("");
+  const [showSemesterModal, setShowSemesterModal] = useState(false);
+  const [editingSemester, setEditingSemester] = useState(null);
+
 
   // Manage Students Modal
   const [showModal, setShowModal] = useState(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [modalEnrollStudent, setModalEnrollStudent] = useState("");
 
-  // =============== FETCH DATA ===============
+  // Fetch function
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      const [coursesRes, usersRes, deptRes, semestersRes] = await Promise.all([
+        api.get("/courses"),
+        api.get("/admin/users"),
+        api.get("/departments"),
+        api.get("/semesters")
+      ]);
+      console.log("SEMESTERS RESPONSE:", semestersRes.data);
+
+
+      const normalizedCourses = (coursesRes.data || []).map(c => ({
+        ...c,
+        semester: typeof c.semester === "object" ? c.semester._id : c.semester
+      }));
+
+      setCourses(normalizedCourses);
+
+
+
+      const allUsers = usersRes.data?.users || [];
+      setTeachers(allUsers.filter((u) => u.role === "teacher"));
+      setStudents(allUsers.filter((u) => u.role === "student"));
+
+      setDepartments(deptRes.data?.departments || deptRes.data || []);
+
+      // The correct one
+      setSemesters(semestersRes.data.semesters || semestersRes.data || []);
+
+
+    } catch (err) {
+      toast.error("Failed to fetch data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  // Call it on mount
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [coursesRes, usersRes, deptRes] = await Promise.all([
-          api.get("/courses"),
-          api.get("/admin/users"),
-          api.get("/departments"),
-        ]);
-        setCourses(coursesRes.data || []);
-        const allUsers = usersRes.data?.users || [];
-        setTeachers(allUsers.filter((u) => u.role === "teacher"));
-        setStudents(allUsers.filter((u) => u.role === "student"));
-        setDepartments(deptRes.data?.departments || deptRes.data || []);
-      } catch (err) {
-        toast.error("Failed to fetch data");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchData();
   }, []);
+
 
   // =============== FORM HANDLERS ===============
   const handleChange = (e) => {
@@ -79,22 +110,38 @@ const AdminCourses = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Find the selected semester object from semesters array
+      const selectedSemester = semesters.find(s => s._id === formData.semesterId);
+
+      if (!selectedSemester) {
+        toast.error("Please select a valid semester");
+        return;
+      }
+
+      // Prepare payload using semester _id
+      const payload = {
+        ...formData,
+        semester: selectedSemester._id, // send ObjectId
+      };
+
       if (editingId) {
-        const res = await api.put(`/courses/${editingId}`, formData);
-        setCourses((prev) =>
-          prev.map((c) => (c._id === editingId ? res.data.course : c))
-        );
+        await api.put(`/courses/${editingId}`, payload);
         toast.success("Course updated successfully");
       } else {
-        const res = await api.post("/courses/create", formData);
-        setCourses((prev) => [...prev, res.data.course]);
+        await api.post("/courses/create", payload);
         toast.success("Course created successfully");
       }
+
       resetForm();
+      fetchData();
     } catch (err) {
+      console.error("Course save error:", err.response || err);
       toast.error(err.response?.data?.msg || "Failed to save course");
     }
   };
+
+
+
 
   const resetForm = () => {
     setFormData({
@@ -106,6 +153,7 @@ const AdminCourses = () => {
       level: "",
       totalClasses: 0,
       unit: 3,
+      semesterId: "",
     });
     setLevels([]);
     setEditingId(null);
@@ -132,6 +180,7 @@ const AdminCourses = () => {
       level: course.level || "",
       totalClasses: course.totalClasses || 0,
       unit: course.unit || 3,
+      semesterId: course.semesterId || course.semester || "",
     });
 
     const selectedDept = departments.find(
@@ -178,12 +227,16 @@ const AdminCourses = () => {
     const matchLevel = filterLevel
       ? String(c.level) === String(filterLevel)
       : true;
+    const matchSemester = filterSemester
+      ? String(c.semester) === String(filterSemester)
+      : true;
 
-    return matchSearch && matchDept && matchLevel;
+
+
+    return matchSearch && matchDept && matchLevel && matchSemester;
   });
 
   // =============== Manage Students Modal ===============
-  // Open the modal for a specific course
   const openManageStudentsModal = async (course) => {
     try {
       const res = await api.get(`/courses/${course._id}`);
@@ -200,17 +253,14 @@ const AdminCourses = () => {
     if (!modalEnrollStudent) return toast.error("Please select a student");
 
     try {
-      // Call API to enroll the student
       await api.post(`/courses/${selectedCourse._id}/enroll`, {
         studentId: modalEnrollStudent,
       });
 
-      // Find the enrolled student from the students list
       const enrolledStudent = students.find((s) => s._id === modalEnrollStudent);
 
       toast.success("Student enrolled successfully");
 
-      // Update the main courses list
       setCourses((prev) =>
         prev.map((c) =>
           c._id === selectedCourse._id
@@ -219,20 +269,17 @@ const AdminCourses = () => {
         )
       );
 
-      // Update the modal table instantly
       setSelectedCourse((prev) => ({
         ...prev,
         students: [...(prev.students || []), enrolledStudent],
       }));
 
-      // Reset select input
       setModalEnrollStudent("");
     } catch (err) {
       console.error("Enroll failed:", err);
       toast.error(err.response?.data?.msg || "Failed to enroll student");
     }
   };
-
 
   const handleModalUnenroll = async (studentId) => {
     if (!window.confirm("Are you sure you want to unenroll this student?")) return;
@@ -241,19 +288,14 @@ const AdminCourses = () => {
       await api.post(`/courses/${selectedCourse._id}/unenroll`, { studentId });
       toast.success("Student unenrolled successfully");
 
-      // ✅ Update main courses list
       setCourses((prev) =>
         prev.map((c) =>
           c._id === selectedCourse._id
-            ? {
-              ...c,
-              students: (c.students || []).filter((s) => s._id !== studentId),
-            }
+            ? { ...c, students: (c.students || []).filter((s) => s._id !== studentId) }
             : c
         )
       );
 
-      // ✅ Instantly update the modal view
       setSelectedCourse((prev) => ({
         ...prev,
         students: (prev.students || []).filter((s) => s._id !== studentId),
@@ -264,8 +306,6 @@ const AdminCourses = () => {
     }
   };
 
-
-  // Unassign a lecturer from a course
   const handleUnassignLecturer = async (courseId) => {
     if (!window.confirm("Are you sure you want to unassign this lecturer?")) return;
     try {
@@ -281,14 +321,10 @@ const AdminCourses = () => {
     }
   };
 
-
   // Pagination
   const indexOfLastCourse = currentPage * coursesPerPage;
   const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
-  const currentCourses = filteredCourses.slice(
-    indexOfFirstCourse,
-    indexOfLastCourse
-  );
+  const currentCourses = filteredCourses.slice(indexOfFirstCourse, indexOfLastCourse);
   const totalPages = Math.ceil(filteredCourses.length / coursesPerPage);
 
   if (loading) return <LoadingSpinner />;
@@ -297,14 +333,26 @@ const AdminCourses = () => {
     <div className="admin-courses-page">
       <h2 className="admin-title">Manage Courses</h2>
 
+      {/* --- Add Semester Button --- */}
+      <div className="mb-3">
+        <Button
+          variant="primary"
+          onClick={() => { setEditingSemester(null); setShowSemesterModal(true); }}
+        >
+          Add Semester
+        </Button>
+      </div>
+
       {/* Forms */}
       <div className="form-grid">
         <CourseForm
           formData={formData}
+          setFormData={setFormData}
           teachers={teachers}
           departments={departments}
           levels={levels}
           editingId={editingId}
+          semesters={semesters}
           handleChange={handleChange}
           handleSubmit={handleSubmit}
           resetForm={resetForm}
@@ -322,7 +370,7 @@ const AdminCourses = () => {
       {/* Filter Bar */}
       <div className="filter-bar glass-card mt-4 mb-3 p-3">
         <Row className="align-items-end g-2">
-          <Col md={4}>
+          <Col md={3}>
             <Form.Control
               type="text"
               placeholder="Search by name, code, or lecturer..."
@@ -343,7 +391,7 @@ const AdminCourses = () => {
               ))}
             </Form.Select>
           </Col>
-          <Col md={3}>
+          <Col md={2}>
             <Form.Select
               value={filterLevel}
               onChange={(e) => {
@@ -360,6 +408,24 @@ const AdminCourses = () => {
               ))}
             </Form.Select>
           </Col>
+          <Col md={2}>
+            <Form.Select
+              value={filterSemester}
+              onChange={(e) => {
+                setFilterSemester(e.target.value);
+                setCurrentPage(1);
+              }}
+            >
+              <option value="">Filter by Semester</option>
+              {semesters.map((s) => (
+                <option key={s._id} value={s._id}>
+                  {s.name} ({s.season})
+                </option>
+              ))}
+            </Form.Select>
+
+
+          </Col>
           <Col md={2} className="C-reset">
             <Button
               variant="secondary"
@@ -369,6 +435,7 @@ const AdminCourses = () => {
                 setFilterDept("");
                 setFilterLevel("");
                 setFilterLevels([]);
+                setFilterSemester("");
               }}
             >
               Reset
@@ -380,6 +447,7 @@ const AdminCourses = () => {
       {/* Courses Table */}
       <CoursesTable
         courses={currentCourses}
+        semesters={semesters}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
         openManageStudentsModal={openManageStudentsModal}
@@ -410,94 +478,24 @@ const AdminCourses = () => {
       )}
 
       {/* Manage Students Modal */}
-      <Modal
+      <ManageStudentsModal
         show={showModal}
         onHide={() => setShowModal(false)}
-        size="lg"
-        centered
-        scrollable
-      >
-        <Modal.Header closeButton className="bg-light">
-          <Modal.Title className="fw-semibold">
-            Manage Students for {selectedCourse?.name}
-          </Modal.Title>
-        </Modal.Header>
+        course={selectedCourse}
+        students={students}
+        handleModalEnroll={handleModalEnroll}
+        modalEnrollStudent={modalEnrollStudent}
+        setModalEnrollStudent={setModalEnrollStudent}
+        handleModalUnenroll={handleModalUnenroll}
+      />
 
-        <Modal.Body style={{ maxHeight: "70vh", overflowY: "auto" }}>
-          <h5 className="mb-3 text-secondary">Enrolled Students</h5>
-
-          {/* ✅ Responsive Table Wrapper */}
-          <div className="table-responsive">
-            <Table striped bordered hover className="align-middle">
-              <thead className="table-light">
-                <tr>
-                  <th>Name</th>
-                  <th>Matric No.</th>
-                  <th className="text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {selectedCourse?.students?.length ? (
-                  selectedCourse.students.map((s) => (
-                    <tr key={s._id}>
-                      <td>{s.name}</td>
-                      <td>{s.studentId || "N/A"}</td>
-                      <td className="text-center">
-                        <Button
-                          variant="outline-danger"
-                          size="sm"
-                          onClick={() => handleModalUnenroll(s._id)}
-                        >
-                          Unenroll
-                        </Button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="3" className="text-center text-muted">
-                      No students enrolled
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </Table>
-          </div>
-
-          <hr />
-
-          <Form onSubmit={handleModalEnroll} className="mt-3">
-            <Row className="align-items-end g-2">
-              <Col md={8} sm={12}>
-                <Form.Select
-                  value={modalEnrollStudent}
-                  onChange={(e) => setModalEnrollStudent(e.target.value)}
-                  required
-                >
-                  <option value="">Select Student to Enroll</option>
-                  {students
-                    .filter(
-                      (s) =>
-                        !(selectedCourse?.students || []).some(
-                          (en) => en._id === s._id
-                        )
-                    )
-                    .map((s) => (
-                      <option key={s._id} value={s._id}>
-                        {s.name} ({s.studentId})
-                      </option>
-                    ))}
-                </Form.Select>
-              </Col>
-              <Col md={4} sm={12}>
-                <Button type="submit" className="w-100 btn-accent">
-                  Enroll Student
-                </Button>
-              </Col>
-            </Row>
-          </Form>
-        </Modal.Body>
-      </Modal>
+      {/* Semester Modal */}
+      <SemesterForm
+        show={showSemesterModal}
+        onHide={() => setShowSemesterModal(false)}
+        fetchSemesters={fetchData} // use your existing fetchData function
+        editingSemester={editingSemester}
+      />
 
     </div>
   );
@@ -508,9 +506,11 @@ const AdminCourses = () => {
    ------------------------- */
 const CourseForm = ({
   formData,
+  setFormData,
   teachers,
   departments,
   levels,
+  semesters,
   editingId,
   handleChange,
   handleSubmit,
@@ -581,6 +581,23 @@ const CourseForm = ({
         </option>
       ))}
     </select>
+
+    {/* Semester Selection */}
+    <select
+      name="semesterId"
+      value={formData.semesterId} // <-- store _id
+      onChange={handleChange} // simple generic handler
+      required
+    >
+      <option value="">Select Semester</option>
+      {semesters.map((s) => (
+        <option key={s._id} value={s._id}>
+          {s.name} ({s.season})
+        </option>
+      ))}
+    </select>
+
+
     <input
       type="number"
       name="unit"
@@ -668,7 +685,14 @@ const EnrollmentForm = ({
 /* -------------------------
    CoursesTable component
    ------------------------- */
-const CoursesTable = ({ courses, handleEdit, handleDelete, openManageStudentsModal, handleUnassignLecturer }) => (
+const CoursesTable = ({
+  courses,
+  semesters, // <-- receive semesters here
+  handleEdit,
+  handleDelete,
+  openManageStudentsModal,
+  handleUnassignLecturer,
+}) => (
   <div className="table-container">
     <Table hover responsive className="admin-table">
       <thead>
@@ -679,6 +703,7 @@ const CoursesTable = ({ courses, handleEdit, handleDelete, openManageStudentsMod
           <th>Lecturer</th>
           <th>Department</th>
           <th>Level</th>
+          <th>Semester</th>
           <th>Unit</th>
           <th>Total Classes</th>
           <th>Actions</th>
@@ -686,57 +711,59 @@ const CoursesTable = ({ courses, handleEdit, handleDelete, openManageStudentsMod
       </thead>
       <tbody>
         {courses.length > 0 ? (
-          courses.map((c) => (
-            <tr key={c._id}>
-              <td>{c.name}</td>
-              <td style={{ maxWidth: 220 }}>{c.description || "-"}</td>
-              <td>{c.code}</td>
-              <td>{c.teacher?.name || "N/A"}</td>
-              <td>{c.department?.name || "N/A"}</td>
-              <td>{c.level || "-"}</td>
-              <td>{c.unit || "-"}</td>
-              <td>{c.totalClasses || 0}</td>
-              <td>
-                <Button
-                  variant="info"
-                  size="sm"
-                  onClick={() => openManageStudentsModal(c)}
-                  className="me-2 mang"
-                >
-                  Manage
-                </Button>
-                <Button
-                  variant="warning"
-                  size="sm"
-                  onClick={() => handleEdit(c)}
-                  className="me-2"
-                >
-                  Edit
-                </Button>
+          courses.map((c) => {
+            const semesterObj = semesters.find(s => s._id === (c.semesterId || c.semester));
 
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => handleUnassignLecturer(c._id)}
-                  className="me-2 unl"
-                >
-                  Unassign Lecturer
-                </Button>
-
-
-                <Button
-                  variant="danger"
-                  size="sm"
-                  onClick={() => handleDelete(c._id)}
-                >
-                  Delete
-                </Button>
-              </td>
-            </tr>
-          ))
+            return (
+              <tr key={c._id}>
+                <td>{c.name}</td>
+                <td style={{ maxWidth: 220 }}>{c.description || "-"}</td>
+                <td>{c.code}</td>
+                <td>{c.teacher?.name || "N/A"}</td>
+                <td>{c.department?.name || "N/A"}</td>
+                <td>{c.level || "-"}</td>
+                <td>{semesterObj ? `${semesterObj.name} (${semesterObj.season})` : "-"}</td> {/* ✅ display semester */}
+                <td>{c.unit || "-"}</td>
+                <td>{c.totalClasses || 0}</td>
+                <td>
+                  <Button
+                    variant="info"
+                    size="sm"
+                    onClick={() => openManageStudentsModal(c)}
+                    className="me-2 mang"
+                  >
+                    Manage
+                  </Button>
+                  <Button
+                    variant="warning"
+                    size="sm"
+                    onClick={() => handleEdit(c)}
+                    className="me-2"
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => handleUnassignLecturer(c._id)}
+                    className="me-2 unl"
+                  >
+                    Unassign Lecturer
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleDelete(c._id)}
+                  >
+                    Delete
+                  </Button>
+                </td>
+              </tr>
+            );
+          })
         ) : (
           <tr>
-            <td colSpan="9" className="text-center">
+            <td colSpan="10" className="text-center">
               No courses found
             </td>
           </tr>
@@ -744,6 +771,64 @@ const CoursesTable = ({ courses, handleEdit, handleDelete, openManageStudentsMod
       </tbody>
     </Table>
   </div>
+);
+
+
+/* -------------------------
+   ManageStudentsModal component
+   ------------------------- */
+const ManageStudentsModal = ({
+  show,
+  onHide,
+  course,
+  students,
+  handleModalEnroll,
+  modalEnrollStudent,
+  setModalEnrollStudent,
+  handleModalUnenroll,
+}) => (
+  <Modal show={show} onHide={onHide} size="lg" centered>
+    <Modal.Header closeButton>
+      <Modal.Title>Manage Students: {course?.name}</Modal.Title>
+    </Modal.Header>
+    <Modal.Body>
+      <form onSubmit={handleModalEnroll} className="mb-3 d-flex gap-2">
+        <select
+          value={modalEnrollStudent}
+          onChange={(e) => setModalEnrollStudent(e.target.value)}
+          className="form-select"
+          required
+        >
+          <option value="">Select Student to Enroll</option>
+          {students
+            .filter((s) => !(course?.students || []).some((cs) => cs._id === s._id))
+            .map((s) => (
+              <option key={s._id} value={s._id}>
+                {s.name} ({s.email})
+              </option>
+            ))}
+        </select>
+        <Button type="submit" variant="primary">
+          Enroll
+        </Button>
+      </form>
+      <h5>Enrolled Students</h5>
+      <ul>
+        {(course?.students || []).map((s) => (
+          <li key={s._id} className="d-flex justify-content-between">
+            {s.name} ({s.email})
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => handleModalUnenroll(s._id)}
+            >
+              Unenroll
+            </Button>
+          </li>
+        ))}
+      </ul>
+    </Modal.Body>
+  </Modal>
 );
 
 export default AdminCourses;

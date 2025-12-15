@@ -1,0 +1,113 @@
+.student-scan-wrapper {
+    padding: 80px 0;
+    background-color: var(--un-bg);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.student-scan-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
+    padding: 40px 30px;
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.student-scan-card h3 {
+    color: var(--un-text);
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.video-wrapper {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+#reader {
+    margin: 0 auto 20px;
+}
+
+.scan-btn {
+    background: var(--un-primary);
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-weight: 600;
+    padding: 10px 12px;
+    width: 100%;
+    transition: 0.15s ease;
+}
+
+.scan-btn:hover {
+    background-color: #09581e;
+    transform: translateY(-1px);
+    box-shadow: 0 0 10px #09581e;
+}
+
+.status-message {
+    font-size: 14px;
+    color: var(--un-text);
+    margin-top: 8px;
+}
+
+
+/* SUCCESS MODAL */
+.success-modal .modal-content {
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    border: none;
+}
+
+.success-body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.success-icon {
+    width: 70px;
+    height: 70px;
+    background: #28a745;
+    color: white;
+    font-size: 36px;
+    font-weight: bold;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.success-title {
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+.success-text {
+    color: #555;
+    font-size: 15px;
+}
+
+.success-btn {
+    margin-top: 15px;
+    width: 100%;
+    padding: 10px;
+    font-weight: 600;
+    border-radius: 8px;
+}
+
+
+
+
+@media (max-width: 576px) {
+    .student-scan-card {
+        padding: 20px;
+    }
+}

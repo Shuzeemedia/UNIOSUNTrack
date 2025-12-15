@@ -49,6 +49,9 @@ import StudentCourses from "./pages/Sdashboard/StudentCourses";
 // Offline banner
 
 import "./index.css";
+import AdminSemesters from "./pages/adnimSide/AdminSemesters";
+import AdminSessions from "./pages/adnimSide/AdminSessions";
+import FaceEnroll from "./pages/FaceEnroll";
 
 function App() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -63,6 +66,7 @@ function App() {
         {/* ================== PUBLIC ROUTES ================== */}
         <Route path="/" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/enroll-face" element={<FaceEnroll />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/courses/:id" element={<CourseDetails />} />
@@ -122,6 +126,8 @@ function App() {
           <Route path="users" element={<AdminUsers />} />
           <Route path="teachers" element={<AdminTeachers />} />
           <Route path="courses" element={<AdminCourses />} />
+          <Route path="semesters" element={<AdminSemesters />} />
+          <Route path="sessions" element={<AdminSessions />} />
           <Route path="attendance" element={<AdminManageAttendance />} />
           <Route path="departments" element={<AdminDepartments />} />
           <Route path="profile" element={<Profile />} />
