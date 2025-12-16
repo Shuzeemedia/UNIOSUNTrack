@@ -291,23 +291,23 @@ const StudentScanPage = () => {
             <div className="student-scan-card">
                 <h3>Scan Attendance QR</h3>
 
-                <div className="video-wrapper">
-                    <div className="video-wrapper">
-                        <video
-                            ref={videoRef}
-                            autoPlay
-                            muted
-                            playsInline
-                            className="scan-video"
-                            style={{ display: faceVerified ? "none" : "block" }}
-                        />
 
-                        <div
-                            id="reader"
-                            className="qr-reader"
-                            style={{ display: faceVerified ? "block" : "none" }}
-                        />
-                    </div>
+                <div className="video-wrapper">
+                    <video
+                        ref={videoRef}
+                        autoPlay
+                        muted
+                        playsInline
+                        className="scan-video"
+                        style={{ display: faceVerified ? "none" : "block" }}
+                    />
+
+                    <div
+                        id="reader"
+                        className="qr-reader"
+                        style={{ display: faceVerified ? "block" : "none" }}
+                    />
+
 
                 </div>
 
