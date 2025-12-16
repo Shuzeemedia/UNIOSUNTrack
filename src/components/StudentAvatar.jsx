@@ -62,7 +62,8 @@ const StudentAvatar = ({ student, size = 48 }) => {
     height: size,
     borderRadius: "50%",
     objectFit: "cover",
-    backgroundColor: "#777", // fallback bg
+    // objectPosition: "top",
+    backgroundColor: "#fbbf24",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",

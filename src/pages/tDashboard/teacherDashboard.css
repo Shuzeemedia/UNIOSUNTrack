@@ -17,11 +17,15 @@
 
 /* ===== HEADER CARD ===== */
 .teacher-header-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    flex-wrap: wrap;
     background: linear-gradient(135deg, var(--un-primary), var(--un-accent));
     color: white;
-    padding: 2rem;
+    padding: 2rem 2.5rem;
     border-radius: 16px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
     margin-bottom: 2rem;
     transition: transform 0.2s ease;
 }
@@ -30,16 +34,50 @@
     transform: translateY(-3px);
 }
 
-.teacher-info h1 {
+.teacher-info-left,
+.teacher-info-right {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 200px;
+}
+
+.teacher-info-left h1 {
     font-size: 1.8rem;
     font-weight: 700;
     margin-bottom: 0.5rem;
 }
 
-.teacher-info p {
-    margin: 0.25rem 0;
+.teacher-info-left p,
+.teacher-info-right p {
+    margin: 0;
     font-size: 0.95rem;
 }
+
+/* Right section styling */
+.teacher-info-right {
+    align-items: flex-end;
+    text-align: right;
+}
+
+@media (max-width: 768px) {
+    .teacher-header-card {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1.5rem;
+        gap: 1rem;
+    }
+
+    .teacher-info-right {
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .teacher-info-left h1 {
+        font-size: 1.5rem;
+    }
+}
+
 
 /* ===== COURSE SECTION ===== */
 .courses-section h2 {

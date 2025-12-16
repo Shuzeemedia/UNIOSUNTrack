@@ -7,7 +7,6 @@
 
 /* ===== Layout Container ===== */
 .profile-container {
-    /* margin-top: 12vh; */
     background: var(--un-bg);
     min-height: 100vh;
     display: flex;
@@ -15,7 +14,6 @@
     justify-content: center;
     padding: 40px 20px;
 }
-
 
 /* ===== Profile Card ===== */
 .profile-card {
@@ -44,11 +42,8 @@
 
 /* ===== Avatar Section ===== */
 .profile-avatar {
-    background: none;
     width: 100%;
     padding: 10px 0;
-    height: fit-content;
-    border-radius: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -164,7 +159,7 @@
     cursor: not-allowed;
 }
 
-/* Image Preview Overlay */
+/* ===== Image Preview Overlay ===== */
 .img-preview-overlay {
     position: fixed;
     top: 0;
@@ -197,7 +192,67 @@
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
 }
 
+/* ===== Cropper Modal ===== */
+.cropper-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
 
+.cropper-box {
+    position: relative;
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    width: 70%;
+    height: 70%;
+    max-height: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.cropper-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    z-index: 2000;
+}
+
+.save-crop-btn,
+.cancel-crop-btn {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.save-crop-btn {
+    background-color: var(--un-primary);
+    color: white;
+}
+
+.save-crop-btn:hover {
+    background-color: #094f1b;
+}
+
+.cancel-crop-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+.cancel-crop-btn:hover {
+    background-color: #d32f2f;
+}
 
 /* ===== Responsive ===== */
 @media (max-width: 600px) {
@@ -223,5 +278,17 @@
     .profile-container {
         padding: 1rem;
         min-height: fit-content;
+    }
+
+    .cropper-box {
+        max-width: 95%;
+    }
+
+    .save-crop-btn,
+    .cancel-crop-btn {
+        flex: 1;
+        margin: 0 5px;
+        padding: 10px 0;
+        font-size: 14px;
     }
 }

@@ -36,11 +36,15 @@ const TeacherCourseDetails = () => {
 
       try {
         const res = await api.get(`/courses/${id}`);
+        console.log("COURSE RESPONSE", res.data);
         setCourse(res.data);
         setStudents(res.data.students || []);
+        // console.log("STUDENTS RECEIVED FROM BACKEND:", res.data.students);
+
       } catch {
         setError("Failed to fetch course details");
       }
+      
 
       try {
         const params = getFilterParams(filter, date);

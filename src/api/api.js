@@ -1,12 +1,9 @@
-// src/api/api.js
 import axios from "axios";
 
-// Dynamically pick the correct base URL
+// Use environment variable or fallback to localhost
 const API = axios.create({
   baseURL:
-    import.meta.env.MODE === "development"
-      ? "http://localhost:5000/api"
-      : import.meta.env.VITE_API_URL || "https://your-backend-domain.com/api",
+    import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
 
 // ===================== REQUEST INTERCEPTOR ===================== //
@@ -34,14 +31,14 @@ API.interceptors.request.use(
 API.interceptors.response.use(
   (response) => response,
   (error) => {
+    // If offline, mark and let component handle
     if (error.isOffline) {
       return Promise.reject(error);
     }
 
+    // Handle auth errors globally
     const status = error.response?.status;
-
-    // Auto logout on unauthorized
-    if (status === 401 || status === 403) {
+    if (status === 401) {
       localStorage.removeItem("user");
       localStorage.removeItem("token");
       window.location.href = "/login";

@@ -34,7 +34,10 @@ const AdminLayout = () => {
     { path: "/admin/attendance", label: "Attendance" },
     { path: "/admin/teachers", label: "Lecturers" },
     { path: "/admin/departments", label: "Departments" },
+    { path: "/admin/semesters", label: "Semesters" },
+    { path: "/admin/sessions", label: "Sessions" },
   ];
+
 
   return (
     <div className="admin-layout">
@@ -50,9 +53,8 @@ const AdminLayout = () => {
               <li key={item.path}>
                 <Link
                   to={item.path}
-                  className={`admin-link ${
-                    location.pathname === item.path ? "active" : ""
-                  }`}
+                  className={`admin-link ${location.pathname === item.path ? "active" : ""
+                    }`}
                   onClick={() => setSidebarOpen(false)} // close on mobile after click
                 >
                   {item.label}
@@ -90,6 +92,8 @@ const AdminLayout = () => {
                 getInitials(user?.name)
               )}
             </div>
+
+
 
             {open && (
               <div className="admin-dropdown">

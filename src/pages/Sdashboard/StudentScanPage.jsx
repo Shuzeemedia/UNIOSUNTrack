@@ -1,196 +1,333 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../api/api"; // ✅ use global offline-aware Axios
-import { Spinner, Alert, ProgressBar } from "react-bootstrap";
+
+import api from "../../api/api";
+import { Modal, Button } from "react-bootstrap";
 import { Html5Qrcode } from "html5-qrcode";
+import * as faceapi from "face-api.js";
+import { toast } from "react-toastify";
+import "./StudentScanPage.css";
+
+function getDistanceInMeters(lat1, lng1, lat2, lng2) {
+    const R = 6371000;
+    const toRad = (x) => (x * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+const loadFaceModels = async () => {
+    const MODEL_URL = "/models";
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+    await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+    await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+};
 
 const StudentScanPage = () => {
     const { sessionToken } = useParams();
-    const [sessionInfo, setSessionInfo] = useState(null);
-    const [status, setStatus] = useState("loading"); // loading | valid | expired | error | marked | no-camera
-    const [message, setMessage] = useState("");
-    const [timeLeft, setTimeLeft] = useState(0);
-    const [nextQRRefresh, setNextQRRefresh] = useState(0);
-    const navigate = useNavigate();
+    const videoRef = useRef(null);
     const html5QrCodeRef = useRef(null);
+    const streamRef = useRef(null);
+    const scanningLockedRef = useRef(false);
+    const navigate = useNavigate();
 
+    const distance = (p1, p2) => Math.hypot(p1.x - p2.x, p1.y - p2.y);
+
+    const checkBlink = (eye) => {
+        return (
+            distance(eye[1], eye[5]) +
+            distance(eye[2], eye[4])
+        ) / (2 * distance(eye[0], eye[3]));
+    };
+
+
+
+    const [sessionInfo, setSessionInfo] = useState(null);
+    const [faceVerified, setFaceVerified] = useState(false);
+    const [faceLoading, setFaceLoading] = useState(false);
+    const [modalShow, setModalShow] = useState(false);
+    const [modalMsg, setModalMsg] = useState("");
+
+    // Fetch session info & student face descriptor
     useEffect(() => {
-        fetchSessionInfo();
-        return () => stopScanner();
+        if (!sessionToken) return toast.error("Invalid session URL");
+
+        const fetchSession = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const res = await api.get(`/sessions/${sessionToken}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const session = res.data.session;
+
+                if (!session || session.status === "expired") {
+                    toast.warn("Session expired or invalid");
+                    return;
+                }
+
+                const faceRes = await api.get(`/sessions/${sessionToken}/student`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const studentFaceDescriptor = faceRes.data.studentFaceDescriptor;
+
+                if (!studentFaceDescriptor || studentFaceDescriptor.length !== 128) {
+                    toast.error("Face descriptor missing or invalid");
+                    console.warn("Face descriptor invalid:", studentFaceDescriptor);
+                    return;
+                }
+
+                setSessionInfo({ ...session, studentFaceDescriptor });
+            } catch (err) {
+                toast.error("Failed to fetch session info");
+                console.error(err);
+            }
+        };
+
+        fetchSession();
+    }, [sessionToken]);
+
+    // Start camera
+    useEffect(() => {
+        const initCamera = async () => {
+            try {
+                await loadFaceModels();
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                streamRef.current = stream;
+                if (videoRef.current) videoRef.current.srcObject = stream;
+            } catch (err) {
+                console.error("Camera init error:", err);
+                toast.error("Failed to start camera");
+            }
+        };
+        initCamera();
+
+        return () => {
+            if (streamRef.current) streamRef.current.getTracks().forEach((t) => t.stop());
+            if (html5QrCodeRef.current) {
+                html5QrCodeRef.current.stop().catch(() => { });
+                html5QrCodeRef.current.clear().catch(() => { });
+            }
+        };
     }, []);
 
-    const fetchSessionInfo = async () => {
-        try {
-            const res = await api.get(`/sessions/${sessionToken}`);
-            const data = res.data.session;
+    const stopVideoStream = () => {
+        if (streamRef.current) {
+            streamRef.current.getTracks().forEach(track => track.stop());
+            streamRef.current = null;
+        }
 
-            setSessionInfo(data);
-            if (!data || data.expired) {
-                setStatus("expired");
-                setMessage("This session has expired. Ask your lecturer for a new QR.");
-            } else {
-                setStatus("valid");
-                startCountdown(data.expiresAt);
-                startRefreshCountdown();
-            }
-        } catch (err) {
-            if (err.isOffline) {
-                setStatus("error");
-                setMessage("You are offline. Cannot fetch session info.");
-            } else {
-                setStatus("error");
-                setMessage(err.response?.data?.msg || "Invalid or expired session.");
-            }
+        if (videoRef.current) {
+            videoRef.current.srcObject = null;
         }
     };
 
-    const startCountdown = (expiresAt) => {
-        const expiry = new Date(expiresAt).getTime();
-        const timer = setInterval(() => {
-            const diff = expiry - Date.now();
-            if (diff <= 0) {
-                setStatus("expired");
-                setMessage("Session expired. Ask lecturer for a new QR.");
-                clearInterval(timer);
-                stopScanner();
-            } else {
-                setTimeLeft(Math.ceil(diff / 1000));
-            }
-        }, 1000);
-    };
 
-    const startRefreshCountdown = () => {
-        setNextQRRefresh(10);
-        const interval = setInterval(() => {
-            setNextQRRefresh((prev) => (prev <= 1 ? 10 : prev - 1));
-        }, 1000);
-        return () => clearInterval(interval);
-    };
+    // Face verification
+    const verifyFace = async () => {
+        if (!sessionInfo) return;
 
-    useEffect(() => {
-        if (status === "valid" && !html5QrCodeRef.current) startScanner();
-    }, [status]);
+        setFaceLoading(true);
+        toast.info("Please blink your eyes to verify liveness");
 
-    const startScanner = async () => {
         try {
-            const cameras = await Html5Qrcode.getCameras();
-            if (!cameras || cameras.length === 0) {
-                setStatus("error");
-                setMessage(
-                    "No camera detected on this device. Please use a device with a webcam or mobile phone."
-                );
-                return;
-            }
+            const storedDescriptor = new Float32Array(sessionInfo.studentFaceDescriptor);
 
-            const html5QrCode = new Html5Qrcode("reader");
-            html5QrCodeRef.current = html5QrCode;
+            const faceMatcher = new faceapi.FaceMatcher(
+                [new faceapi.LabeledFaceDescriptors("student", [storedDescriptor])],
+                0.6
+            );
 
-            await html5QrCode.start(
-                { facingMode: "environment" },
-                { fps: 10, qrbox: { width: 250, height: 250 } },
-                async (decodedText) => {
-                    if (decodedText) {
-                        stopScanner();
-                        // ✅ Extract the token from the scanned QR
-                        const token = decodedText.split("/").pop();
-                        await markAttendance(token);
+            const video = videoRef.current;
+            let blinkCount = 0;
+            let recognized = false;
+            const startTime = Date.now();
+            const TIMEOUT = 20000;
+
+            const detectLoop = async () => {
+                if (recognized || Date.now() - startTime > TIMEOUT) {
+                    if (!recognized) toast.error("Face or liveness check failed");
+                    setFaceLoading(false);
+                    return;
+                }
+
+                const detection = await faceapi
+                    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+                    .withFaceLandmarks()
+                    .withFaceDescriptor();
+
+                if (detection) {
+                    const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+
+                    if (bestMatch.label === "student") {
+                        const leftEye = detection.landmarks.getLeftEye();
+                        const ear = checkBlink(leftEye);
+
+                        if (ear < 0.25) {
+                            blinkCount += 1;
+                            toast.info(`Blink detected (${blinkCount})`);
+                        }
+
+                        if (blinkCount >= 1) {
+                            recognized = true;
+
+                            toast.success("Face & liveness verified");
+                            setFaceVerified(true);
+
+                            stopVideoStream();
+                            scanningLockedRef.current = false;
+
+                            setTimeout(startScanner, 300);
+                            return;
+                        }
                     }
-                },
-                () => { }
+                }
+
+                requestAnimationFrame(detectLoop);
+            };
+
+            detectLoop();
+        } catch (err) {
+            console.error(err);
+            toast.error("Face verification failed");
+            setFaceLoading(false);
+        }
+    };
+
+
+    // QR scanner using existing video feed
+    const startScanner = async () => {
+        const readerEl = document.getElementById("reader");
+        if (!readerEl) return;
+
+        if (html5QrCodeRef.current) return;
+
+        try {
+            const qr = new Html5Qrcode("reader");
+            html5QrCodeRef.current = qr;
+
+            await qr.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 250 },
+                async (decodedText) => {
+                    if (scanningLockedRef.current) return;
+                    scanningLockedRef.current = true;
+
+                    // ✅ Extract token
+                    const scannedToken = decodedText.split("/").pop();
+
+                    const success = await markAttendance(scannedToken);
+
+                    if (success) {
+                        // ✅ STOP ONLY ON SUCCESS
+                        await qr.stop();
+                        qr.clear();
+                        html5QrCodeRef.current = null;
+                    } else {
+                        // ❌ Resume scanning on failure
+                        scanningLockedRef.current = false;
+                    }
+                }
             );
         } catch (err) {
-            setStatus("error");
-            setMessage("Unable to start camera. Check permissions or device webcam.");
+            console.error("QR Scanner init failed:", err);
+            toast.error("QR Scanner failed");
         }
     };
 
-    const stopScanner = async () => {
-        const html5QrCode = html5QrCodeRef.current;
-        if (html5QrCode && html5QrCode.isScanning) {
-            try {
-                await html5QrCode.stop();
-                await html5QrCode.clear();
-            } catch { }
-        }
-        html5QrCodeRef.current = null;
-    };
 
+
+
+    // Mark attendance
     const markAttendance = async (scannedToken) => {
         try {
-            setStatus("loading");
-            const res = await api.post(`/sessions/scan/${scannedToken}`);
-            setStatus("marked");
-            setMessage(res.data.msg || "Attendance marked successfully!");
-        } catch (err) {
-            if (err.isOffline) {
-                setStatus("error");
-                setMessage("You are offline. Cannot mark attendance.");
-            } else {
-                const backendMsg = err.response?.data?.msg || "Failed to mark attendance.";
-                if (backendMsg.includes("QR expired") || backendMsg.includes("Invalid")) {
-                    setStatus("expired");
-                    setMessage("This QR is no longer valid — wait for the next one.");
-                } else {
-                    setStatus("error");
-                    setMessage(backendMsg);
+            const position = await new Promise((resolve, reject) =>
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => resolve(pos.coords),
+                    (err) => reject(err.message)
+                )
+            );
+
+            const courseLoc = sessionInfo.course.location;
+            if (courseLoc?.lat && courseLoc?.lng) {
+                const dist = getDistanceInMeters(
+                    position.latitude,
+                    position.longitude,
+                    courseLoc.lat,
+                    courseLoc.lng
+                );
+                if (dist > courseLoc.radius) {
+                    toast.error("You are not within lecture location");
+                    return false;
                 }
             }
+
+            const token = localStorage.getItem("token");
+
+            const res = await api.post(
+                `/sessions/scan/${scannedToken}`,
+                { location: position },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            setModalMsg(res.data.msg);
+            setModalShow(true);
+            return true; // SUCCESS
+        } catch (err) {
+            toast.error(err?.response?.data?.msg || "Attendance failed");
+            return false; // FAILURE
         }
     };
 
+
+
     return (
-        <div className="student-scan-container">
-            <h3>Scan Attendance QR</h3>
+        <div className="student-scan-wrapper">
+            <div className="student-scan-card">
+                <h3>Scan Attendance QR</h3>
 
-            {status === "loading" && (
-                <>
-                    <Spinner animation="border" variant="success" />
-                    <p className="mt-3 text-muted">Loading session...</p>
-                </>
-            )}
+                <div className="video-wrapper">
+                    <video ref={videoRef} autoPlay muted width="320" height="240" style={{ display: faceVerified ? 'none' : 'block' }} />
+                    <div id="reader" style={{ width: "320px", height: "240px", display: faceVerified ? 'block' : 'none' }} />
+                </div>
 
-            {status === "error" && <Alert variant="danger">{message}</Alert>}
 
-            {status === "expired" && (
-                <Alert variant="warning" className="w-75">
-                    ⚠️ {message}
-                </Alert>
-            )}
+                {!faceVerified && (
+                    <button className="scan-btn" onClick={verifyFace} disabled={faceLoading}>
+                        {faceLoading ? "Verifying..." : "Verify Face"}
+                    </button>
+                )}
 
-            {status === "valid" && sessionInfo && (
-                <>
-                    <Alert variant="success" className="w-75">
-                        <strong>Session Active:</strong> {sessionInfo?.course?.code || "Course"}
-                        <br />
-                        <small className="text-muted">
-                            Lecturer: {sessionInfo?.teacher?.name || "Instructor"}
-                        </small>
-                    </Alert>
+                <Modal
+                    show={modalShow}
+                    centered
+                    backdrop="static"
+                    keyboard={false}
+                    dialogClassName="success-modal"
+                >
+                    <Modal.Body className="success-body">
+                        <div className="success-icon">✓</div>
 
-                    <div className="qr-code-container">
-                        <div id="reader" style={{ width: "300px", height: "300px" }}></div>
-                    </div>
+                        <h4 className="success-title">Attendance Marked</h4>
 
-                    <div className="w-75 my-3">
-                        <ProgressBar
-                            now={(timeLeft / 600) * 100}
-                            variant={timeLeft < 60 ? "danger" : "success"}
-                        />
-                        <p className="text-muted mt-2">
-                            Session expires in: <strong>{timeLeft}s</strong>
-                        </p>
-                        <p className="text-muted mt-1">
-                            Next QR refresh in: <strong>{nextQRRefresh}s</strong>
-                        </p>
-                    </div>
-                </>
-            )}
+                        <p className="success-text">{modalMsg}</p>
 
-            {status === "marked" && (
-                <Alert variant="success" className="w-75 mt-4">
-                    {message || "Attendance successfully recorded!"}
-                </Alert>
-            )}
+                        <Button
+                            className="success-btn"
+                            onClick={() => navigate("/dashboard/student", { replace: true })}
+                        >
+
+                            Go to Dashboard
+                        </Button>
+                    </Modal.Body>
+                </Modal>
+
+            </div>
         </div>
     );
 };
