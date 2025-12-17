@@ -212,16 +212,32 @@ const Login = () => {
 
         {faceCheck && (
           <div className="face-check-wrapper">
-            <h4>Face Recognition Required</h4>
-            <div className="video-status-wrapper">
-              <video ref={videoRef} autoPlay muted width="320" />
-              <div className="status-message">{statusMessage}</div>
+            <h4 className="face-title">Face Verification</h4>
+
+            <div className="login-video-wrapper">
+              <video
+                ref={videoRef}
+                autoPlay
+                muted
+                playsInline
+                className="login-face-video"
+              />
+
+              <div className="login-status-overlay">
+                {statusMessage || "Position your face properly"}
+              </div>
             </div>
-            <button className="login-btn btnz mt-2" onClick={handleFaceRecognition} disabled={loading}>
-              {loading ? "Checking..." : "Verify Face"}
+
+            <button
+              className="login-btn btnz mt-2"
+              onClick={handleFaceRecognition}
+              disabled={loading}
+            >
+              {loading ? "Verifying..." : "Verify Face"}
             </button>
           </div>
         )}
+
 
         <div className="login-links text-muted">
           <p>
