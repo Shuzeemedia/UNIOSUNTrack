@@ -139,21 +139,75 @@
     margin-top: 4px;
 }
 
+/* ===========================
+   LOGIN FACE CAMERA STYLES
+   (Same as Student Scan Page)
+=========================== */
+
+.face-check-wrapper {
+    text-align: center;
+}
+
+.face-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--un-text);
+    margin-bottom: 12px;
+}
+
+/* Camera container */
+.login-video-wrapper {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #000;
+    margin-bottom: 16px;
+}
+
+/* Camera video */
+.login-face-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Status overlay (bottom text) */
+.login-status-overlay {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.6);
+    text-align: center;
+}
+
 /* Responsive */
 @media (max-width: 576px) {
     .login-card {
         padding: 20px;
-        
+
     }
 
-    .login-header, .header-top {
+    .login-header,
+    .header-top {
         flex-direction: column;
         align-items: center;
         text-align: center;
     }
 
-    .login-wrapper, .forgot-wrapper, .reset-wrapper{
+    .login-wrapper,
+    .forgot-wrapper,
+    .reset-wrapper {
         padding-left: 12px !important;
         padding-right: 12px !important;
+    }
+
+    .login-video-wrapper {
+        height: 380px;
     }
 }
