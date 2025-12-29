@@ -36,6 +36,7 @@ const StudentScanPage = () => {
     const streamRef = useRef(null);
     const scanningLockedRef = useRef(false);
     const navigate = useNavigate();
+    const [statusMessage, setStatusMessage] = useState("Position your face properly");
 
     const distance = (p1, p2) => Math.hypot(p1.x - p2.x, p1.y - p2.y);
 
@@ -129,29 +130,46 @@ const StudentScanPage = () => {
 
 
     // Face verification
+
     const verifyFace = async () => {
-        if (!sessionInfo) return;
+        if (!sessionInfo || !videoRef.current) return;
 
         setFaceLoading(true);
-        toast.info("Please blink your eyes to verify liveness");
+        setStatusMessage("Initializing camera...");
 
         try {
-            const storedDescriptor = new Float32Array(sessionInfo.studentFaceDescriptor);
+            const video = videoRef.current;
+
+            const storedArray = sessionInfo.studentFaceDescriptor;
+            if (!storedArray || storedArray.length !== 128) {
+                toast.error("Stored face data invalid");
+                setFaceLoading(false);
+                return;
+            }
+
+            const storedDescriptor = new Float32Array(storedArray);
 
             const faceMatcher = new faceapi.FaceMatcher(
                 [new faceapi.LabeledFaceDescriptors("student", [storedDescriptor])],
-                0.6
+                0.6 // SAME AS LOGIN UX FILTER
             );
 
-            const video = videoRef.current;
             let blinkCount = 0;
             let recognized = false;
             const startTime = Date.now();
             const TIMEOUT = 20000;
 
+            setStatusMessage("Detecting face...");
+
             const detectLoop = async () => {
+                if (!videoRef.current) return;
+
                 if (recognized || Date.now() - startTime > TIMEOUT) {
-                    if (!recognized) toast.error("Face or liveness check failed");
+                    if (!recognized) {
+                        setStatusMessage("Face not recognized or liveness failed");
+                        toast.error("Face verification failed");
+                    }
+
                     setFaceLoading(false);
                     return;
                 }
@@ -161,31 +179,42 @@ const StudentScanPage = () => {
                     .withFaceLandmarks()
                     .withFaceDescriptor();
 
-                if (detection) {
-                    const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+                if (!detection) {
+                    setStatusMessage("No face detected...");
+                    return requestAnimationFrame(detectLoop);
+                }
 
-                    if (bestMatch.label === "student") {
-                        const leftEye = detection.landmarks.getLeftEye();
-                        const ear = checkBlink(leftEye);
+                const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
 
-                        if (ear < 0.25) {
-                            blinkCount += 1;
-                            toast.info(`Blink detected (${blinkCount})`);
-                        }
+                if (bestMatch.label === "student") {
+                    const leftEye = detection.landmarks.getLeftEye();
+                    const ear = checkBlink(leftEye);
 
-                        if (blinkCount >= 1) {
-                            recognized = true;
+                    if (ear < 0.25) blinkCount += 1;
 
-                            toast.success("Face & liveness verified");
+                    if (blinkCount >= 1) {
+                        recognized = true;
+                        setStatusMessage("Verifying face on server...");
+
+                        try {
+                            toast.success("Face verified successfully");
                             setFaceVerified(true);
-
                             stopVideoStream();
-                            scanningLockedRef.current = false;
 
                             setTimeout(startScanner, 300);
                             return;
+
+                        } catch (err) {
+                            toast.error("Face verification failed");
+                            setStatusMessage("Face does not match this account");
+                            recognized = false;
+                            blinkCount = 0;
                         }
+                    } else {
+                        setStatusMessage("Face detected, please blink...");
                     }
+                } else {
+                    setStatusMessage("Face does not match. Try again...");
                 }
 
                 requestAnimationFrame(detectLoop);
@@ -198,6 +227,7 @@ const StudentScanPage = () => {
             setFaceLoading(false);
         }
     };
+
 
 
     // QR scanner using existing video feed
@@ -246,11 +276,19 @@ const StudentScanPage = () => {
     // Mark attendance
     const markAttendance = async (scannedToken) => {
         try {
-            const position = await new Promise((resolve, reject) =>
-                navigator.geolocation.getCurrentPosition(
-                    (pos) => resolve(pos.coords),
-                    (err) => reject(err.message)
-                )
+            navigator.geolocation.getCurrentPosition(
+                (pos) => resolve(pos.coords),
+                (err) => {
+                    if (err.code === 1) toast.error("Location permission denied");
+                    else if (err.code === 2) toast.error("Location unavailable");
+                    else toast.error("GPS timeout");
+                    reject(err.message);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 15000,
+                    maximumAge: 0,
+                }
             );
 
             const courseLoc = sessionInfo.course.location;
@@ -291,32 +329,40 @@ const StudentScanPage = () => {
             <div className="student-scan-card">
                 <h3>Scan Attendance QR</h3>
 
-
-                <div className="video-wrapper">
-                    <video
-                        ref={videoRef}
-                        autoPlay
-                        muted
-                        playsInline
-                        className="scan-video"
-                        style={{ display: faceVerified ? "none" : "block" }}
-                    />
-
-                    <div
-                        id="reader"
-                        className="qr-reader"
-                        style={{ display: faceVerified ? "block" : "none" }}
-                    />
-
-
-                </div>
-
-
                 {!faceVerified && (
-                    <button className="scan-btn" onClick={verifyFace} disabled={faceLoading}>
-                        {faceLoading ? "Verifying..." : "Verify Face"}
-                    </button>
+                    <div className="face-check-wrapper">
+                        <h4 className="face-title">Face Verification</h4>
+
+                        <div className="login-video-wrapper">
+                            <video
+                                ref={videoRef}
+                                autoPlay
+                                muted
+                                playsInline
+                                className="login-face-video"
+                            />
+
+                            <div className="login-status-overlay">
+                                {statusMessage || "Position your face properly"}
+                            </div>
+                        </div>
+
+                        <button
+                            className="login-btn btnz mt-2"
+                            onClick={verifyFace}
+                            disabled={faceLoading}
+                        >
+                            {faceLoading ? "Verifying..." : "Verify Face"}
+                        </button>
+                    </div>
                 )}
+
+                {faceVerified && (
+                    <div className="qr-scan-wrapper">
+                        <div id="reader" className="qr-reader" />
+                    </div>
+                )}
+
 
                 <Modal
                     show={modalShow}

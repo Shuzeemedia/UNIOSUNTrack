@@ -51,14 +51,15 @@ import StudentCourses from "./pages/Sdashboard/StudentCourses";
 import "./index.css";
 import AdminSemesters from "./pages/adnimSide/AdminSemesters";
 import AdminSessions from "./pages/adnimSide/AdminSessions";
-import FaceEnroll from "./pages/FaceEnroll";
+import EnrollFace from "./components/EnrollFace";
+// import FaceEnroll from "./pages/FaceEnroll";
 
 function App() {
   const user = JSON.parse(localStorage.getItem("user"));
 
   return (
     <Router>
-     
+
 
       <ToastContainer position="top-right" autoClose={3000} />
 
@@ -66,7 +67,15 @@ function App() {
         {/* ================== PUBLIC ROUTES ================== */}
         <Route path="/" element={<Signup />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/enroll-face" element={<FaceEnroll />} />
+        <Route
+          path="/enroll-face"
+          element={
+            <ProtectedRoute allowedRoles={["student"]}>
+              <EnrollFace />
+            </ProtectedRoute>
+          }
+        />
+
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/courses/:id" element={<CourseDetails />} />

@@ -252,11 +252,12 @@ const LecturerQRPage = () => {
                   align-items: center;
                   justify-content: center;
                   height: 100vh;
-                  background: #0f172a;
+                  background: #ffffff;
                 }
                 img {
-                  width: 85vmin;
-                  height: 85vmin;
+                  width: 90vmin;
+                  height: 90vmin;
+                  background: #ffffff;
                 }
               </style>
             </head>
@@ -274,9 +275,9 @@ const LecturerQRPage = () => {
         `);
 
         win.document.close();
-
-        sendQrToFullscreen(); // initial render
+        sendQrToFullscreen();
     };
+
 
 
 

@@ -7,8 +7,7 @@ import { getRank } from "../../utils/getRank";
 import "./adminManageAttendance.css";
 import LoadingSpinner from "../../components/Loader/LoadingSpinner";
 
-const API_BASE = import.meta.env.VITE_API_URL;
-
+const API_BASE = "http://localhost:5000/api";
 
 const toDateKey = (d) => {
   // produce a local YYYY-MM-DD string (avoids timezone shifts from toISOString)
@@ -295,7 +294,8 @@ const AdminManageAttendance = () => {
                 const totalClasses = courseInfo?.totalClasses || 0;
                 const totalHeld = s.present + s.absent;
                 const attendance = totalHeld ? (s.present / totalHeld) * 100 : 0;
-                const xpScore = totalClasses > 0 ? s.present / totalClasses : 0;
+                const xpScore = totalClasses > 0 ? (s.present / totalClasses) * 10 : 0;
+
                 const rank = getRank(s.present, totalClasses);
 
                 const getColor = (value) => {

@@ -240,8 +240,9 @@ function LeaderboardPage() {
               {[...leaderboard]
                 .map((student) => ({
                   ...student,
-                  ratio: (student.totalPresent || 0) / (student.totalClasses || 1),
+                  ratio: ((student.totalPresent || 0) / (student.totalClasses || 1)) * 10,
                 }))
+
                 .sort((a, b) => {
                   if (b.ratio !== a.ratio) return b.ratio - a.ratio; // ✅ higher score first
                   return a.name.localeCompare(b.name); // ✅ tie-breaker by name

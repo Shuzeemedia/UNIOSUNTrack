@@ -37,7 +37,7 @@ const StudentCourseDetails = () => {
   const [activeSession, setActiveSession] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(false);
 
-  const [error, setError] = useState(""); // ✅ new inline error state
+  const [error, setError] = useState(""); // new inline error state
 
   useEffect(() => {
     fetchCourseData();

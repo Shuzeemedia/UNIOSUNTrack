@@ -28,11 +28,13 @@ function StudentAttendanceTable({
     let rows;
     if (studentView) {
       rows = [
-        ["Date", "Status"],
+        ["Date", "Status", "Score (XP)"],
         ...attendanceSummary.map((r) => [
           new Date(r.date).toLocaleDateString(),
           r.status,
+          r.status === "Present" ? "10xp" : "0xp",
         ]),
+
       ];
     } else {
       rows = [
@@ -43,7 +45,8 @@ function StudentAttendanceTable({
           const total = present + absent;
           const totalPlanned = rec.totalPlanned ?? course?.totalClasses ?? 0;
           const attendancePct = total > 0 ? (present / total) * 100 : 0;
-          const score = totalPlanned > 0 ? present / totalPlanned : 0;
+          const score = totalPlanned > 0 ? (present / totalPlanned) * 10 : 0;
+
           const rankInfo = getRank(present, totalPlanned);
 
           return [
@@ -72,36 +75,97 @@ function StudentAttendanceTable({
 
   const exportPDF = () => {
     const doc = new jsPDF();
-    doc.setFontSize(14);
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const todayStr = new Date().toLocaleDateString();
+
+    /* ================= HEADER ================= */
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text("UNIOSUNTRACK ATTENDANCE SYSTEM", pageWidth / 2, 15, {
+      align: "center",
+    });
+
+    doc.setFontSize(13);
     doc.text(
-      studentView
-        ? "Student Attendance Report"
-        : "Class Attendance Report",
-      14,
-      15
+      studentView ? "Student Attendance Report" : "Class Attendance Report",
+      pageWidth / 2,
+      23,
+      { align: "center" }
     );
-    doc.setFontSize(11);
-    doc.text(`Generated on: ${today}`, 14, 22);
 
-    if (course) {
-      doc.text(
-        `Course: ${course.name || "N/A"} ${course.code ? `(${course.code})` : ""
-        }`,
-        14,
-        28
-      );
-      doc.text(`Lecturer: ${course.teacher?.name || "N/A"}`, 14, 34);
+    doc.setDrawColor(180);
+    doc.line(14, 27, pageWidth - 14, 27);
+
+    /* ================= META INFO ================= */
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+
+    let y = 34;
+
+    // Left column
+    doc.text(`Course: ${course?.name || "N/A"} ${course?.code ? `(${course.code})` : ""}`, 14, y);
+    doc.text(`Department: ${course?.department?.name || "N/A"}`, 14, y + 6);
+    doc.text(`Level: ${course?.level || "N/A"}`, 14, y + 12);
+
+    // Right column
+    doc.text(`Semester: ${course?.semester || "N/A"}`, pageWidth / 2 + 10, y);
+    doc.text(`Lecturer: ${course?.teacher?.name || "N/A"}`, pageWidth / 2 + 10, y + 6);
+    doc.text(`Generated: ${todayStr}`, pageWidth / 2 + 10, y + 12);
+
+    if (studentView) {
+      doc.text(`Student: ${studentName || "N/A"}`, 14, y + 18);
+      y += 10;
     }
-    if (studentView) doc.text(`Student: ${studentName || "N/A"}`, 14, 40);
 
+    y += 26;
+
+    /* ================= SUMMARY BOX ================= */
+    let present = 0,
+      absent = 0,
+      totalPlanned = course?.totalClasses || 0;
+
+    if (studentView) {
+      present = attendanceSummary.filter((r) => r.status === "Present").length;
+      absent = attendanceSummary.filter((r) => r.status === "Absent").length;
+    } else {
+      present = attendanceSummary.reduce((s, r) => s + (r.totalPresent ?? 0), 0);
+      absent = attendanceSummary.reduce((s, r) => s + (r.totalAbsent ?? 0), 0);
+    }
+
+    const attendancePct =
+      present + absent > 0 ? (present / (present + absent)) * 100 : 0;
+
+    const score =
+      totalPlanned > 0 ? (present / totalPlanned) * 10 : 0;
+
+    const rankInfo = getRank(present, totalPlanned);
+
+    doc.setDrawColor(200);
+    doc.rect(14, y, pageWidth - 28, 22);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("ATTENDANCE SUMMARY", 16, y + 6);
+
+    doc.setFont("helvetica", "normal");
+    doc.text(
+      `Present: ${present}   Absent: ${absent}   Attendance: ${attendancePct.toFixed(
+        1
+      )}%   Score: ${score.toFixed(2)}xp   Rank: ${rankInfo?.name || "-"}`,
+      16,
+      y + 14
+    );
+
+    y += 30;
+
+    /* ================= TABLE ================= */
     autoTable(doc, {
-      startY: 48,
+      startY: y,
       head: [
         studentView
           ? ["Date", "Status"]
           : [
             "Student",
-            "Student ID",
+            "Matric No.",
             "Present",
             "Absent",
             "Attendance %",
@@ -111,26 +175,60 @@ function StudentAttendanceTable({
       ],
       body: attendanceSummary.map((r) =>
         studentView
-          ? [new Date(r.date).toLocaleDateString(), r.status]
+          ? [
+            new Date(r.date).toLocaleDateString(),
+            r.status,
+          ]
           : [
             r.student?.name || "Unknown",
             r.student?.studentId || r.student?.matricNumber || "N/A",
             r.totalPresent ?? 0,
             r.totalAbsent ?? 0,
-            `${formatPercent(
+            `${(
               ((r.totalPresent ?? 0) /
-                ((r.totalPresent ?? 0) + (r.totalAbsent ?? 0))) *
-              100 || 0
-            )}%`,
-            formatXP((r.totalPresent ?? 0) / (course?.totalClasses || 1)),
+                ((r.totalPresent ?? 0) + (r.totalAbsent ?? 0) || 1)) *
+              100
+            ).toFixed(1)}%`,
+            `${(
+              course?.totalClasses
+                ? ((r.totalPresent ?? 0) / course.totalClasses) * 10
+                : 0
+            ).toFixed(2)}xp`,
             getRank(r.totalPresent, course?.totalClasses || 0)?.name || "-",
           ]
       ),
+      styles: {
+        fontSize: 9,
+        cellPadding: 3,
+        halign: "center",
+      },
+      headStyles: {
+        fillColor: [60, 60, 60],
+        textColor: 255,
+        halign: "center",
+      },
+      alternateRowStyles: {
+        fillColor: [245, 245, 245],
+      },
     });
+
+    /* ================= FOOTER ================= */
+    const pageCount = doc.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      doc.setPage(i);
+      doc.setFontSize(9);
+      doc.text(
+        `Page ${i} of ${pageCount} — Generated by UNIOSUNTRACK`,
+        pageWidth / 2,
+        doc.internal.pageSize.getHeight() - 10,
+        { align: "center" }
+      );
+    }
 
     doc.save("attendance_report.pdf");
     toast.success("PDF downloaded successfully!");
   };
+
 
   const sendEmailReport = () =>
     toast.info("Email report feature coming soon!");
@@ -148,7 +246,8 @@ function StudentAttendanceTable({
         const total = present + absent;
         const totalPlanned = rec.totalPlanned ?? course?.totalClasses ?? 0;
         const attendancePct = total > 0 ? (present / total) * 100 : 0;
-        const score = totalPlanned > 0 ? present / totalPlanned : 0;
+        const score = totalPlanned > 0 ? (present / totalPlanned) * 10 : 0;
+
         return { ...rec, attendancePct, score };
       });
     }, [attendanceSummary, course]);
@@ -296,7 +395,8 @@ function StudentAttendanceTable({
   const total = presentCount + absentCount;
   const totalPlanned = course?.totalClasses || 0;
   const attendancePct = total > 0 ? (presentCount / total) * 100 : 0;
-  const score = totalPlanned > 0 ? presentCount / totalPlanned : 0;
+  const score = totalPlanned > 0 ? (presentCount / totalPlanned) * 10 : 0;
+
   const rankInfo = getRank(presentCount, totalPlanned);
 
   return (
