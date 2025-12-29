@@ -294,7 +294,8 @@ const AdminManageAttendance = () => {
                 const totalClasses = courseInfo?.totalClasses || 0;
                 const totalHeld = s.present + s.absent;
                 const attendance = totalHeld ? (s.present / totalHeld) * 100 : 0;
-                const xpScore = totalClasses > 0 ? s.present / totalClasses : 0;
+                const xpScore = totalClasses > 0 ? (s.present / totalClasses) * 10 : 0;
+
                 const rank = getRank(s.present, totalClasses);
 
                 const getColor = (value) => {

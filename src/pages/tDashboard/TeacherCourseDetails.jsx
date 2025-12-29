@@ -20,7 +20,7 @@ const TeacherCourseDetails = () => {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [studentHistory, setStudentHistory] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(""); // ✅ inline error message
+  const [error, setError] = useState("");
 
   const [filter, setFilter] = useState("today");
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
@@ -29,6 +29,20 @@ const TeacherCourseDetails = () => {
 
   const [sessionActive, setSessionActive] = useState(false);
 
+  /** ====================== STUDENT HISTORY PAGINATION ====================== */
+  const [historyPage, setHistoryPage] = useState(1);
+  const historyPageSize = 10;
+
+  const historyTotalPages = Math.ceil(
+    studentHistory.length / historyPageSize
+  );
+
+  const paginatedHistory = studentHistory.slice(
+    (historyPage - 1) * historyPageSize,
+    historyPage * historyPageSize
+  );
+  /** ======================================================================= */
+
   useEffect(() => {
     const loadCourseData = async () => {
       setLoading(true);
@@ -36,15 +50,11 @@ const TeacherCourseDetails = () => {
 
       try {
         const res = await api.get(`/courses/${id}`);
-        console.log("COURSE RESPONSE", res.data);
         setCourse(res.data);
         setStudents(res.data.students || []);
-        // console.log("STUDENTS RECEIVED FROM BACKEND:", res.data.students);
-
       } catch {
         setError("Failed to fetch course details");
       }
-      
 
       try {
         const params = getFilterParams(filter, date);
@@ -67,9 +77,7 @@ const TeacherCourseDetails = () => {
       try {
         const res = await api.get(`/sessions/active/${id}`);
         setSessionActive(res.data.active || false);
-      } catch {
-        // silent fail
-      }
+      } catch {}
     };
 
     checkSession();
@@ -79,9 +87,12 @@ const TeacherCourseDetails = () => {
 
   const fetchStudentHistory = async (studentId) => {
     setSelectedStudent(studentId);
+    setHistoryPage(1); // ✅ reset pagination
     try {
       const params = getFilterParams(filter, date);
-      const res = await api.get(`/attendance/${id}/student/${studentId}`, { params });
+      const res = await api.get(`/attendance/${id}/student/${studentId}`, {
+        params,
+      });
       setStudentHistory(res.data.records || []);
     } catch {
       setStudentHistory([]);
@@ -93,9 +104,7 @@ const TeacherCourseDetails = () => {
       const params = getFilterParams(filter, date);
       const sumRes = await api.get(`/attendance/${id}/summary`, { params });
       setAttendanceSummary(sumRes.data.summary || []);
-    } catch {
-      // silent fail
-    }
+    } catch {}
 
     if (selectedStudent === studentId) {
       await fetchStudentHistory(studentId);
@@ -105,6 +114,7 @@ const TeacherCourseDetails = () => {
   const handleBackToSummary = () => {
     setSelectedStudent(null);
     setStudentHistory([]);
+    setHistoryPage(1);
   };
 
   const handleGenerateQR = () => {
@@ -143,10 +153,15 @@ const TeacherCourseDetails = () => {
   }, [attendanceSummary, students, deptFilter, levelFilter]);
 
   if (loading) return <LoadingSpinner />;
-  if (!course) return <p className="error-text">{error || "Course not found"}</p>;
+  if (!course)
+    return <p className="error-text">{error || "Course not found"}</p>;
 
-  const deptOptions = [...new Set(students.map(normalizeDept).filter(Boolean))];
-  const levelOptions = [...new Set(students.map(normalizeLevel).filter((lvl) => lvl !== "N/A"))];
+  const deptOptions = [
+    ...new Set(students.map(normalizeDept).filter(Boolean)),
+  ];
+  const levelOptions = [
+    ...new Set(students.map(normalizeLevel).filter((lvl) => lvl !== "N/A")),
+  ];
 
   return (
     <div className="teacher-course-details">
@@ -156,14 +171,22 @@ const TeacherCourseDetails = () => {
           <h2>{course.name}</h2>
           <p className="tcourse-code">{course.code}</p>
           <div className="header-meta">
-            <p><strong>Lecturer:</strong> {course.teacher?.name || "N/A"}</p>
-            <p><strong>Course Unit:</strong> {course.unit ?? "N/A"}</p>
+            <p>
+              <strong>Lecturer:</strong> {course.teacher?.name || "N/A"}
+            </p>
+            <p>
+              <strong>Course Unit:</strong> {course.unit ?? "N/A"}
+            </p>
           </div>
         </div>
 
         <div className="qr-button-wrap">
           <button onClick={handleGenerateQR} className="qr-btn">
-            <img src="/ranks/qricon.png" alt="QRCode Gen" className="qricon" />
+            <img
+              src="/ranks/qricon.png"
+              alt="QRCode Gen"
+              className="qricon"
+            />
             Generate QR for Attendance
           </button>
         </div>
@@ -172,27 +195,42 @@ const TeacherCourseDetails = () => {
       {/* ===== FILTERS ===== */}
       <div className="filters-container">
         <div className="attendance-filter-wrap">
-          <AttendanceFilter filter={filter} setFilter={setFilter} date={date} setDate={setDate} />
+          <AttendanceFilter
+            filter={filter}
+            setFilter={setFilter}
+            date={date}
+            setDate={setDate}
+          />
         </div>
 
         <div className="select-filters">
-          <select value={deptFilter} onChange={(e) => setDeptFilter(e.target.value)}>
+          <select
+            value={deptFilter}
+            onChange={(e) => setDeptFilter(e.target.value)}
+          >
             <option value="">All Departments</option>
             {deptOptions.map((d) => (
-              <option key={d} value={d}>{d}</option>
+              <option key={d} value={d}>
+                {d}
+              </option>
             ))}
           </select>
 
-          <select value={levelFilter} onChange={(e) => setLevelFilter(e.target.value)}>
+          <select
+            value={levelFilter}
+            onChange={(e) => setLevelFilter(e.target.value)}
+          >
             <option value="">All Levels</option>
             {levelOptions.map((lvl) => (
-              <option key={lvl} value={lvl}>{lvl}</option>
+              <option key={lvl} value={lvl}>
+                {lvl}
+              </option>
             ))}
           </select>
         </div>
       </div>
 
-      {/* ===== MARK ATTENDANCE SECTION ===== */}
+      {/* ===== MARK ATTENDANCE ===== */}
       <MarkAttendance
         courseId={id}
         students={filteredStudents}
@@ -200,7 +238,7 @@ const TeacherCourseDetails = () => {
         sessionActive={sessionActive}
       />
 
-      {/* ===== SUMMARY ===== */}
+      {/* ===== SUMMARY / STUDENT HISTORY ===== */}
       {!selectedStudent ? (
         <>
           <h3 className="section-title">
@@ -220,7 +258,6 @@ const TeacherCourseDetails = () => {
               </div>
 
               <div className="chart-card glass-card mt-5">
-                {/* <h3 className="section-title">Attendance Chart</h3> */}
                 <TeacherAttendanceChart data={filteredAttendanceSummary} />
               </div>
             </>
@@ -230,25 +267,62 @@ const TeacherCourseDetails = () => {
         <div className="student-history glass-card">
           <div className="flex items-center justify-between mb-3">
             <h3>
-              Attendance History: {" "}
-              {students.find((s) => s._id === selectedStudent)?.name || "Student"}
+              Attendance History:{" "}
+              {students.find((s) => s._id === selectedStudent)?.name ||
+                "Student"}
             </h3>
-            <button onClick={handleBackToSummary} className="back-btn">Back to Summary</button>
+            <button onClick={handleBackToSummary} className="back-btn">
+              Back to Summary
+            </button>
           </div>
 
           {studentHistory.length === 0 ? (
             <p className="empty-text">No records found for this student.</p>
           ) : (
-            <ul className="history-list">
-              {studentHistory.map((r) => (
-                <li key={r._id}>
-                  {new Date(r.date).toLocaleDateString()} {" "}
-                  <span className={r.status === "Present" ? "text-green-600 font-medium" : "text-red-500 font-medium"}>
-                    {r.status}
+            <>
+              <ul className="history-list">
+                {paginatedHistory.map((r) => (
+                  <li key={r._id}>
+                    {new Date(r.date).toLocaleDateString()}{" "}
+                    <span
+                      className={
+                        r.status === "Present"
+                          ? "text-green-600 font-medium"
+                          : "text-red-500 font-medium"
+                      }
+                    >
+                      {r.status}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+
+              {historyTotalPages > 1 && (
+                <div className="pagination mt-3">
+                  <button
+                    disabled={historyPage === 1}
+                    onClick={() =>
+                      setHistoryPage((p) => Math.max(p - 1, 1))
+                    }
+                  >
+                    ◀ Prev
+                  </button>
+                  <span>
+                    Page {historyPage} of {historyTotalPages}
                   </span>
-                </li>
-              ))}
-            </ul>
+                  <button
+                    disabled={historyPage === historyTotalPages}
+                    onClick={() =>
+                      setHistoryPage((p) =>
+                        Math.min(p + 1, historyTotalPages)
+                      )
+                    }
+                  >
+                    Next ▶
+                  </button>
+                </div>
+              )}
+            </>
           )}
         </div>
       )}

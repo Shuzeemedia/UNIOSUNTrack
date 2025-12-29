@@ -239,7 +239,7 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
                   <select
                     value={studentStatus[s._id] || "N/A"}
                     onChange={(e) => markAttendance(s._id, e.target.value)}
-                    disabled={sessionActive || loadingState.id === s._id}
+                    disabled={loadingState.id === s._id}
                     className="attendance-dropdown"
                   >
                     <option value="Present">Present</option>
@@ -290,7 +290,7 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
             onClick={() => speakName(currentRollCallStudent.name)}
             className="btn-repeat callagain text-white px-4 py-2 rounded"
           >
-            <RiVolumeUpFill size={22} color="#0b6623"/>
+            <RiVolumeUpFill size={22} color="#0b6623" />
           </button>
 
           <div className="roll_btn flex gap-4 mt-4">

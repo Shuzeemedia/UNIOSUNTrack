@@ -4,6 +4,7 @@ import LoadingSpinner from "../../components/Loader/LoadingSpinner";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/AuthContext";
 import Cropper from "react-easy-crop";
+import ReEnrollFaceModal from "../../components/ReEnrollFaceModal"; // Import new modal
 
 import "./profile.css";
 
@@ -58,8 +59,8 @@ const Profile = () => {
   const [showCropper, setShowCropper] = useState(false);
   const [savingCrop, setSavingCrop] = useState(false);
 
-
   const [showPreview, setShowPreview] = useState(false);
+  const [showReEnroll, setShowReEnroll] = useState(false); // ✅ New state for ReEnroll modal
 
   const API_BASE_URL =
     import.meta.env.VITE_API_URL || "http://localhost:5000/api";
@@ -72,7 +73,6 @@ const Profile = () => {
     }
   }, [user, loadingX]);
 
-  // Normalize user object
   const normalizeUser = (userObj) => {
     if (!userObj) return null;
     const normalized = { ...userObj, id: userObj.id || userObj._id };
@@ -150,7 +150,6 @@ const Profile = () => {
     return () => (cancelled = true);
   }, [loadingX]);
 
-  // Handle profile picture change
   const handleProfilePicChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -162,7 +161,6 @@ const Profile = () => {
     reader.readAsDataURL(file);
   };
 
-  // Update profile info
   const handleUpdate = async (e) => {
     e.preventDefault();
     if (!userData) return;
@@ -209,12 +207,11 @@ const Profile = () => {
 
   const initials = getInitials(userData?.name || "");
 
-  // Save cropped image
   const handleSaveCropped = async () => {
     if (!croppedAreaPixels) return;
 
     try {
-      setSavingCrop(true); // Disable button and show "Saving..."
+      setSavingCrop(true);
       const croppedBlob = await getCroppedImg(cropImageSrc, croppedAreaPixels);
       const croppedFile = new File([croppedBlob], "profile.jpg", { type: "image/jpeg" });
 
@@ -236,10 +233,9 @@ const Profile = () => {
       console.error("Failed to upload cropped image:", err);
       toast.error("Failed to update profile picture");
     } finally {
-      setSavingCrop(false); // Re-enable button
+      setSavingCrop(false);
     }
   };
-
 
   return (
     <div className="profile-container">
@@ -292,6 +288,19 @@ const Profile = () => {
                 <label>Student ID</label>
                 <input type="text" value={userData.studentId || ""} readOnly />
               </div>
+
+              {/* ✅ Re-Enroll Face Button */}
+              {userData?.faceDescriptor?.length > 0 && (
+                <div className="form-group">
+                  <button
+                    type="button"
+                    className="update-btn"
+                    onClick={() => setShowReEnroll(true)}
+                  >
+                    Re-Enroll Face
+                  </button>
+                </div>
+              )}
             </>
           )}
 
@@ -346,6 +355,9 @@ const Profile = () => {
           </div>
         </div>
       )}
+
+      {/* ✅ Re-Enroll Face Modal */}
+      {showReEnroll && <ReEnrollFaceModal onClose={() => setShowReEnroll(false)} />}
     </div>
   );
 };

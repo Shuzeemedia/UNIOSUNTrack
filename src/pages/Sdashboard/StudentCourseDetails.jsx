@@ -37,7 +37,7 @@ const StudentCourseDetails = () => {
   const [activeSession, setActiveSession] = useState(null);
   const [sessionLoading, setSessionLoading] = useState(false);
 
-  const [error, setError] = useState(""); // ✅ new inline error state
+  const [error, setError] = useState(""); // new inline error state
 
   useEffect(() => {
     fetchCourseData();
@@ -141,7 +141,7 @@ const StudentCourseDetails = () => {
                 alt="ScanQRCode Gen"
                 className="qricon scanX"
               />
-              {activeSession ? "Scan QR / Mark Attendance" : "No Active Session"}
+              {activeSession ? "Scan QR" : "No Active Session"}
             </Button>
           )}
         </div>
