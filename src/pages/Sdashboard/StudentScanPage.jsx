@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-
 import api from "../../api/api";
 import { Modal, Button } from "react-bootstrap";
 import { Html5Qrcode } from "html5-qrcode";
 import * as faceapi from "face-api.js";
 import { toast } from "react-toastify";
+import { useLocation } from "react-router-dom";
+
 import "./StudentScanPage.css";
 
+// Helper: distance between GPS points in meters
 function getDistanceInMeters(lat1, lng1, lat2, lng2) {
     const R = 6371000;
     const toRad = (x) => (x * Math.PI) / 180;
@@ -21,6 +23,7 @@ function getDistanceInMeters(lat1, lng1, lat2, lng2) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+// Load face-api models
 const loadFaceModels = async () => {
     const MODEL_URL = "/models";
     await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
@@ -29,6 +32,10 @@ const loadFaceModels = async () => {
     await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
 };
 
+// Compute eye aspect ratio (blink detection)
+const distance = (p1, p2) => Math.hypot(p1.x - p2.x, p1.y - p2.y);
+const checkBlink = (eye) => (distance(eye[1], eye[5]) + distance(eye[2], eye[4])) / (2 * distance(eye[0], eye[3]));
+
 const StudentScanPage = () => {
     const { sessionToken } = useParams();
     const videoRef = useRef(null);
@@ -36,26 +43,18 @@ const StudentScanPage = () => {
     const streamRef = useRef(null);
     const scanningLockedRef = useRef(false);
     const navigate = useNavigate();
+
     const [statusMessage, setStatusMessage] = useState("Position your face properly");
-
-    const distance = (p1, p2) => Math.hypot(p1.x - p2.x, p1.y - p2.y);
-
-    const checkBlink = (eye) => {
-        return (
-            distance(eye[1], eye[5]) +
-            distance(eye[2], eye[4])
-        ) / (2 * distance(eye[0], eye[3]));
-    };
-
-
-
     const [sessionInfo, setSessionInfo] = useState(null);
     const [faceVerified, setFaceVerified] = useState(false);
     const [faceLoading, setFaceLoading] = useState(false);
+    const location = useLocation();
+
+
     const [modalShow, setModalShow] = useState(false);
     const [modalMsg, setModalMsg] = useState("");
 
-    // Fetch session info & student face descriptor
+    /** ==================== FETCH SESSION & FACE ==================== */
     useEffect(() => {
         if (!sessionToken) return toast.error("Invalid session URL");
 
@@ -75,11 +74,10 @@ const StudentScanPage = () => {
                 const faceRes = await api.get(`/sessions/${sessionToken}/student`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
-                const studentFaceDescriptor = faceRes.data.studentFaceDescriptor;
 
+                const studentFaceDescriptor = faceRes.data.studentFaceDescriptor;
                 if (!studentFaceDescriptor || studentFaceDescriptor.length !== 128) {
                     toast.error("Face descriptor missing or invalid");
-                    console.warn("Face descriptor invalid:", studentFaceDescriptor);
                     return;
                 }
 
@@ -93,7 +91,16 @@ const StudentScanPage = () => {
         fetchSession();
     }, [sessionToken]);
 
-    // Start camera
+
+    useEffect(() => {
+        if (location.state?.alreadyMarked) {
+            setModalMsg("Attendance already marked for this session");
+            setModalShow(true);
+        }
+    }, [location.state]);
+
+
+    /** ==================== INIT CAMERA ==================== */
     useEffect(() => {
         const initCamera = async () => {
             try {
@@ -109,7 +116,7 @@ const StudentScanPage = () => {
         initCamera();
 
         return () => {
-            if (streamRef.current) streamRef.current.getTracks().forEach((t) => t.stop());
+            stopVideoStream();
             if (html5QrCodeRef.current) {
                 html5QrCodeRef.current.stop().catch(() => { });
                 html5QrCodeRef.current.clear().catch(() => { });
@@ -122,36 +129,23 @@ const StudentScanPage = () => {
             streamRef.current.getTracks().forEach(track => track.stop());
             streamRef.current = null;
         }
-
-        if (videoRef.current) {
-            videoRef.current.srcObject = null;
-        }
+        if (videoRef.current) videoRef.current.srcObject = null;
     };
 
-
-    // Face verification
-
+    /** ==================== FACE VERIFICATION ==================== */
     const verifyFace = async () => {
         if (!sessionInfo || !videoRef.current) return;
 
         setFaceLoading(true);
-        setStatusMessage("Initializing camera...");
+        setStatusMessage("Detecting face...");
 
         try {
             const video = videoRef.current;
-
-            const storedArray = sessionInfo.studentFaceDescriptor;
-            if (!storedArray || storedArray.length !== 128) {
-                toast.error("Stored face data invalid");
-                setFaceLoading(false);
-                return;
-            }
-
-            const storedDescriptor = new Float32Array(storedArray);
+            const storedDescriptor = new Float32Array(sessionInfo.studentFaceDescriptor);
 
             const faceMatcher = new faceapi.FaceMatcher(
                 [new faceapi.LabeledFaceDescriptors("student", [storedDescriptor])],
-                0.6 // SAME AS LOGIN UX FILTER
+                0.6
             );
 
             let blinkCount = 0;
@@ -159,17 +153,13 @@ const StudentScanPage = () => {
             const startTime = Date.now();
             const TIMEOUT = 20000;
 
-            setStatusMessage("Detecting face...");
-
             const detectLoop = async () => {
                 if (!videoRef.current) return;
-
                 if (recognized || Date.now() - startTime > TIMEOUT) {
                     if (!recognized) {
                         setStatusMessage("Face not recognized or liveness failed");
                         toast.error("Face verification failed");
                     }
-
                     setFaceLoading(false);
                     return;
                 }
@@ -189,27 +179,16 @@ const StudentScanPage = () => {
                 if (bestMatch.label === "student") {
                     const leftEye = detection.landmarks.getLeftEye();
                     const ear = checkBlink(leftEye);
-
                     if (ear < 0.25) blinkCount += 1;
 
                     if (blinkCount >= 1) {
                         recognized = true;
-                        setStatusMessage("Verifying face on server...");
-
-                        try {
-                            toast.success("Face verified successfully");
-                            setFaceVerified(true);
-                            stopVideoStream();
-
-                            setTimeout(startScanner, 300);
-                            return;
-
-                        } catch (err) {
-                            toast.error("Face verification failed");
-                            setStatusMessage("Face does not match this account");
-                            recognized = false;
-                            blinkCount = 0;
-                        }
+                        setStatusMessage("Face verified, starting scanner...");
+                        toast.success("Face verified successfully");
+                        setFaceVerified(true);
+                        stopVideoStream();
+                        setTimeout(startScanner, 300);
+                        return;
                     } else {
                         setStatusMessage("Face detected, please blink...");
                     }
@@ -228,14 +207,13 @@ const StudentScanPage = () => {
         }
     };
 
+    /** ==================== QR SCANNER ==================== */
 
-
-    // QR scanner using existing video feed
     const startScanner = async () => {
         const readerEl = document.getElementById("reader");
         if (!readerEl) return;
 
-        if (html5QrCodeRef.current) return;
+        if (html5QrCodeRef.current) return; // already running
 
         try {
             const qr = new Html5Qrcode("reader");
@@ -246,22 +224,34 @@ const StudentScanPage = () => {
                 { fps: 10, qrbox: 250 },
                 async (decodedText) => {
                     if (scanningLockedRef.current) return;
-                    scanningLockedRef.current = true;
+                    scanningLockedRef.current = true; // lock
 
-                    // ✅ Extract token
                     const scannedToken = decodedText.split("/").pop();
 
-                    const success = await markAttendance(scannedToken);
+                    try {
+                        const res = await markAttendance(scannedToken);
+                        console.log("QR decoded token:", decodedText);
+                        console.log("Attendance result:", res);
 
-                    if (success) {
-                        // ✅ STOP ONLY ON SUCCESS
+                        // Show modal for both new and already marked
+                        setModalMsg(res.msg || "Attendance recorded");
+                        setModalShow(true);
+
+                        // Stop scanner immediately
                         await qr.stop();
                         qr.clear();
                         html5QrCodeRef.current = null;
-                    } else {
-                        // ❌ Resume scanning on failure
+
+                    } catch (err) {
+                        const msg =
+                            err?.response?.data?.msg ||
+                            err?.message ||
+                            "Failed to mark attendance";
+
+                        toast.error(msg);
                         scanningLockedRef.current = false;
                     }
+
                 }
             );
         } catch (err) {
@@ -270,60 +260,46 @@ const StudentScanPage = () => {
         }
     };
 
-
-
-
-    // Mark attendance
+    /** ==================== MARK ATTENDANCE ==================== */
     const markAttendance = async (scannedToken) => {
-        try {
+        if (!sessionInfo) throw new Error("Session info missing");
+
+        const position = await new Promise((resolve, reject) => {
             navigator.geolocation.getCurrentPosition(
                 (pos) => resolve(pos.coords),
                 (err) => {
                     if (err.code === 1) toast.error("Location permission denied");
                     else if (err.code === 2) toast.error("Location unavailable");
                     else toast.error("GPS timeout");
-                    reject(err.message);
+                    reject(err);
                 },
-                {
-                    enableHighAccuracy: true,
-                    timeout: 15000,
-                    maximumAge: 0,
-                }
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
+        });
 
-            const courseLoc = sessionInfo.course.location;
-            if (courseLoc?.lat && courseLoc?.lng) {
-                const dist = getDistanceInMeters(
-                    position.latitude,
-                    position.longitude,
-                    courseLoc.lat,
-                    courseLoc.lng
-                );
-                if (dist > courseLoc.radius) {
-                    toast.error("You are not within lecture location");
-                    return false;
-                }
-            }
-
-            const token = localStorage.getItem("token");
-
-            const res = await api.post(
-                `/sessions/scan/${scannedToken}`,
-                { location: position },
-                { headers: { Authorization: `Bearer ${token}` } }
+        // GPS check
+        const courseLoc = sessionInfo.course.location;
+        if (courseLoc?.lat && courseLoc?.lng) {
+            const dist = getDistanceInMeters(
+                position.latitude,
+                position.longitude,
+                courseLoc.lat,
+                courseLoc.lng
             );
-
-            setModalMsg(res.data.msg);
-            setModalShow(true);
-            return true; // SUCCESS
-        } catch (err) {
-            toast.error(err?.response?.data?.msg || "Attendance failed");
-            return false; // FAILURE
+            if (dist > courseLoc.radius) throw new Error("You are not within lecture location");
         }
+
+        const token = localStorage.getItem("token");
+        const res = await api.post(
+            `/sessions/scan/${scannedToken}`,
+            { location: { lat: position.latitude, lng: position.longitude, accuracy: position.accuracy } },
+            { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        return res.data; // { alreadyMarked: boolean, msg: string }
     };
 
-
-
+    /** ==================== RENDER ==================== */
     return (
         <div className="student-scan-wrapper">
             <div className="student-scan-card">
@@ -332,38 +308,19 @@ const StudentScanPage = () => {
                 {!faceVerified && (
                     <div className="face-check-wrapper">
                         <h4 className="face-title">Face Verification</h4>
-
                         <div className="login-video-wrapper">
-                            <video
-                                ref={videoRef}
-                                autoPlay
-                                muted
-                                playsInline
-                                className="login-face-video"
-                            />
-
-                            <div className="login-status-overlay">
-                                {statusMessage || "Position your face properly"}
-                            </div>
+                            <video ref={videoRef} autoPlay muted playsInline className="login-face-video" />
+                            <div className="login-status-overlay">{statusMessage}</div>
                         </div>
-
-                        <button
-                            className="login-btn btnz mt-2"
-                            onClick={verifyFace}
-                            disabled={faceLoading}
-                        >
+                        <button className="login-btn btnz mt-2" onClick={verifyFace} disabled={faceLoading}>
                             {faceLoading ? "Verifying..." : "Verify Face"}
                         </button>
                     </div>
                 )}
 
-                {faceVerified && (
-                    <div className="qr-scan-wrapper">
-                        <div id="reader" className="qr-reader" />
-                    </div>
-                )}
+                {faceVerified && <div id="reader" className="qr-reader" />}
 
-
+                {/* SUCCESS MODAL */}
                 <Modal
                     show={modalShow}
                     centered
@@ -374,20 +331,30 @@ const StudentScanPage = () => {
                     <Modal.Body className="success-body">
                         <div className="success-icon">✓</div>
 
-                        <h4 className="success-title">Attendance Marked</h4>
+                        <h4 className="success-title">
+                            {modalMsg?.toLowerCase().includes("already")
+                                ? "Attendance Already Marked"
+                                : "Attendance Marked"}
+                        </h4>
 
                         <p className="success-text">{modalMsg}</p>
 
                         <Button
                             className="success-btn"
-                            onClick={() => navigate("/dashboard/student", { replace: true })}
-                        >
+                            onClick={() => {
+                                setModalShow(false);
+                                scanningLockedRef.current = false; // unlock always
 
-                            Go to Dashboard
+                                // Navigate only for new attendance
+                                if (!modalMsg?.toLowerCase().includes("already")) {
+                                    navigate("/dashboard/student", { replace: true });
+                                }
+                            }}
+                        >
+                            {modalMsg?.toLowerCase().includes("already") ? "Close" : "Go to Dashboard"}
                         </Button>
                     </Modal.Body>
                 </Modal>
-
             </div>
         </div>
     );
