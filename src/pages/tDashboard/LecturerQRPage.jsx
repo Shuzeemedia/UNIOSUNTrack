@@ -111,9 +111,9 @@ const LecturerQRPage = () => {
 
             const res = await axios.post(
                 `${import.meta.env.VITE_API_URL}/sessions/${courseId}/create`,
-                {},
+                { type: "QR" }, // ✅ send the session type here
                 { headers: { Authorization: `Bearer ${token}` } }
-            );
+            );              
 
             const {
                 token: sessionToken,

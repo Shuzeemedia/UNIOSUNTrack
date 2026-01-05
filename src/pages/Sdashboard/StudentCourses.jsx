@@ -68,10 +68,11 @@ const StudentCourses = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.post(
-        `${API_BASE_URL}/courses/${courseId}/self-enroll`,
+        `${API_BASE_URL}/courses/${courseId}/register`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      
 
       setCourses((prev) =>
         prev.map((c) => (c._id === courseId ? { ...c, enrolled: true } : c))

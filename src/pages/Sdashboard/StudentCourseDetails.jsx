@@ -28,6 +28,7 @@ const StudentCourseDetails = () => {
     present: 0,
     absent: 0,
     percentage: 0,
+    xp: 0,
   });
 
   const [filter, setFilter] = useState("today");
@@ -47,6 +48,7 @@ const StudentCourseDetails = () => {
     fetchActiveSession();
   }, [id]);
 
+
   // Fetch course + attendance records
   const fetchCourseData = async () => {
     try {
@@ -57,13 +59,28 @@ const StudentCourseDetails = () => {
       setCourse(courseData.course || courseData);
 
       const { data: attendanceData } = await API.get(
-        `/attendance/my-records/${id}`,
+        `/attendance/my-summary/${id}`,
         { params: getFilterParams(filter, date) }
       );
 
+      // Use records from backend
       const records = attendanceData.records || [];
       setRecords(records);
-      setSummary(computeSummary(records));
+
+      // If you want, you can compute summary client-side too
+      const backendSummary = attendanceData.summary || {};
+
+      setSummary({
+        total: backendSummary.present + backendSummary.absent, // now total = 12
+        present: backendSummary.present,
+        absent: backendSummary.absent,
+        percentage: backendSummary.attendancePercentage, // keep backend %
+        xp: backendSummary.score,
+      });
+      
+      
+
+
     } catch (err) {
       if (err.isOffline) {
         setError("You are offline. Cannot fetch course/attendance data.");
@@ -91,14 +108,39 @@ const StudentCourseDetails = () => {
   };
 
   // Redirect to scan page when active QR exists
-  const handleScanClick = (e) => {
+  const handleScanClick = async (e) => {
     e.preventDefault();
-    if (activeSession) {
-      navigate(`/student/scan/${activeSession.token}`);
-    } else {
+    setError("");
+
+    if (!activeSession) {
       setError("No active QR session at the moment.");
+      return;
+    }
+
+    try {
+      const res = await API.get(`/sessions/check`, {
+        params: { sessionId: activeSession._id }
+      });
+
+      // ✅ If already marked → go to dashboard
+      if (res.data.alreadyMarked) {
+        navigate("/dashboard/student", {
+          replace: true,
+          state: { msg: "Attendance already marked for this session" }
+        });
+        return;
+      }
+
+      // ✅ Otherwise → go to scan page
+      navigate(`/student/scan/${activeSession.token}`);
+
+    } catch (err) {
+      // fallback: allow scan if check fails
+      navigate(`/student/scan/${activeSession.token}`);
     }
   };
+
+
 
   if (loading) return <LoadingSpinner />;
   if (!course) return <p>{error || "Course not found"}</p>;
@@ -178,11 +220,13 @@ const StudentCourseDetails = () => {
             <strong>Absent:</strong> {summary.absent}
           </p>
           <p>
-            <strong>Attendance %:</strong>{" "}
-            {isNaN(Number(summary?.percentage))
-              ? "0.0"
-              : Number(summary?.percentage || 0).toFixed(1)}
-            %
+          <strong>Attendance %:</strong> {Number(summary.percentage).toFixed(1)}%
+          </p>
+          <p>
+            <strong>Score:</strong>{" "}
+            {Number.isFinite(summary.xp)
+              ? summary.xp.toFixed(2)
+              : "0.00"} XP
           </p>
 
           {summary.percentage < ATTENDANCE_THRESHOLD && summary.total > 0 && (
@@ -192,6 +236,15 @@ const StudentCourseDetails = () => {
           )}
         </div>
       </div>
+
+      {/* 
+      <div className="student-summary-card">
+        <p><strong>Total Classes:</strong> {records.length}</p>
+        <p><strong>Present:</strong> {records.filter(r => r.status === "Present").length}</p>
+        <p><strong>Absent:</strong> {records.filter(r => r.status === "Absent").length}</p>
+      </div> */}
+
+
 
       {/* ATTENDANCE RECORDS TABLE */}
       <div className="records-card">

@@ -672,7 +672,7 @@ const EnrollmentForm = ({
       <option value="">Select Student</option>
       {students.map((s) => (
         <option key={s._id} value={s._id}>
-          {s.name} ({s.email})
+          {s.name} ({s.studentId})
         </option>
       ))}
     </select>
@@ -804,7 +804,7 @@ const ManageStudentsModal = ({
             .filter((s) => !(course?.students || []).some((cs) => cs._id === s._id))
             .map((s) => (
               <option key={s._id} value={s._id}>
-                {s.name} ({s.email})
+                {s.name} ({s.studentId})
               </option>
             ))}
         </select>
@@ -816,7 +816,7 @@ const ManageStudentsModal = ({
       <ul>
         {(course?.students || []).map((s) => (
           <li key={s._id} className="d-flex justify-content-between">
-            {s.name} ({s.email})
+            {s.name} ({s.studentId})
             <Button
               variant="danger"
               size="sm"

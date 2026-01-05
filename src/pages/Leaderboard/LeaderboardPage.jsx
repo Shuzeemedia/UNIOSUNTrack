@@ -19,101 +19,80 @@ function LeaderboardPage() {
 
   const user = JSON.parse(localStorage.getItem("user"));
 
-  // ✅ Fetch departments/courses
+  // Fetch courses (teacher/admin/student)
   useEffect(() => {
     if (!user) return;
 
-    if (user.role === "teacher" || user.role === "admin") {
-      const fetchCourses = async () => {
-        try {
-          const url = user.role === "teacher" ? "/courses/assigned" : "/courses/admin-filter";
-          const { data } = await API.get(url);
-
-          if (!data || !data.courses || data.courses.length === 0) {
+    const fetchCourses = async () => {
+      try {
+        let data;
+        if (user.role === "teacher") {
+          data = await API.get("/courses/my-courses").then((res) => res.data);
+          if (!Array.isArray(data) || data.length === 0) {
             setAccessBlocked(true);
-            toast.warning(
-              user.role === "teacher"
-                ? "You are not assigned to any course yet. Leaderboard disabled."
-                : "No courses found. Leaderboard disabled."
-            );
+            toast.warning("You are not assigned to any course yet. Leaderboard disabled.");
             return;
           }
-
-          setCourses(data.courses || []);
-          setDepartments(data.departments || []);
-
-          // ✅ Preselect department/level if only one
-          const depts = data.departments || [];
-          if (depts.length === 1) {
-            setSelectedDept(depts[0]._id);
-            setLevels(depts[0].levels || []);
-            if (depts[0].levels?.length === 1) setSelectedLevel(depts[0].levels[0]);
-          }
-        } catch (err) {
-          // ✅ Handle graceful fallback
-          if (err.response && [400, 404].includes(err.response.status)) {
+        } else if (user.role === "admin") {
+          data = await API.get("/courses/admin-filter").then((res) => res.data.courses || []);
+          if (!Array.isArray(data) || data.length === 0) {
             setAccessBlocked(true);
-            toast.warning(
-              user.role === "teacher"
-                ? "You are not assigned to any course yet. Leaderboard disabled."
-                : "No courses found. Leaderboard disabled."
-            );
-          } else if (err.response && err.response.status === 401) {
-            toast.error("Session expired. Please login again.");
-            localStorage.removeItem("user");
-            window.location.href = "/login";
-          } else {
-            toast.error("Failed to fetch course data");
+            toast.warning("No courses found. Leaderboard disabled.");
+            return;
           }
-        }
-      };
-      fetchCourses();
-    } else if (user.role === "student") {
-      const fetchEnrolled = async () => {
-        try {
-          const { data } = await API.get("/courses/enrolled");
-
-          if (!data || data.length === 0) {
+        } else if (user.role === "student") {
+          data = await API.get("/courses/enrolled").then((res) => res.data || []);
+          if (!Array.isArray(data) || data.length === 0) {
             setAccessBlocked(true);
             toast.warning("You are not enrolled in any course yet. Leaderboard disabled.");
             return;
           }
-
-          setCourses(data);
           setSelectedDept(user.department?._id || "");
           setSelectedLevel(user.level || "");
-        } catch (err) {
-          if (err.response && [400, 404].includes(err.response.status)) {
-            setAccessBlocked(true);
-            toast.warning("You are not enrolled in any course yet. Leaderboard disabled.");
-          } else if (err.response && err.response.status === 401) {
-            toast.error("Session expired. Please login again.");
-            localStorage.removeItem("user");
-            window.location.href = "/login";
-          } else {
-            toast.error("Failed to fetch enrolled courses");
-          }
         }
-      };
-      fetchEnrolled();
-    }
-  }, []);
 
-  // ✅ Update levels when department changes
+        setCourses(data);
+
+        // Build unique departments from courses
+        const uniqueDepts = [
+          ...new Map(
+            data
+              .filter((c) => c.department && c.department._id)
+              .map((c) => [c.department._id, c.department])
+          ).values(),
+        ];
+        setDepartments(uniqueDepts);
+
+        // Preselect if only one department
+        if (uniqueDepts.length === 1) {
+          setSelectedDept(uniqueDepts[0]._id);
+          const deptLevels = [...new Set(data.filter((c) => c.department._id === uniqueDepts[0]._id).map((c) => c.level))];
+          setLevels(deptLevels);
+          if (deptLevels.length === 1) setSelectedLevel(deptLevels[0]);
+        }
+      } catch (err) {
+        console.error(err);
+        setAccessBlocked(true);
+        toast.error("Failed to fetch courses for leaderboard.");
+      }
+    };
+
+    fetchCourses();
+  }, [user]);
+
+  // Update levels when department changes
   useEffect(() => {
     if ((user.role === "teacher" || user.role === "admin") && selectedDept) {
-      const dept = departments.find((d) => d._id === selectedDept);
-      if (dept) {
-        setLevels(dept.levels);
-        if (!dept.levels.includes(selectedLevel)) {
-          setSelectedLevel("");
-          setSelectedCourse("");
-        }
+      const deptLevels = [...new Set(courses.filter((c) => c.department._id === selectedDept).map((c) => c.level))];
+      setLevels(deptLevels);
+      if (!deptLevels.includes(selectedLevel)) {
+        setSelectedLevel("");
+        setSelectedCourse("");
       }
     }
-  }, [selectedDept, departments, selectedLevel, user.role]);
+  }, [selectedDept, courses, selectedLevel, user?.role]);
 
-  // ✅ Filter courses
+  // Filter courses for select dropdown
   const filteredCourses = courses.filter((c) => {
     if (user.role === "student") return true;
     if (selectedDept && c.department._id !== selectedDept) return false;
@@ -121,7 +100,7 @@ function LeaderboardPage() {
     return true;
   });
 
-  // ✅ Fetch leaderboard
+  // Fetch leaderboard
   const fetchLeaderboard = async () => {
     if (!selectedCourse) {
       toast.error("Please select a course first");
@@ -242,10 +221,9 @@ function LeaderboardPage() {
                   ...student,
                   ratio: ((student.totalPresent || 0) / (student.totalClasses || 1)) * 10,
                 }))
-
                 .sort((a, b) => {
-                  if (b.ratio !== a.ratio) return b.ratio - a.ratio; // ✅ higher score first
-                  return a.name.localeCompare(b.name); // ✅ tie-breaker by name
+                  if (b.ratio !== a.ratio) return b.ratio - a.ratio;
+                  return a.name.localeCompare(b.name);
                 })
                 .map((student, index) => {
                   const ratio = student.ratio.toFixed(2);

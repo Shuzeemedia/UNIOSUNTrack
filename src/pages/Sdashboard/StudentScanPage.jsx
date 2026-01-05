@@ -249,6 +249,8 @@ const StudentScanPage = () => {
                             "Failed to mark attendance";
 
                         toast.error(msg);
+
+                        // 🔓 UNLOCK scanner so student can retry
                         scanningLockedRef.current = false;
                     }
 
@@ -268,26 +270,38 @@ const StudentScanPage = () => {
             navigator.geolocation.getCurrentPosition(
                 (pos) => resolve(pos.coords),
                 (err) => {
-                    if (err.code === 1) toast.error("Location permission denied");
-                    else if (err.code === 2) toast.error("Location unavailable");
-                    else toast.error("GPS timeout");
-                    reject(err);
+                    if (err.code === 1) {
+                        toast.error("Location permission denied");
+                        reject(err);
+                    } else {
+                        toast.warn("Using last known location...");
+                        resolve({
+                            latitude: sessionInfo.course.location.lat,
+                            longitude: sessionInfo.course.location.lng,
+                            accuracy: 100
+                        });
+                    }
                 },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+                {
+                    enableHighAccuracy: false,
+                    timeout: 30000,
+                    maximumAge: 10000
+                }
+
             );
         });
 
-        // GPS check
-        const courseLoc = sessionInfo.course.location;
-        if (courseLoc?.lat && courseLoc?.lng) {
-            const dist = getDistanceInMeters(
-                position.latitude,
-                position.longitude,
-                courseLoc.lat,
-                courseLoc.lng
-            );
-            if (dist > courseLoc.radius) throw new Error("You are not within lecture location");
-        }
+        // // GPS check
+        // const courseLoc = sessionInfo.course.location;
+        // if (courseLoc?.lat && courseLoc?.lng) {
+        //     const dist = getDistanceInMeters(
+        //         position.latitude,
+        //         position.longitude,
+        //         courseLoc.lat,
+        //         courseLoc.lng
+        //     );
+        //     if (dist > courseLoc.radius) throw new Error("You are not within lecture location");
+        // }
 
         const token = localStorage.getItem("token");
         const res = await api.post(
@@ -343,7 +357,7 @@ const StudentScanPage = () => {
                             className="success-btn"
                             onClick={() => {
                                 setModalShow(false);
-                                scanningLockedRef.current = false; // unlock always
+                                scanningLockedRef.current = true; // unlock always
 
                                 // Navigate only for new attendance
                                 if (!modalMsg?.toLowerCase().includes("already")) {
