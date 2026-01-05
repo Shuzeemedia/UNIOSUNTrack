@@ -1,11 +1,13 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { AuthContext } from "../../context/AuthContext";
 import api from "../../api/api";
 import StudentCourseCard from "../../components/studcoursecard/StudentCourseCard";
 import LoadingSpinner from "../../components/Loader/LoadingSpinner";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-toastify";
+// import { useLocation } from "react-router-dom";
+
 import "./studentDashboard.css";
 
 const StudentDashboard = () => {
@@ -17,6 +19,11 @@ const StudentDashboard = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
+  const toastShownRef = useRef(false);
+
+
 
   const fetchCoursesAndSettings = async () => {
     try {
@@ -24,7 +31,7 @@ const StudentDashboard = () => {
       setError("");
 
       // Fetch courses
-      const res = await api.get("/courses/my-courses/student");
+      const res = await api.get("/courses/enrolled");
       const courseData = res.data || [];
       setCourses(courseData);
 
@@ -55,6 +62,21 @@ const StudentDashboard = () => {
   useEffect(() => {
     if (user?.role === "student") fetchCoursesAndSettings();
   }, [user]);
+
+
+    
+  useEffect(() => {
+    if (location.state?.msg && !toastShownRef.current) {
+      toastShownRef.current = true;
+  
+      toast.info(location.state.msg);
+  
+      navigate(location.pathname, { replace: true, state: null });
+    }
+  }, [location.state, navigate]);
+  
+
+
 
   const filteredCourses = courses.filter(
     (course) =>

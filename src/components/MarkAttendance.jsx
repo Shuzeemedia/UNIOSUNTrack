@@ -4,9 +4,8 @@ import api from "../api/api";
 import StudentAvatar from "./StudentAvatar";
 import { RiVolumeUpFill } from "react-icons/ri";
 
-
 function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
-  const [loadingState, setLoadingState] = useState({ id: null, status: null });
+  const [loadingState, setLoadingState] = useState({ id: null });
   const [message, setMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState("");
@@ -16,26 +15,47 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
   const [rollCallIndex, setRollCallIndex] = useState(0);
   const [rollCallData, setRollCallData] = useState([]);
   const [studentStatus, setStudentStatus] = useState({});
+  const [voices, setVoices] = useState([]);
 
-  // Load initial student status
+
+  /* ================= INIT STATUS ================= */
   useEffect(() => {
-    const initialStatus = {};
-    students.forEach((s) => {
-      initialStatus[s._id] = s.status || "N/A";
-    });
-    setStudentStatus(initialStatus);
+    const map = {};
+    students.forEach((s) => (map[s._id] = s.status || "N/A"));
+    setStudentStatus(map);
   }, [students]);
 
-  // Filter & sort students
+  useEffect(() => {
+    const loadVoices = () => {
+      const v = window.speechSynthesis.getVoices();
+      if (v.length) {
+        setVoices(v);
+      }
+    };
+
+    loadVoices();
+
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+
+    return () => {
+      window.speechSynthesis.onvoiceschanged = null;
+    };
+  }, []);
+
+
+  /* ================= FILTER / SORT ================= */
   const filteredStudents = useMemo(() => {
     let list = [...students];
+
     if (searchQuery) {
+      const q = searchQuery.toLowerCase();
       list = list.filter(
         (s) =>
-          s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          (s.studentId || "").toLowerCase().includes(searchQuery.toLowerCase())
+          s.name.toLowerCase().includes(q) ||
+          (s.studentId || "").toLowerCase().includes(q)
       );
     }
+
     if (sortKey === "name") list.sort((a, b) => a.name.localeCompare(b.name));
     if (sortKey === "department")
       list.sort((a, b) =>
@@ -43,6 +63,7 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
       );
     if (sortKey === "level")
       list.sort((a, b) => (a.level || 0) - (b.level || 0));
+
     return list;
   }, [students, searchQuery, sortKey]);
 
@@ -52,49 +73,74 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
     currentPage * itemsPerPage
   );
 
-  // Single mark attendance
-  const markAttendance = async (studentId, status) => {
+  /* ================= CORE FIX: MARK ATTENDANCE ================= */
+  const markAttendance = async (studentId, status, mode = "MANUAL") => {
+    if (!sessionActive?._id) {
+      setMessage("No active attendance session.");
+      return;
+    }
+
     try {
-      setLoadingState({ id: studentId, status });
+      setLoadingState({ id: studentId });
       setMessage("");
-      await api.post(`/attendance/${courseId}/mark/${studentId}`, { status });
+
+      await api.post(`/attendance/${courseId}/mark/${studentId}`, {
+        sessionId: sessionActive._id,
+        status,
+      });
+
+
       setStudentStatus((prev) => ({ ...prev, [studentId]: status }));
-      if (onMarked) await onMarked(studentId);
+      onMarked?.(studentId);
     } catch (err) {
-      console.error(err);
       setMessage(err.response?.data?.msg || "Error marking attendance");
     } finally {
-      setLoadingState({ id: null, status: null });
+      setLoadingState({ id: null });
     }
   };
 
-  // Bulk mark
+  /* ================= BULK MARK ================= */
   const bulkMarkAttendance = async (status) => {
+    if (!sessionActive?._id) {
+      setMessage("No active attendance session.");
+      return;
+    }
+
     try {
-      setMessage("Saving bulk attendance...");
-      const records = students.map((s) => ({ studentId: s._id, status }));
+      setMessage("Saving attendance...");
+
       await api.post(`/attendance/${courseId}/mark`, {
-        records,
-        date: new Date().toISOString().split("T")[0],
+        sessionId: sessionActive._id,
+        records: students.map((s) => ({
+          studentId: s._id,
+          status,
+        })),
       });
-      const updatedStatus = {};
-      students.forEach((s) => (updatedStatus[s._id] = status));
-      setStudentStatus(updatedStatus);
+
+
+      const updated = {};
+      students.forEach((s) => (updated[s._id] = status));
+      setStudentStatus(updated);
       setMessage(`All students marked as ${status}`);
-      if (onMarked) await onMarked("bulk");
+      onMarked?.("bulk");
     } catch (err) {
-      console.error(err);
-      setMessage(err.response?.data?.msg || "Error marking bulk attendance");
+      setMessage(err.response?.data?.msg || "Bulk marking failed");
     }
   };
 
-  // Roll call
+  /* ================= ROLL CALL ================= */
   const startRollCall = () => {
+    if (!sessionActive?._id) {
+      setMessage("No active attendance session.");
+      return;
+    }
+
     setRollCallData(filteredStudents);
     setRollCallIndex(0);
     setRollCallMode(true);
     speakName(filteredStudents[0]?.name);
   };
+
 
   const cancelRollCall = () => {
     setRollCallMode(false);
@@ -104,26 +150,24 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
   };
 
   const speakName = (name) => {
-    if (!name) return;
+    if (!name || !voices.length) return;
 
     const utter = new SpeechSynthesisUtterance(name);
 
-    const voices = window.speechSynthesis.getVoices();
-
-    // PRIORITY: look for Nigerian / African / Google voices
+    // 🇳🇬 PRIORITY: Nigerian / African / Google voices
     const preferredVoice =
+      voices.find(v => v.lang === "en-NG") ||
       voices.find(v => v.name.toLowerCase().includes("nigeria")) ||
       voices.find(v => v.name.toLowerCase().includes("africa")) ||
       voices.find(v => v.name.includes("Google UK English")) ||
-      voices.find(v => v.lang === "en-NG") || // Nigeria English code
-      voices.find(v => v.lang === "en-GB") || // fallback
+      voices.find(v => v.lang === "en-GB") ||
       voices[0];
 
     if (preferredVoice) {
       utter.voice = preferredVoice;
     }
 
-    utter.rate = 0.95; // slower for name clarity
+    utter.rate = 0.95; // clearer pronunciation
     utter.pitch = 1;
 
     window.speechSynthesis.cancel();
@@ -131,44 +175,42 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
   };
 
 
-  const handleNext = (status = "Present") => {
+  const handleNext = (status) => {
     const student = rollCallData[rollCallIndex];
     if (!student) return;
 
-    markAttendance(student._id, status);
+    markAttendance(student._id, status, "ROLLCALL");
 
-    const nextIndex = rollCallIndex + 1;
-
-    if (nextIndex >= rollCallData.length) {
-      setRollCallMode(false);
-      setRollCallIndex(0);
-      setRollCallData([]);
+    const next = rollCallIndex + 1;
+    if (next >= rollCallData.length) {
+      cancelRollCall();
       setMessage("Roll call completed!");
       return;
     }
 
-    setRollCallIndex(nextIndex);
-    speakName(rollCallData[nextIndex]?.name);
+    setRollCallIndex(next);
+    speakName(rollCallData[next]?.name);
   };
 
   const currentRollCallStudent = rollCallData[rollCallIndex];
 
-  if (students.length === 0) return <p>No students enrolled yet.</p>;
+  if (!students.length) return <p>No students enrolled yet.</p>;
 
+  /* ================= UI (UNCHANGED) ================= */
   return (
     <div className="mark-attendance glass-card p-4">
       <h3 className="section-title mb-4">Mark Attendance</h3>
 
-      {sessionActive && (
+      {!sessionActive && (
         <p className="info-text warning mb-3">
-          ⚠️ A live QR attendance session is active — manual marking disabled.
+          ⚠️ Please start an attendance session to enable manual, bulk, or roll call marking.
         </p>
       )}
 
-      {/* NOT IN ROLL CALL */}
+
+      {/* Not in roll call */}
       {!rollCallMode && (
         <>
-          {/* SEARCH & SORT */}
           <div className="flex justify-between mb-3">
             <input
               type="text"
@@ -177,7 +219,6 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
             />
-
             <select
               value={sortKey}
               onChange={(e) => setSortKey(e.target.value)}
@@ -190,24 +231,14 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
             </select>
           </div>
 
-          {/* BULK BUTTONS */}
           <div className="blk_btn flex gap-2 mb-4">
-            <button
-              onClick={() => bulkMarkAttendance("Present")}
-              className="btn-present"
-            >
+            <button onClick={() => bulkMarkAttendance("Present")} className="btn-present">
               Bulk Present
             </button>
-            <button
-              onClick={() => bulkMarkAttendance("Absent")}
-              className="btn-absent"
-            >
+            <button onClick={() => bulkMarkAttendance("Absent")} className="btn-absent">
               Bulk Absent
             </button>
-            <button
-              onClick={() => bulkMarkAttendance("N/A")}
-              className="btn-na"
-            >
+            <button onClick={() => bulkMarkAttendance("N/A")} className="btn-na">
               Bulk N/A
             </button>
             <button onClick={startRollCall} className="btn-rollcall">
@@ -215,17 +246,11 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
             </button>
           </div>
 
-          {/* STUDENT LIST */}
           <ul className="student-list">
             {paginatedStudents.map((s) => (
-              <li
-                key={s._id}
-                className="student-item flex justify-between items-center mb-2"
-              >
+              <li key={s._id} className="student-item flex justify-between items-center mb-2">
                 <div className="hld_studlist flex items-center gap-3">
-                  {/* Updated StudentAvatar usage */}
                   <StudentAvatar student={s} size={48} />
-
                   <div>
                     <p className="student-name">{s.name}</p>
                     <p className="student-id">{s.studentId || "N/A"}</p>
@@ -234,23 +259,19 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
                     </p>
                   </div>
                 </div>
-
                 <div className="flex items-center gap-2">
                   <select
                     value={studentStatus[s._id] || "N/A"}
                     onChange={(e) => markAttendance(s._id, e.target.value)}
-                    disabled={loadingState.id === s._id}
+                    disabled={loadingState.id === s._id || !sessionActive}
                     className="attendance-dropdown"
                   >
                     <option value="Present">Present</option>
                     <option value="Absent">Absent</option>
                     <option value="N/A">N/A</option>
                   </select>
-
                   <span id="badge_stat"
-                    className={`student-badge ${studentStatus[
-                      s._id
-                    ]?.toLowerCase()}`}
+                    className={`student-badge ${studentStatus[s._id]?.toLowerCase()}`}
                   >
                     {studentStatus[s._id] || "N/A"}
                   </span>
@@ -259,7 +280,7 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
             ))}
           </ul>
 
-          {/* PAGINATION */}
+          {/* Pagination */}
           <div className="flex justify-center gap-2 mt-4">
             {Array.from({ length: totalPages }, (_, i) => (
               <button
@@ -274,40 +295,29 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
         </>
       )}
 
-      {/* ROLL CALL MODE */}
+      {/* Roll call mode */}
       {rollCallMode && currentRollCallStudent && (
         <div className="rollcall-mode p-6 flex flex-col items-center gap-6">
           <h2>{currentRollCallStudent.name}</h2>
           <p>Matric: {currentRollCallStudent.studentId || "N/A"}</p>
           <p>Dept: {currentRollCallStudent.department?.name || "N/A"}</p>
-
-          {/* Updated StudentAvatar for roll call */}
           <div className="hld_rollprof">
             <StudentAvatar student={currentRollCallStudent} size={128} />
           </div>
-
           <button
             onClick={() => speakName(currentRollCallStudent.name)}
             className="btn-repeat callagain text-white px-4 py-2 rounded"
           >
             <RiVolumeUpFill size={22} color="#0b6623" />
           </button>
-
           <div className="roll_btn flex gap-4 mt-4">
-            <button
-              onClick={() => handleNext("Absent")}
-              className="btn-absent btn-lg"
-            >
+            <button onClick={() => handleNext("Absent")} className="btn-absent btn-lg">
               Absent
             </button>
-            <button
-              onClick={() => handleNext("Present")}
-              className="btn-present btn-lg"
-            >
-              Next / Present
+            <button onClick={() => handleNext("Present")} className="btn-present btn-lg">
+              Present
             </button>
           </div>
-
           <button
             onClick={cancelRollCall}
             className="can_roll btn-cancel mt-4 bg-warning text-white px-4 py-2 rounded"

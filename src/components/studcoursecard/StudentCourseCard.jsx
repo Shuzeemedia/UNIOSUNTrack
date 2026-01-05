@@ -12,10 +12,9 @@ const StudentCourseCard = ({ course, summary }) => {
   const totalPlanned = summary?.totalPlanned || course?.totalClasses || 0;
   const present = summary?.present || 0;
   const absent = summary?.absent || 0;
-  const attendancePercentage =
-    summary?.attendancePercentage ||
-    (classesHeld > 0 ? (present / classesHeld) * 100 : 0);
-  const xpScore = totalPlanned > 0 ? (present / totalPlanned) * 10 : 0;
+  const attendancePercentage = summary?.attendancePercentage ?? 0;
+  const xpScore = summary?.score ?? 0;
+
   const rank = getRank(present, totalPlanned);
 
   const formatXP = (num) => num.toFixed(2);

@@ -5,11 +5,22 @@ export const ATTENDANCE_THRESHOLD = 75;
 
 // Build query params for filters
 export const getFilterParams = (filter, date) => {
-    if (filter === "today") return { date };
-    if (filter === "week") return { range: "week" };
-    if (filter === "month") return { range: "month" };
-    return {};
-};
+    const today = new Date().toISOString().split("T")[0];
+  
+    switch (filter) {
+      case "today":
+        return { filter: "today" };
+  
+      case "date":
+        return { filter: "date", date };
+  
+      case "all":
+      default:
+        return { filter: "all" };
+    }
+  };
+  
+
 
 // For student side: compute summary
 export const computeSummary = (records) => {

@@ -15,9 +15,10 @@ import "./teacherAttendanceChart.css";
 const TeacherAttendanceChart = ({ data = [] }) => {
   const chartData = data.map((rec) => ({
     name: rec.student?.name || "Unknown",
-    Present: rec.totalPresent ?? 0,
-    Absent: rec.totalAbsent ?? 0,
+    Present: rec.present ?? 0,
+    Absent: rec.absent ?? 0,
   }));
+
 
   const colors = {
     Present: "#4CAF50",
@@ -30,8 +31,8 @@ const TeacherAttendanceChart = ({ data = [] }) => {
       return (
         <div className="teacher-chart-tooltip">
           <h4>{label}</h4>
-          <p style={{color:"#0B6623"}}>Present: {payload[0]?.value ?? 0}</p>
-          <p style={{color:"red"}}>Absent: {payload[1]?.value ?? 0}</p>
+          <p style={{ color: "#0B6623" }}>Present: {payload[0]?.value ?? 0}</p>
+          <p style={{ color: "red" }}>Absent: {payload[1]?.value ?? 0}</p>
         </div>
       );
     }
