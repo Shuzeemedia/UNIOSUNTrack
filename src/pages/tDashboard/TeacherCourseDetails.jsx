@@ -88,20 +88,16 @@ const TeacherCourseDetails = () => {
 
         const summary = sumRes.data.summary || [];
 
-        // ✅ If no classes held → no attendance
-        if (summary.length === 0) {
-          setAttendanceSummary([]);
-          setLoading(false);
-          return;
-        }
-
         const classesHeld = sumRes.data.classesHeld || 0;
 
 
 
         // ✅ Merge ONLY when attendance exists
         const mergedSummary = studentsData.map((s) => {
-          const record = summary.find((rec) => rec.student._id === s._id);
+          const record = summary.find(
+            (rec) => rec.student?._id?.toString() === s._id?.toString()
+          );
+
 
           return {
             student: s,
@@ -148,48 +144,100 @@ const TeacherCourseDetails = () => {
 
   useEffect(() => {
     if (!id) return;
-
+  
     const handler = async (payload) => {
       if (payload.courseId !== id) return;
-
-      console.log("♻ Attendance updated for this course:", payload);
-
+  
+      console.log("♻ Manual session auto-expired, refreshing UI", payload);
+  
       const params = buildAttendanceParams();
-
-      // Refresh records
+  
       try {
+        // 🔄 Refresh course-wide attendance table
         const recRes = await api.get(`/attendance/${id}`, { params });
         setSessionAttendance(recRes.data.records || []);
-      } catch {
-        setSessionAttendance([]);
-      }
-
-      // Refresh summary
-      try {
+  
+        // 🔄 Refresh summary table
         const sumRes = await api.get(`/attendance/${id}/summary`, { params });
         const summary = sumRes.data.summary || [];
-        const classesHeld = sumRes.data.classesHeld || 0;
-
+  
         const merged = students.map((s) => {
-          const record = summary.find((r) => r._id === s._id);
+          const record = summary.find(
+            (r) => r.student?._id?.toString() === s._id?.toString()
+          );
+  
           return {
             student: s,
-            totalPresent: record?.present || 0,
-            totalAbsent: record?.absent || 0,
-            classesHeld,
+            present: record?.present || 0,
+            absent: record?.absent || 0,
+            classesHeld: record?.classesHeld || 0,
             totalPlanned: course?.totalClasses || 0,
+            attendancePct: record?.attendancePct || 0,
+            score: record?.score || 0,
           };
         });
-
-        setAttendanceSummary(merged);
+  
+        setAttendanceSummary([...merged]); // full replace
+  
       } catch (err) {
-        console.error("Summary refresh failed", err);
+        console.error("Socket UI refresh failed", err);
       }
     };
-
+  
+    // ✅ THIS MUST MATCH BACKEND EMIT NAME EXACTLY
     socket.on("attendance-updated", handler);
     return () => socket.off("attendance-updated", handler);
-  }, [id, filter, date, students, course]);
+  
+  }, [id, students]);
+
+  const reloadSummary = async () => {
+    const params = buildAttendanceParams();
+    console.log("🔁 Reloading summary with params:", params);
+  
+    const sumRes = await api.get(`/attendance/${id}/summary`, { params });
+    console.log("Summary response:", sumRes.data);
+  
+    const summary = sumRes.data.summary || [];
+  
+    const merged = students.map((s) => {
+      const record = summary.find(
+        (r) => r.student?._id?.toString() === s._id?.toString()
+      );
+  
+      return {
+        student: s,
+        present: record?.present || 0,
+        absent: record?.absent || 0,
+        attendancePct: record?.attendancePct || 0,
+        score: record?.score || 0,
+      };
+    });
+  
+    setAttendanceSummary([...merged]);
+  };
+  
+  
+  useEffect(() => {
+  if (!id) return;
+
+  const handler = (payload) => {
+    console.log("📡 Socket received:", payload);
+    console.log("Expected course:", id);
+
+    if (payload.courseId !== id) {
+      console.warn("⚠ Course mismatch, ignoring update");
+      return;
+    }
+
+    // Force reload summary
+    reloadSummary();
+  };
+
+  socket.on("attendance-updated", handler);
+  return () => socket.off("attendance-updated", handler);
+}, [id]);
+
+  
 
 
 
@@ -286,7 +334,10 @@ const TeacherCourseDetails = () => {
       const classesHeld = sumRes.data.classesHeld || 0;
 
       const mergedSummary = students.map((s) => {
-        const record = summary.find((rec) => rec._id === s._id);
+        const record = summary.find(
+          (rec) => rec.student?._id?.toString() === s._id?.toString()
+        );
+
         return {
           student: s,
           totalPresent: record?.present || 0,
@@ -338,11 +389,7 @@ const TeacherCourseDetails = () => {
       setSessionActive(sessionData);
       setSessionMessage("Attendance session started");
 
-      // Auto-expire in 10 minutes (600,000ms)
-      setTimeout(() => {
-        setSessionActive(null);
-        setSessionMessage("Manual session expired");
-      }, 10 * 60 * 1000); // 10 minutes
+
 
     } catch (err) {
       setSessionMessage(
