@@ -36,6 +36,7 @@ const StudentCourseDetails = () => {
 
   // Active QR session
   const [activeSession, setActiveSession] = useState(null);
+  const isQrActive = activeSession && activeSession.type === "QR";
   const [sessionLoading, setSessionLoading] = useState(false);
 
   const [error, setError] = useState(""); // new inline error state
@@ -77,8 +78,8 @@ const StudentCourseDetails = () => {
         percentage: backendSummary.attendancePercentage, // keep backend %
         xp: backendSummary.score,
       });
-      
-      
+
+
 
 
     } catch (err) {
@@ -175,7 +176,8 @@ const StudentCourseDetails = () => {
             <Spinner animation="border" size="sm" variant="success" />
           ) : (
             <Button
-              variant={activeSession ? "success" : "secondary"}
+              variant={isQrActive ? "success" : "secondary"}
+              disabled={!isQrActive}
               onClick={handleScanClick}
             >
               <img
@@ -183,8 +185,9 @@ const StudentCourseDetails = () => {
                 alt="ScanQRCode Gen"
                 className="qricon scanX"
               />
-              {activeSession ? "Scan QR" : "No Active Session"}
+              {isQrActive ? "Scan QR" : "No Active QR Session"}
             </Button>
+
           )}
         </div>
       </div>
@@ -220,7 +223,7 @@ const StudentCourseDetails = () => {
             <strong>Absent:</strong> {summary.absent}
           </p>
           <p>
-          <strong>Attendance %:</strong> {Number(summary.percentage).toFixed(1)}%
+            <strong>Attendance %:</strong> {Number(summary.percentage).toFixed(1)}%
           </p>
           <p>
             <strong>Score:</strong>{" "}

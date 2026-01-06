@@ -21,25 +21,30 @@ function StudentSummaryTable({ data = [], course, onStudentClick }) {
     /** ====================== COMPUTED DATA ====================== */
     const computedData = useMemo(() => {
         return data.map((row) => {
-          const present = row.present ?? 0;
-          const absent = row.absent ?? 0;
-          const attendancePct = row.attendancePct ?? 0;
-          const score = row.score ?? 0;
-      
-          const totalPlanned = row.totalPlanned ?? course?.totalClasses ?? 0;
-          const rankInfo = getRank(present, totalPlanned);
-      
-          return {
-            ...row,
-            present,
-            absent,
-            attendancePct,
-            score,
-            rankInfo,
-          };
+            const present = row.present ?? 0;
+            const absent = row.absent ?? 0;
+
+            const totalSessions = present + absent;
+
+            const attendancePct =
+                totalSessions > 0 ? (present / totalSessions) * 100 : 0;
+
+            const score = row.score ?? 0;
+            const totalPlanned = row.totalPlanned ?? course?.totalClasses ?? 0;
+            const rankInfo = getRank(present, totalPlanned);
+
+            return {
+                ...row,
+                present,
+                absent,
+                attendancePct,
+                score,
+                rankInfo,
+            };
         });
-      }, [data, course]);
-      
+    }, [data, course]);
+
+
 
     /** ====================== FILTER ====================== */
     const filteredData = useMemo(() => {
