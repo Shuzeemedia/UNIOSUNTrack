@@ -36,6 +36,8 @@ const TeacherCourseDetails = () => {
   const [sessionLoading, setSessionLoading] = useState(false);
   const [sessionMessage, setSessionMessage] = useState("");
   const [sessionAttendance, setSessionAttendance] = useState([]);
+  const [radius, setRadius] = useState(60);
+
   const [countdown, setCountdown] = useState(null);
 
 
@@ -144,28 +146,28 @@ const TeacherCourseDetails = () => {
 
   useEffect(() => {
     if (!id) return;
-  
+
     const handler = async (payload) => {
       if (payload.courseId !== id) return;
-  
+
       console.log("♻ Manual session auto-expired, refreshing UI", payload);
-  
+
       const params = buildAttendanceParams();
-  
+
       try {
         // 🔄 Refresh course-wide attendance table
         const recRes = await api.get(`/attendance/${id}`, { params });
         setSessionAttendance(recRes.data.records || []);
-  
+
         // 🔄 Refresh summary table
         const sumRes = await api.get(`/attendance/${id}/summary`, { params });
         const summary = sumRes.data.summary || [];
-  
+
         const merged = students.map((s) => {
           const record = summary.find(
             (r) => r.student?._id?.toString() === s._id?.toString()
           );
-  
+
           return {
             student: s,
             present: record?.present || 0,
@@ -176,34 +178,34 @@ const TeacherCourseDetails = () => {
             score: record?.score || 0,
           };
         });
-  
+
         setAttendanceSummary([...merged]); // full replace
-  
+
       } catch (err) {
         console.error("Socket UI refresh failed", err);
       }
     };
-  
+
     // ✅ THIS MUST MATCH BACKEND EMIT NAME EXACTLY
     socket.on("attendance-updated", handler);
     return () => socket.off("attendance-updated", handler);
-  
+
   }, [id, students]);
 
   const reloadSummary = async () => {
     const params = buildAttendanceParams();
     console.log("🔁 Reloading summary with params:", params);
-  
+
     const sumRes = await api.get(`/attendance/${id}/summary`, { params });
     console.log("Summary response:", sumRes.data);
-  
+
     const summary = sumRes.data.summary || [];
-  
+
     const merged = students.map((s) => {
       const record = summary.find(
         (r) => r.student?._id?.toString() === s._id?.toString()
       );
-  
+
       return {
         student: s,
         present: record?.present || 0,
@@ -212,32 +214,32 @@ const TeacherCourseDetails = () => {
         score: record?.score || 0,
       };
     });
-  
+
     setAttendanceSummary([...merged]);
   };
-  
-  
+
+
   useEffect(() => {
-  if (!id) return;
+    if (!id) return;
 
-  const handler = (payload) => {
-    console.log("📡 Socket received:", payload);
-    console.log("Expected course:", id);
+    const handler = (payload) => {
+      console.log("📡 Socket received:", payload);
+      console.log("Expected course:", id);
 
-    if (payload.courseId !== id) {
-      console.warn("⚠ Course mismatch, ignoring update");
-      return;
-    }
+      if (payload.courseId !== id) {
+        console.warn("⚠ Course mismatch, ignoring update");
+        return;
+      }
 
-    // Force reload summary
-    reloadSummary();
-  };
+      // Force reload summary
+      reloadSummary();
+    };
 
-  socket.on("attendance-updated", handler);
-  return () => socket.off("attendance-updated", handler);
-}, [id]);
+    socket.on("attendance-updated", handler);
+    return () => socket.off("attendance-updated", handler);
+  }, [id]);
 
-  
+
 
 
 
@@ -376,29 +378,43 @@ const TeacherCourseDetails = () => {
       setSessionLoading(true);
       setSessionMessage("");
 
-      const res = await api.post(`/sessions/${id}/create`, {
-        type: "manual",
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        const { latitude, longitude, accuracy } = pos.coords;
+
+        // Ensure valid numbers
+        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+          setSessionMessage("Invalid GPS coordinates");
+          setSessionLoading(false);
+          return;
+        }
+
+        const res = await api.post(`/sessions/${id}/create`, {
+          type: "MANUAL",
+          location: {
+            lat: latitude,
+            lng: longitude,
+            accuracy,
+            radius // <-- NEW
+          }
+        });
+
+
+        setSessionActive({
+          _id: res.data.sessionId,
+          expiresAt: res.data.expiresAt,
+          type: res.data.type,
+        });
+
+        setSessionMessage("Attendance session started");
+        setSessionLoading(false);
       });
 
-      const sessionData = {
-        _id: res.data.sessionId,
-        expiresAt: new Date(res.data.expiresAt),
-        type: res.data.type,
-      };
-
-      setSessionActive(sessionData);
-      setSessionMessage("Attendance session started");
-
-
-
     } catch (err) {
-      setSessionMessage(
-        err.response?.data?.msg || "Failed to start session"
-      );
-    } finally {
+      setSessionMessage(err.response?.data?.msg || "Failed to start session");
       setSessionLoading(false);
     }
   };
+
 
 
 
@@ -518,6 +534,26 @@ const TeacherCourseDetails = () => {
       {/* ===== SESSION CONTROL ===== */}
       <div className="glass-card p-4 mb-4">
         <h3 className="section-title mb-2">Attendance Session</h3>
+        <div className="radius-settings">
+          <label><strong>📍 Attendance Geo-Fence Radius</strong></label>
+
+          <select
+            value={radius}
+            onChange={(e) => setRadius(Number(e.target.value))}
+            className="filter-select"
+          >
+            <option value={20}>20 meters — small classroom</option>
+            <option value={40}>40 meters — large classroom</option>
+            <option value={60}>60 meters — default</option>
+            <option value={80}>80 meters — building range</option>
+            <option value={100}>100 meters — campus area</option>
+            <option value={150}>150 meters — outdoor lecture</option>
+          </select>
+
+          <p className="hint-text">
+            Students must be inside this distance to mark attendance automatically.
+          </p>
+        </div>
 
         {!sessionActive ? (
           <button

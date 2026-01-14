@@ -2,7 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Button, Table, Spinner, Modal, Form, InputGroup, FormControl, Pagination } from "react-bootstrap";
 import { toast } from "react-toastify";
 import api from "../../api/api";
-import "./adminSessions.css"; 
+import "./adminSessions.css";
+import LoadingSpinner from "../../components/Loader/LoadingSpinner";
 
 
 const AdminSessions = () => {
@@ -119,72 +120,72 @@ const AdminSessions = () => {
             </InputGroup>
 
             {loading ? (
-                <div className="text-center my-4">
-                    <Spinner animation="border" />
-                </div>
+                <LoadingSpinner />
             ) : (
                 <>
-                    <Table striped bordered hover responsive>
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                                <th>Active</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paginatedSessions.length === 0 ? (
+                    <div className="table-container">
+                        <Table striped bordered hover responsive>
+                            <thead>
                                 <tr>
-                                    <td colSpan="5" className="text-center">No sessions found</td>
+                                    <th>Name</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Active</th>
+                                    <th>Action</th>
                                 </tr>
-                            ) : (
-                                paginatedSessions.map(s => (
-                                    <tr key={s._id} className={s.active ? "table-success" : ""}>
-                                        <td>{s.name}</td>
-                                        <td>{new Date(s.startDate).toLocaleDateString()}</td>
-                                        <td>{new Date(s.endDate).toLocaleDateString()}</td>
-                                        <td>
-                                            {s.active
-                                                ? <span className="badge bg-success">Active</span>
-                                                : <span className="badge bg-secondary">Inactive</span>
-                                            }
-                                        </td>
-                                        <td>
-                                            <div className="d-flex flex-wrap gap-1" style={{ position: "relative", zIndex: 1 }}>
-                                                <Button
-                                                    size="sm"
-                                                    variant="primary"
-                                                    onClick={() => openEditModal(s)}
-                                                    // disabled={s.active}
-                                                >
-                                                    Edit
-                                                </Button>
-                                                <Button
-                                                    size="sm"
-                                                    variant="danger"
-                                                    onClick={() => deleteSession(s._id)}
-                                                    disabled={s.active}
-                                                >
-                                                    Delete
-                                                </Button>
-                                                {!s.active && (
+                            </thead>
+                            <tbody>
+                                {paginatedSessions.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="text-center">No sessions found</td>
+                                    </tr>
+                                ) : (
+                                    paginatedSessions.map(s => (
+                                        <tr key={s._id} className={s.active ? "table-success" : ""}>
+                                            <td>{s.name}</td>
+                                            <td>{new Date(s.startDate).toLocaleDateString()}</td>
+                                            <td>{new Date(s.endDate).toLocaleDateString()}</td>
+                                            <td>
+                                                {s.active
+                                                    ? <span className="badge bg-success">Active</span>
+                                                    : <span className="badge bg-secondary">Inactive</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div className="d-flex flex-wrap gap-1" style={{ position: "relative", zIndex: 1 }}>
                                                     <Button
                                                         size="sm"
-                                                        variant="success"
-                                                        onClick={() => activateSession(s._id)}
+                                                        variant="primary"
+                                                        onClick={() => openEditModal(s)}
+                                                    // disabled={s.active}
                                                     >
-                                                        Activate
+                                                        Edit
                                                     </Button>
-                                                )}
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </Table>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="danger"
+                                                        onClick={() => deleteSession(s._id)}
+                                                        disabled={s.active}
+                                                    >
+                                                        Delete
+                                                    </Button>
+                                                    {!s.active && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="success"
+                                                            onClick={() => activateSession(s._id)}
+                                                        >
+                                                            Activate
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </Table>
+                    </div>
 
 
                     {/* Pagination */}
@@ -202,7 +203,8 @@ const AdminSessions = () => {
                         </Pagination>
                     )}
                 </>
-            )}
+            )
+            }
 
             {/* Start/Edit Session Modal */}
             <Modal show={showModal} onHide={() => setShowModal(false)} centered>
@@ -227,7 +229,7 @@ const AdminSessions = () => {
                     </Form>
                 </Modal.Body>
             </Modal>
-        </div>
+        </div >
     );
 };
 

@@ -1,0 +1,213 @@
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Prevent insane text from blowing up columns */
+.table-container table td,
+.table-container table th {
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+}
+
+/* container wraps horizontal scroll on phones */
+.gv-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* base text */
+.gv-table {
+    font-size: 0.95rem;
+}
+
+.gv-table thead th {
+    font-weight: 600;
+}
+
+/* normal table cells */
+.cell-text {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+/* name can wrap */
+.name-text {
+    white-space: normal;
+    font-weight: 600;
+}
+
+/* empty state text */
+.empty-text {
+    font-size: 0.9rem;
+    padding: 16px 0;
+}
+
+/* badge size */
+.status-badge {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    border-radius: 6px;
+}
+
+/* buttons */
+.action-btn {
+    min-width: 90px;
+}
+
+/* keep action column centered */
+.action-col {
+    text-align: center;
+}
+
+/* 📱 MOBILE RESPONSIVE (phones < 576px) */
+@media (max-width: 576px) {
+    .gv-table {
+        font-size: 0.78rem;
+    }
+
+    .gv-table thead th {
+        font-size: 0.8rem;
+    }
+
+    .cell-text {
+        font-size: 0.8rem;
+    }
+
+    .name-text {
+        font-size: 0.85rem;
+    }
+
+    .status-badge {
+        font-size: 0.72rem;
+        padding: 4px 8px;
+    }
+
+    /* buttons become full width */
+    .action-btn {
+        width: 100%;
+        margin-top: 4px;
+    }
+
+    /* stack content nicely */
+    .action-col {
+        min-width: 110px;
+    }
+}
+
+
+
+/* semester code ************************************/
+
+/* ============================= */
+/*    SEMESTER TABLE BASE        */
+/* ============================= */
+
+.sem-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.sem-table {
+    font-size: 0.95rem;
+}
+
+.sem-table thead th {
+    font-weight: 600;
+}
+
+/* text cells */
+.cell-text {
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.name-text {
+    white-space: normal;
+    font-weight: 600;
+}
+
+/* empty text row */
+.empty-text {
+    font-size: 0.9rem;
+    padding: 16px 0;
+}
+
+/* ============================= */
+/*           BADGES              */
+/* ============================= */
+
+.status-badge {
+    font-size: 0.8rem;
+    padding: 6px 10px;
+    border-radius: 8px;
+    display: inline-block;
+}
+
+.status-badge.active {
+    background: #28a745;
+    color: white;
+}
+
+.status-badge.inactive {
+    background: #6c757d;
+    color: white;
+}
+
+/* ============================= */
+/*           BUTTONS             */
+/* ============================= */
+
+.action-col {
+    text-align: center;
+    min-width: 140px;
+}
+
+.action-btn {
+    min-width: 90px;
+    margin: 2px;
+}
+
+/* ============================= */
+/* 📱  MOBILE BREAKPOINT <576px  */
+/* ============================= */
+
+@media (max-width: 576px) {
+    .sem-table {
+        font-size: 0.78rem;
+    }
+
+    .sem-table thead th {
+        font-size: 0.8rem;
+    }
+
+    .cell-text {
+        font-size: 0.8rem;
+    }
+
+    .name-text {
+        font-size: 0.85rem;
+    }
+
+    .status-badge {
+        font-size: 0.72rem;
+        padding: 4px 8px;
+    }
+
+    /* make buttons full width & stacked */
+    .action-btn {
+        width: 100%;
+        display: block;
+    }
+
+    .action-col {
+        min-width: 120px;
+    }
+
+    /* search & filters mobile stack */
+    .filter-row {
+        flex-direction: column;
+        gap: 8px !important;
+    }
+}

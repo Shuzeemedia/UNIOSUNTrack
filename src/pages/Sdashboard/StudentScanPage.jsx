@@ -5,9 +5,11 @@ import { Modal, Button } from "react-bootstrap";
 import { Html5Qrcode } from "html5-qrcode";
 import * as faceapi from "face-api.js";
 import { toast } from "react-toastify";
+import { MapContainer, TileLayer, Marker, Circle } from "react-leaflet";
 import { useLocation } from "react-router-dom";
 
 import "./StudentScanPage.css";
+import AttendanceMap from "../../components/AttendanceMap";
 
 // Helper: distance between GPS points in meters
 function getDistanceInMeters(lat1, lng1, lat2, lng2) {
@@ -49,6 +51,10 @@ const StudentScanPage = () => {
     const [faceVerified, setFaceVerified] = useState(false);
     const [faceLoading, setFaceLoading] = useState(false);
     const location = useLocation();
+    const [insideGeofence, setInsideGeofence] = useState(true);
+    const [studentLocation, setStudentLocation] = useState(null);
+    const [locationReady, setLocationReady] = useState(false);
+
 
 
     const [modalShow, setModalShow] = useState(false);
@@ -264,53 +270,34 @@ const StudentScanPage = () => {
 
     /** ==================== MARK ATTENDANCE ==================== */
     const markAttendance = async (scannedToken) => {
+
+        if (!insideGeofence) {
+            toast.error("You are outside the attendance zone ❌. Move closer to the lecture.");
+            throw new Error("Outside attendance zone");
+        }
+
         if (!sessionInfo) throw new Error("Session info missing");
-
-        const position = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(
-                (pos) => resolve(pos.coords),
-                (err) => {
-                    if (err.code === 1) {
-                        toast.error("Location permission denied");
-                        reject(err);
-                    } else {
-                        toast.warn("Using last known location...");
-                        resolve({
-                            latitude: sessionInfo.course.location.lat,
-                            longitude: sessionInfo.course.location.lng,
-                            accuracy: 100
-                        });
-                    }
-                },
-                {
-                    enableHighAccuracy: false,
-                    timeout: 30000,
-                    maximumAge: 10000
-                }
-
-            );
-        });
-
-        // // GPS check
-        // const courseLoc = sessionInfo.course.location;
-        // if (courseLoc?.lat && courseLoc?.lng) {
-        //     const dist = getDistanceInMeters(
-        //         position.latitude,
-        //         position.longitude,
-        //         courseLoc.lat,
-        //         courseLoc.lng
-        //     );
-        //     if (dist > courseLoc.radius) throw new Error("You are not within lecture location");
-        // }
+        if (!studentLocation || !locationReady) {
+            toast.error("Waiting for your real GPS location. Please stay still…");
+            throw new Error("GPS not ready");
+        }
+        // use studentLocation from map
 
         const token = localStorage.getItem("token");
         const res = await api.post(
             `/sessions/scan/${scannedToken}`,
-            { location: { lat: position.latitude, lng: position.longitude, accuracy: position.accuracy } },
+            {
+                location: {
+                    lat: studentLocation.lat,
+                    lng: studentLocation.lng,
+                    accuracy: studentLocation.accuracy
+                }
+            },
+
             { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        return res.data; // { alreadyMarked: boolean, msg: string }
+        return res.data;
     };
 
     /** ==================== RENDER ==================== */
@@ -332,7 +319,22 @@ const StudentScanPage = () => {
                     </div>
                 )}
 
-                {faceVerified && <div id="reader" className="qr-reader" />}
+                {faceVerified && sessionInfo?.location && (
+
+                    <>
+                        <AttendanceMap
+                            sessionLocation={sessionInfo.location}
+                            onInsideChange={setInsideGeofence}
+                            onLocationChange={(loc) => {
+                                setStudentLocation(loc);
+                                setLocationReady(true); // mark ready
+                            }}
+                        />
+
+                        <div id="reader" className="qr-reader" />
+                    </>
+                )}
+
 
                 {/* SUCCESS MODAL */}
                 <Modal

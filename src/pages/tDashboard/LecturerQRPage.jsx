@@ -103,39 +103,52 @@ const LecturerQRPage = () => {
     const handleCreateSession = async () => {
         if (!courseId) return alert("Course ID missing.");
 
-        try {
-            setLoading(true);
-            setError("");
+        setLoading(true);
+        setError("");
 
-            const token = localStorage.getItem("token");
+        const token = localStorage.getItem("token");
 
-            const res = await axios.post(
-                `${import.meta.env.VITE_API_URL}/sessions/${courseId}/create`,
-                { type: "QR" }, // ✅ send the session type here
-                { headers: { Authorization: `Bearer ${token}` } }
-            );              
+        navigator.geolocation.getCurrentPosition(
+            async (pos) => {
+                try {
+                    const { latitude, longitude, accuracy } = pos.coords;
 
-            const {
-                token: sessionToken,
-                expiresAt,
-                sessionId, // ✅ USE THIS
-            } = res.data;
+                    const res = await axios.post(
+                        `${import.meta.env.VITE_API_URL}/sessions/${courseId}/create`,
+                        {
+                            type: "QR",
+                            location: {
+                                lat: latitude,
+                                lng: longitude,
+                                accuracy
+                            }
+                        },
+                        { headers: { Authorization: `Bearer ${token}` } }
+                    );
 
-            const qrUrl = `${import.meta.env.VITE_FRONTEND_URL}/student/scan/${sessionToken}`;
+                    const { token: sessionToken, expiresAt, sessionId } = res.data;
 
-            // ✅ SET ALL STATE AT ONCE
-            setQrData(qrUrl);
-            setExpiresAt(expiresAt);
-            setSessionId(sessionId);
-            setExpired(false);
-            setEnded(false);
-            setEndMsg("");
-        } catch (err) {
-            setError(err.response?.data?.msg || "Failed to create session.");
-        } finally {
-            setLoading(false);
-        }
+                    const qrUrl = `${import.meta.env.VITE_FRONTEND_URL}/student/scan/${sessionToken}`;
+
+                    setQrData(qrUrl);
+                    setExpiresAt(expiresAt);
+                    setSessionId(sessionId);
+                    setExpired(false);
+                    setEnded(false);
+                    setEndMsg("");
+                } catch (err) {
+                    setError(err.response?.data?.msg || "Failed to create session.");
+                } finally {
+                    setLoading(false);
+                }
+            },
+            () => {
+                setError("GPS permission is required to start a session.");
+                setLoading(false);
+            }
+        );
     };
+
 
     const sendQrToFullscreen = () => {
         const win = fullscreenWindowRef.current;

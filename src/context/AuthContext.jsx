@@ -23,6 +23,44 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const refreshUser = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+  
+      const res = await fetch("/api/auth/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      if (!res.ok) throw new Error("Failed to refresh user");
+  
+      const data = await res.json();
+  
+      const normalized = {
+        ...data.user,
+        id: data.user.id || data.user._id,
+      };
+  
+      if (normalized.department) {
+        normalized.department = {
+          ...normalized.department,
+          id: normalized.department.id || normalized.department._id,
+        };
+        delete normalized.department._id;
+      }
+  
+      delete normalized._id;
+  
+      setUser(normalized);
+      localStorage.setItem("user", JSON.stringify(normalized));
+    } catch (err) {
+      console.error("User refresh failed:", err);
+    }
+  };
+  
+
   // Initialize user from localStorage on mount
   useEffect(() => {
     const initializeAuth = () => {
@@ -121,6 +159,7 @@ export function AuthProvider({ children }) {
         setUser,
         login,
         logout,
+        refreshUser,
         loading: loading, // renamed to match your profile usage
       }}
     >

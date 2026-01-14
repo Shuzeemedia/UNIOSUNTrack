@@ -124,6 +124,18 @@ function LeaderboardPage() {
     }
   };
 
+  const rankImages = {
+    Bronze: "/ranks/bronze.png",
+    Silver: "/ranks/silver.png",
+    Gold: "/ranks/gold.png",
+    Platinum: "/ranks/plat.png",
+    Diamond: "/ranks/diamond.png",
+    Champion: "/ranks/champ.png",
+    "Grand Champion": "/ranks/Gchamp.png",
+    "Star Student League": "/ranks/super.png",
+  };
+
+
   const showTooltip = (index) => {
     setVisibleTooltip(index);
     setTimeout(() => setVisibleTooltip(null), 2000);
@@ -255,6 +267,39 @@ function LeaderboardPage() {
             </tbody>
           </table>
         )}
+      </div>
+
+
+      <p className="ranking-description">
+        The leaderboard rewards students based on their **attendance performance**. Your XP score is calculated from how consistently you attend classes.
+        Higher XP = higher rank.
+
+        <br />
+        Ranks progress from <div className="rank-legend">
+          {[
+            "Bronze",
+            "Silver",
+            "Gold",
+            "Platinum",
+            "Diamond",
+            "Champion",
+            "Grand Champion",
+            "Star Student League",
+          ].map((r) => (
+            <div key={r} className="rank-legend-item">
+              <img src={rankImages[r]} alt={r} className="rank-icon-small" />
+              <span>{r}</span>
+            </div>
+          ))}
+        </div>
+        .
+        Only the most consistent students reach the top tiers.
+      </p>
+
+      <div className="rank-hype">
+        <p>⭐ <strong>Top 10</strong> students are celebrated school-wide.</p>
+        <p>🔥 <strong>Top 3</strong> students earn legendary status — respect guaranteed.</p>
+        <p>🏆 <strong>Star Student League</strong> is reserved for excellence. Few ever reach it.</p>
       </div>
     </div>
   );
