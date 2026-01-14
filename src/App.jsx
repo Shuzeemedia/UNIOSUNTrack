@@ -49,9 +49,15 @@ import StudentCourses from "./pages/Sdashboard/StudentCourses";
 // Offline banner
 
 import "./index.css";
+import "leaflet/dist/leaflet.css";
+
 import AdminSemesters from "./pages/adnimSide/AdminSemesters";
 import AdminSessions from "./pages/adnimSide/AdminSessions";
 import EnrollFace from "./components/EnrollFace";
+import Transcript from "./pages/alumni/Transcript";
+import GraduateVerification from "./pages/adnimSide/GraduateVerification";
+
+
 // import FaceEnroll from "./pages/FaceEnroll";
 
 function App() {
@@ -119,6 +125,9 @@ function App() {
 
           {/* Student QR Scan Page */}
           <Route path="student/scan/:sessionToken" element={<StudentScanPage />} />
+
+          <Route path="student/transcript" element={<Transcript />} />
+
         </Route>
 
         {/* ================== ADMIN ================== */}
@@ -133,6 +142,7 @@ function App() {
           <Route index element={<AdminDashboard />} />
           <Route path="dashboard" element={<AdminDashboard />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="graduates" element={<GraduateVerification />} />
           <Route path="teachers" element={<AdminTeachers />} />
           <Route path="courses" element={<AdminCourses />} />
           <Route path="semesters" element={<AdminSemesters />} />

@@ -30,6 +30,7 @@ const AdminLayout = () => {
     { path: "/admin/dashboard", label: "Dashboard" },
     { path: "/admin/leaderboard", label: "Leaderboard" },
     { path: "/admin/users", label: "Users" },
+    { path: "/admin/graduates", label: "Graduates" },
     { path: "/admin/courses", label: "Courses" },
     { path: "/admin/attendance", label: "Attendance" },
     { path: "/admin/teachers", label: "Lecturers" },

@@ -3,6 +3,9 @@ import { Button, Table, Spinner, Form } from "react-bootstrap";
 import { toast } from "react-toastify";
 import api from "../../api/api";
 import SemesterForm from "../adnimSide/SemesterForm";
+import LoadingSpinner from "../../components/Loader/LoadingSpinner";
+import "./adminSemesters.css";
+
 
 const AdminSemesters = () => {
     const [semesters, setSemesters] = useState([]);
@@ -139,74 +142,88 @@ const AdminSemesters = () => {
 
             {/* TABLE */}
             {loading ? (
-                <div className="text-center my-4">
-                    <Spinner animation="border" />
-                </div>
+                <LoadingSpinner />
             ) : (
-                <Table striped bordered hover responsive>
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Season</th>
-                            <th>Start</th>
-                            <th>End</th>
-                            <th>Active</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {semesters.length === 0 ? (
+                <div className="sem-table-wrapper">
+                    <Table striped bordered hover className="sem-table">
+                        <thead>
                             <tr>
-                                <td colSpan="6" className="text-center">
-                                    No semesters found
-                                </td>
+                                <th>Name</th>
+                                <th>Season</th>
+                                <th>Start</th>
+                                <th>End</th>
+                                <th>Status</th>
+                                <th>Action</th>
                             </tr>
-                        ) : (
-                            semesters.map((sem) => (
-                                <tr key={sem._id}>
-                                    <td>{sem.name}</td>
-                                    <td>{sem.season}</td>
-                                    <td>{new Date(sem.startDate).toLocaleDateString()}</td>
-                                    <td>{new Date(sem.endDate).toLocaleDateString()}</td>
-                                    <td>
-                                        {sem.active ? (
-                                            <span className="badge bg-success">Active</span>
-                                        ) : (
-                                            <span className="badge bg-secondary">Inactive</span>
-                                        )}
-                                    </td>
-                                    <td className="d-flex gap-2">
-                                        {!sem.active && (
-                                            <Button
-                                                size="sm"
-                                                variant="success"
-                                                onClick={() => activateSemester(sem._id)}
-                                            >
-                                                Set Active
-                                            </Button>
-                                        )}
+                        </thead>
 
-                                        <Button
-                                            size="sm"
-                                            variant="primary"
-                                            onClick={() => openEditForm(sem)}
-                                        >
-                                            Edit
-                                        </Button>
-
-                                        <Button
-                                            size="sm"
-                                            variant="danger"
-                                            onClick={() => deleteSemester(sem._id)}
-                                        >
-                                            Delete
-                                        </Button>
+                        <tbody>
+                            {semesters.length === 0 ? (
+                                <tr>
+                                    <td colSpan="6" className="text-center empty-text">
+                                        No semesters found
                                     </td>
                                 </tr>
-                            ))
-                        )}
-                    </tbody>
-                </Table>
+                            ) : (
+                                semesters.map((sem) => (
+                                    <tr key={sem._id}>
+                                        <td className="cell-text name-text">{sem.name}</td>
+
+                                        <td className="cell-text">{sem.season}</td>
+
+                                        <td className="cell-text">
+                                            {new Date(sem.startDate).toLocaleDateString()}
+                                        </td>
+
+                                        <td className="cell-text">
+                                            {new Date(sem.endDate).toLocaleDateString()}
+                                        </td>
+
+                                        <td>
+                                            {sem.active ? (
+                                                <span className="status-badge active">Active</span>
+                                            ) : (
+                                                <span className="status-badge inactive">Inactive</span>
+                                            )}
+                                        </td>
+
+                                        <td className="action-col">
+                                            {!sem.active && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="success"
+                                                    className="action-btn"
+                                                    onClick={() => activateSemester(sem._id)}
+                                                >
+                                                    Set Active
+                                                </Button>
+                                            )}
+
+                                            <Button
+                                                size="sm"
+                                                variant="primary"
+                                                className="action-btn"
+                                                onClick={() => openEditForm(sem)}
+                                            >
+                                                Edit
+                                            </Button>
+
+                                            <Button
+                                                size="sm"
+                                                variant="danger"
+                                                className="action-btn"
+                                                onClick={() => deleteSemester(sem._id)}
+                                            >
+                                                Delete
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </Table>
+                </div>
+
             )}
 
             {/* PAGINATION */}
