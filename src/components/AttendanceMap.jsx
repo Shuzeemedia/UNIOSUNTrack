@@ -38,6 +38,9 @@ function SmoothCenter({ position }) {
             position.lng
         );
 
+        if (dist > 200) return;
+
+
         if (dist > 1) {
             map.flyTo([position.lat, position.lng], map.getZoom(), { duration: 0.6 });
             prevPosition.current = position;
@@ -64,7 +67,7 @@ export default function AttendanceMap({ sessionLocation, onInsideChange, onLocat
                 const { latitude, longitude, accuracy } = pos.coords;
 
                 // ❌ Reject fake WiFi / IP-based locations
-                if (accuracy > 300) {
+                if (accuracy > 50) {
                     console.warn("Ignoring low-accuracy GPS:", accuracy);
                     return;
                 }
@@ -79,15 +82,20 @@ export default function AttendanceMap({ sessionLocation, onInsideChange, onLocat
                 if (onLocationChange) onLocationChange(studentLoc);
 
                 // Require 2 consecutive accurate readings
-                stableCountRef.current += 1;
+                if (accuracy <= 30) {
+                    stableCountRef.current += 1;
+                } else {
+                    stableCountRef.current = 0;
+                }
 
-                if (stableCountRef.current >= 2 && !gpsReady) {
+                if (stableCountRef.current >= 3 && !gpsReady) {
                     setGpsReady(true);
-                    if (onGpsReady) onGpsReady(true);
+                    onGpsReady?.(true);
                 }
 
 
-                if (onLocationChange) onLocationChange(studentLoc);
+
+                // if (onLocationChange) onLocationChange(studentLoc);
 
                 const d = getDistanceInMeters(
                     latitude,

@@ -57,6 +57,9 @@ import EnrollFace from "./components/EnrollFace";
 import Transcript from "./pages/alumni/Transcript";
 import GraduateVerification from "./pages/adnimSide/GraduateVerification";
 
+import "./utils/leafletIconFix";
+
+
 
 // import FaceEnroll from "./pages/FaceEnroll";
 
