@@ -1,23 +1,22 @@
 import { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Circle, useMap } from "react-leaflet";
 
-// Distance between two GPS points (meters)
+// Calculate distance between two GPS points in meters
 function getDistanceInMeters(lat1, lng1, lat2, lng2) {
     const R = 6371000;
-    const toRad = (x) => (x * Math.PI) / 180;
+    const toRad = x => (x * Math.PI) / 180;
     const dLat = toRad(lat2 - lat1);
     const dLng = toRad(lng2 - lng1);
 
     const a =
         Math.sin(dLat / 2) ** 2 +
-        Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
         Math.sin(dLng / 2) ** 2;
 
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Smooth map movement
+// Smooth map camera movement
 function SmoothCenter({ position }) {
     const map = useMap();
     const prevPosition = useRef(null);
@@ -31,17 +30,16 @@ function SmoothCenter({ position }) {
             return;
         }
 
-        const dist = getDistanceInMeters(
+        const distance = getDistanceInMeters(
             prevPosition.current.lat,
             prevPosition.current.lng,
             position.lat,
             position.lng
         );
 
-        if (dist > 200) return;
+        if (distance > 200) return; // ignore jumps
 
-
-        if (dist > 1) {
+        if (distance > 1) {
             map.flyTo([position.lat, position.lng], map.getZoom(), { duration: 0.6 });
             prevPosition.current = position;
         }
@@ -50,83 +48,64 @@ function SmoothCenter({ position }) {
     return null;
 }
 
-export default function AttendanceMap({ sessionLocation, onInsideChange, onLocationChange, onGpsReady }) {
-    const stableCountRef = useRef(0);
-    const [studentLocation, setStudentLocation] = useState(null);
+// Main Attendance Map Component
+export default function AttendanceMap({
+    sessionLocation, // {lat, lng, radius}
+    onInsideChange,
+    onLocationChange,
+    onGpsReady
+}) {
+    const [userLocation, setUserLocation] = useState(null);
     const [distance, setDistance] = useState(null);
-    const [gpsReady, setGpsReady] = useState(false);
+    const [gpsStable, setGpsStable] = useState(false);
+    const stableCountRef = useRef(0);
 
     useEffect(() => {
         if (!navigator.geolocation) {
-            alert("Your device does not support GPS");
+            alert("GPS not supported on this device.");
             return;
         }
 
         const watchId = navigator.geolocation.watchPosition(
-            (pos) => {
-                const { latitude, longitude, accuracy } = pos.coords;
+            ({ coords }) => {
+                const { latitude, longitude, accuracy } = coords;
 
-                // ❌ Reject fake WiFi / IP-based locations
-                if (accuracy > 50) {
-                    console.warn("Ignoring low-accuracy GPS:", accuracy);
-                    return;
-                }
+                // Skip if GPS is too inaccurate
+                if (accuracy > 50) return;
 
-                const studentLoc = {
-                    lat: latitude,
-                    lng: longitude,
-                    accuracy,
-                };
+                const loc = { lat: latitude, lng: longitude, accuracy };
+                setUserLocation(loc);
+                onLocationChange?.(loc);
 
-                setStudentLocation(studentLoc);
-                if (onLocationChange) onLocationChange(studentLoc);
+                // Stable GPS detection
+                if (accuracy <= 30) stableCountRef.current += 1;
+                else stableCountRef.current = 0;
 
-                // Require 2 consecutive accurate readings
-                if (accuracy <= 30) {
-                    stableCountRef.current += 1;
-                } else {
-                    stableCountRef.current = 0;
-                }
-
-                if (stableCountRef.current >= 3 && !gpsReady) {
-                    setGpsReady(true);
+                if (stableCountRef.current >= 3 && !gpsStable) {
+                    setGpsStable(true);
                     onGpsReady?.(true);
                 }
 
-
-
-                // if (onLocationChange) onLocationChange(studentLoc);
-
-                const d = getDistanceInMeters(
-                    latitude,
-                    longitude,
-                    sessionLocation.lat,
-                    sessionLocation.lng
+                // Distance to lecturer
+                const dist = getDistanceInMeters(
+                    latitude, longitude,
+                    sessionLocation.lat, sessionLocation.lng
                 );
 
-                const rounded = Math.round(d);
-                setDistance(rounded);
-
-                if (onInsideChange) {
-                    onInsideChange(rounded <= (sessionLocation.radius || 60));
-                }
+                setDistance(Math.round(dist));
+                onInsideChange?.(dist <= (sessionLocation.radius || 60));
             },
-            (err) => {
+            err => {
                 console.error("GPS error:", err);
-                alert("Please enable precise GPS location (not Wi-Fi or IP)");
+                alert("Enable precise GPS location for this feature.");
             },
-            {
-                enableHighAccuracy: true,
-                timeout: 15000,
-                maximumAge: 0, // no cached location
-            }
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
         );
 
         return () => navigator.geolocation.clearWatch(watchId);
-    }, [sessionLocation, onInsideChange, onLocationChange]);
+    }, [sessionLocation, gpsStable, onInsideChange, onLocationChange, onGpsReady]);
 
-    const inside =
-        gpsReady && distance !== null && distance <= (sessionLocation.radius || 60);
+    const insideZone = gpsStable && distance !== null && distance <= (sessionLocation.radius || 60);
 
     return (
         <div>
@@ -137,39 +116,34 @@ export default function AttendanceMap({ sessionLocation, onInsideChange, onLocat
             >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-                {/* Move camera to real student GPS */}
-                {studentLocation && <SmoothCenter position={studentLocation} />}
+                {/* Camera follows user */}
+                {userLocation && <SmoothCenter position={userLocation} />}
 
                 {/* Lecturer marker */}
                 <Marker position={[sessionLocation.lat, sessionLocation.lng]} />
 
-                {/* Geofence */}
+                {/* Attendance geofence */}
                 <Circle
                     center={[sessionLocation.lat, sessionLocation.lng]}
                     radius={sessionLocation.radius || 60}
-                    pathOptions={{
-                        color: inside ? "green" : "red",
-                        fillOpacity: 0.2,
-                    }}
+                    pathOptions={{ color: insideZone ? "green" : "red", fillOpacity: 0.2 }}
                 />
 
-                {/* Student marker */}
-                {studentLocation && (
-                    <Marker position={[studentLocation.lat, studentLocation.lng]} />
-                )}
+                {/* User marker */}
+                {userLocation && <Marker position={[userLocation.lat, userLocation.lng]} />}
             </MapContainer>
 
-            {!gpsReady && (
+            {!gpsStable && (
                 <p style={{ marginTop: 10, fontWeight: 600, color: "orange" }}>
-                    Waiting for accurate GPS signal…
+                    Waiting for stable GPS signal...
                 </p>
             )}
 
-            {gpsReady && distance !== null && (
+            {gpsStable && distance !== null && (
                 <p style={{ marginTop: 10, fontWeight: 600 }}>
                     Distance to lecture: {distance} meters —{" "}
-                    <span style={{ color: inside ? "green" : "red" }}>
-                        {inside ? "INSIDE zone" : "OUTSIDE zone"}
+                    <span style={{ color: insideZone ? "green" : "red" }}>
+                        {insideZone ? "INSIDE zone" : "OUTSIDE zone"}
                     </span>
                 </p>
             )}
