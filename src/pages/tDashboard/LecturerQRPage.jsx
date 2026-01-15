@@ -127,7 +127,7 @@ const LecturerQRPage = () => {
         return () => stopLecturerGps();
     }, []);
 
-    
+
 
     const handleAutoEnd = async () => {
         try {
@@ -366,15 +366,19 @@ const LecturerQRPage = () => {
             {error && <Alert variant="danger">{error}</Alert>}
 
             {!qrData && (
-                <Button onClick={handleCreateSession} disabled={loading || !courseId}>
-                    {loading ? (
-                        <>
+                <Button
+                    onClick={handleCreateSession}
+                    disabled={loading || !courseId || !locationReady}
+                >
+                    {loading
+                        ? <>
                             <Spinner animation="border" size="sm" /> Generating QR...
                         </>
-                    ) : (
-                        "Generate Attendance QR"
-                    )}
+                        : !locationReady
+                            ? `Waiting for GPS to stabilize (${lecturerLocation?.accuracy?.toFixed(0)} m)`
+                            : "Generate Attendance QR"}
                 </Button>
+
             )}
 
             {qrData && (

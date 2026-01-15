@@ -55,6 +55,9 @@ const StudentScanPage = () => {
     const [studentLocation, setStudentLocation] = useState(null);
     const [locationReady, setLocationReady] = useState(false);
 
+    const [lecturerLocation, setLecturerLocation] = useState(null);
+
+
 
 
     const [modalShow, setModalShow] = useState(false);
@@ -96,6 +99,18 @@ const StudentScanPage = () => {
 
         fetchSession();
     }, [sessionToken]);
+
+
+    // Set lecturer location once sessionInfo is available
+    useEffect(() => {
+        if (sessionInfo?.location) {
+            setLecturerLocation({
+                lat: sessionInfo.location.lat,
+                lng: sessionInfo.location.lng,
+            });
+        }
+    }, [sessionInfo]);
+
 
 
     useEffect(() => {
