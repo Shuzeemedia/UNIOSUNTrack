@@ -21,7 +21,52 @@ const LecturerQRPage = () => {
     const qrRef = useRef(null);
     const fullscreenWindowRef = useRef(null);
     const token = localStorage.getItem("token");
+    // ADD THESE STATE VARIABLES AT THE TOP
+    const [lecturerLocation, setLecturerLocation] = useState(null);
+    const [locationReady, setLocationReady] = useState(false); // stable GPS
+    const lecturerWatchIdRef = useRef(null);
 
+    // ==================== START GPS WATCH ==================== //
+    const startLecturerGps = () => {
+        if (!navigator.geolocation) {
+            setError("Geolocation not supported by your browser");
+            return;
+        }
+
+        // clear any previous watch
+        if (lecturerWatchIdRef.current) {
+            navigator.geolocation.clearWatch(lecturerWatchIdRef.current);
+        }
+
+        lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
+            (pos) => {
+                const { latitude, longitude, accuracy } = pos.coords;
+                console.log("[LECTURER GPS]", { latitude, longitude, accuracy });
+
+                // save current reading
+                setLecturerLocation({ lat: latitude, lng: longitude, accuracy });
+
+                // wait until GPS is reasonably accurate
+                if (accuracy <= 50 && !locationReady) {
+                    setLocationReady(true);
+                    console.log("Lecturer GPS stable ✅");
+                }
+            },
+            (err) => {
+                console.error("Lecturer GPS error:", err);
+                setError("GPS permission is required for accurate session location.");
+            },
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
+        );
+    };
+
+    // ==================== STOP GPS WATCH ==================== //
+    const stopLecturerGps = () => {
+        if (lecturerWatchIdRef.current) {
+            navigator.geolocation.clearWatch(lecturerWatchIdRef.current);
+            lecturerWatchIdRef.current = null;
+        }
+    };
 
     // Restore active session on mount
     useEffect(() => {
@@ -77,6 +122,13 @@ const LecturerQRPage = () => {
         return () => clearInterval(timer);
     }, [expiresAt, sessionId, ended]);
 
+    useEffect(() => {
+        startLecturerGps();
+        return () => stopLecturerGps();
+    }, []);
+
+    
+
     const handleAutoEnd = async () => {
         try {
             if (refreshIntervalRef.current) {
@@ -106,48 +158,45 @@ const LecturerQRPage = () => {
         setLoading(true);
         setError("");
 
-        const token = localStorage.getItem("token");
-
-        navigator.geolocation.getCurrentPosition(
-            async (pos) => {
-                try {
-                    const { latitude, longitude, accuracy } = pos.coords;
-
-                    const res = await axios.post(
-                        `${import.meta.env.VITE_API_URL}/sessions/${courseId}/create`,
-                        {
-                            type: "QR",
-                            location: {
-                                lat: latitude,
-                                lng: longitude,
-                                accuracy
-                            }
-                        },
-                        { headers: { Authorization: `Bearer ${token}` } }
-                    );
-
-                    const { token: sessionToken, expiresAt, sessionId } = res.data;
-
-                    const qrUrl = `${import.meta.env.VITE_FRONTEND_URL}/student/scan/${sessionToken}`;
-
-                    setQrData(qrUrl);
-                    setExpiresAt(expiresAt);
-                    setSessionId(sessionId);
-                    setExpired(false);
-                    setEnded(false);
-                    setEndMsg("");
-                } catch (err) {
-                    setError(err.response?.data?.msg || "Failed to create session.");
-                } finally {
-                    setLoading(false);
-                }
-            },
-            () => {
-                setError("GPS permission is required to start a session.");
+        try {
+            // Make sure GPS is ready
+            if (!locationReady || !lecturerLocation) {
+                setError("Waiting for GPS to stabilize...");
                 setLoading(false);
+                return;
             }
-        );
+
+            const { lat, lng, accuracy } = lecturerLocation;
+            const token = localStorage.getItem("token");
+
+            const res = await axios.post(
+                `${import.meta.env.VITE_API_URL}/sessions/${courseId}/create`,
+                {
+                    type: "QR",
+                    location: { lat, lng, accuracy },
+                },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+            const { token: sessionToken, expiresAt, sessionId } = res.data;
+
+            const qrUrl = `${import.meta.env.VITE_FRONTEND_URL}/student/scan/${sessionToken}`;
+            setQrData(qrUrl);
+            setExpiresAt(expiresAt);
+            setSessionId(sessionId);
+            setExpired(false);
+            setEnded(false);
+            setEndMsg("");
+
+            console.log("[SESSION CREATED]", { sessionId, lat, lng, accuracy });
+        } catch (err) {
+            console.error("[CREATE SESSION ERROR]", err.response?.data || err.message);
+            setError(err.response?.data?.msg || "Failed to create session.");
+        } finally {
+            setLoading(false);
+        }
     };
+
 
 
     const sendQrToFullscreen = () => {
@@ -218,7 +267,7 @@ const LecturerQRPage = () => {
         try {
             setEnding(true);
 
-            // STOP QR REFRESH FIRST
+            stopLecturerGps(); // 🛑 stop GPS tracking
             if (refreshIntervalRef.current) {
                 clearInterval(refreshIntervalRef.current);
                 refreshIntervalRef.current = null;
@@ -234,13 +283,14 @@ const LecturerQRPage = () => {
             setEndMsg(res.data.msg || "Session ended successfully.");
             setEnded(true);
             setExpired(true);
-            setSessionId(null); // 🔑 IMPORTANT
+            setSessionId(null);
         } catch (err) {
             setError(err.response?.data?.msg || "Failed to end session.");
         } finally {
             setEnding(false);
         }
     };
+
 
 
     const handleViewFullscreen = () => {

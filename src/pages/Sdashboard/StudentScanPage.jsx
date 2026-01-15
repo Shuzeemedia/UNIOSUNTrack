@@ -51,7 +51,7 @@ const StudentScanPage = () => {
     const [faceVerified, setFaceVerified] = useState(false);
     const [faceLoading, setFaceLoading] = useState(false);
     const location = useLocation();
-    const [insideGeofence, setInsideGeofence] = useState(true);
+    const [insideGeofence, setInsideGeofence] = useState(false);
     const [studentLocation, setStudentLocation] = useState(null);
     const [locationReady, setLocationReady] = useState(false);
 
@@ -106,17 +106,14 @@ const StudentScanPage = () => {
     }, [location.state]);
 
     useEffect(() => {
-        if (
-            faceVerified &&
-            locationReady &&
-            studentLocation &&
-            insideGeofence &&
-            !html5QrCodeRef.current
-        ) {
-            setStatusMessage("GPS locked. You can now scan the QR code");
+        if (faceVerified && locationReady && studentLocation && insideGeofence && !html5QrCodeRef.current) {
+            setStatusMessage("GPS locked and inside the attendance zone. You can now scan the QR code");
             startScanner();
+        } else if (!insideGeofence) {
+            setStatusMessage("Move closer to the lecture to scan the QR code");
         }
     }, [faceVerified, locationReady, studentLocation, insideGeofence]);
+
 
 
 
@@ -340,6 +337,7 @@ const StudentScanPage = () => {
                             onInsideChange={setInsideGeofence}
                             onLocationChange={setStudentLocation}
                             onGpsReady={setLocationReady}
+                            lecturerLocation={lecturerLocation}
                         />
 
 
