@@ -90,7 +90,7 @@
 .courses-grid {
     display: grid;
     gap: 1.5rem;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    grid-template-columns: repeat(3, 1fr); /* max 3 columns */
 }
 
 /* ===== COURSE CARD ===== */
@@ -179,6 +179,19 @@
 }
 
 
+.courses-grid {
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(3, 1fr); /* max 3 columns */
+}
+
+/* Responsive tweaks */
+@media (max-width: 992px) {
+    .courses-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns on medium screens */
+    }
+}
+
 
 /* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
@@ -190,12 +203,18 @@
         font-size: 1.5rem;
     }
 
-    .courses-grid {
+    /* .courses-grid {
         grid-template-columns: 1fr;
-    }
+    } */
 
     .teacher-dashboard {
         /* margin-top: 12vh; */
         padding: 0 !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .courses-grid {
+        grid-template-columns: 1fr; /* 1 column on small screens */
     }
 }

@@ -4,6 +4,8 @@ import "./LeaderboardPage.css";
 import { toast } from "react-toastify";
 import { getRank } from "../../utils/getRank";
 import LoadingSpinner from "../../components/Loader/LoadingSpinner";
+import { BiCrown } from "react-icons/bi";
+
 
 function LeaderboardPage() {
   const [departments, setDepartments] = useState([]);
@@ -228,42 +230,40 @@ function LeaderboardPage() {
               </tr>
             </thead>
             <tbody>
-              {[...leaderboard]
-                .map((student) => ({
-                  ...student,
-                  ratio: ((student.totalPresent || 0) / (student.totalClasses || 1)) * 10,
-                }))
-                .sort((a, b) => {
-                  if (b.ratio !== a.ratio) return b.ratio - a.ratio;
-                  return a.name.localeCompare(b.name);
-                })
-                .map((student, index) => {
-                  const ratio = student.ratio.toFixed(2);
-                  const rank = getRank(student.totalPresent || 0, student.totalClasses || 0);
-                  const deptName = student.department || "N/A";
+              {leaderboard.map((student) => {
+                const ratio = ((student.totalPresent || 0) / (student.totalClasses || 1) * 10).toFixed(2);
+                const rank = getRank(student.totalPresent || 0, student.totalClasses || 0);
+                const deptName = student.department || "N/A";
 
-                  return (
-                    <tr key={student.studentId || index} className={`rank-${index + 1}`}>
-                      <td>{index + 1}</td>
-                      <td>{student.name || "N/A"}</td>
-                      <td>{student.studentId || student.matric || "N/A"}</td>
-                      <td>{deptName}</td>
-                      <td>{student.level || "N/A"}</td>
-                      <td>{ratio} XP</td>
-                      <td style={{ position: "relative" }}>
-                        <img
-                          src={rank.img}
-                          alt={rank.name}
-                          className="rank-icon"
-                          onClick={() => showTooltip(index)}
-                        />
-                        {visibleTooltip === index && (
-                          <div className="rank-tooltip">{rank.name}</div>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })}
+                return (
+                  <tr key={student.studentId} className={`rank-${student.rank}`}>
+                    <td>{student.rank}</td>
+                    <td className="student-name-cell">
+                      {student.rank === 1 && <BiCrown className="top-rank-crown crn" />}
+                      {student.name || "N/A"}
+                    </td>
+
+
+
+                    <td>{student.studentId || student.matric || "N/A"}</td>
+                    <td>{deptName}</td>
+                    <td>{student.level || "N/A"}</td>
+                    <td>{ratio} XP</td>
+                    <td style={{ position: "relative" }}>
+                      <img
+                        src={rank.img}
+                        alt={rank.name}
+                        className="rank-icon"
+                        onClick={() => showTooltip(student.rank)}
+                      />
+                      {visibleTooltip === student.rank && (
+                        <div className="rank-tooltip">{rank.name}</div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+
             </tbody>
           </table>
         )}
@@ -271,7 +271,7 @@ function LeaderboardPage() {
 
 
       <p className="ranking-description">
-        The leaderboard rewards students based on their **attendance performance**. Your XP score is calculated from how consistently you attend classes.
+        The leaderboard rewards students based on their attendance performance. Your XP score is calculated from how consistently you attend classes.
         Higher XP = higher rank.
 
         <br />
@@ -292,15 +292,24 @@ function LeaderboardPage() {
             </div>
           ))}
         </div>
-        .
-        Only the most consistent students reach the top tiers.
+
+        <b className="text-success">Only the most consistent students reach the top tiers.</b>
       </p>
 
       <div className="rank-hype">
-        <p>⭐ <strong>Top 10</strong> students are celebrated school-wide.</p>
-        <p>🔥 <strong>Top 3</strong> students earn legendary status — respect guaranteed.</p>
-        <p>🏆 <strong>Star Student League</strong> is reserved for excellence. Few ever reach it.</p>
+        <div className="star-league">
+          <img
+            src={rankImages["Star Student League"]}
+            alt="Star Student League"
+            className="star-league-icon"
+          />
+          <p>
+            <strong>Star Student League</strong> is reserved for excellence.
+            Few ever reach it.
+          </p>
+        </div>
       </div>
+
     </div>
   );
 }

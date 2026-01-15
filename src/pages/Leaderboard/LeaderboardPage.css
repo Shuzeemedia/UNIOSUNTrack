@@ -101,6 +101,7 @@
 .table-container {
     width: 100%;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     background: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
@@ -109,7 +110,7 @@
 .leaderboard-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 600px;
+    min-width: 900px !important;
     /* Prevents squishing */
 }
 
@@ -123,11 +124,13 @@
     white-space: nowrap;
 }
 
+
+.leaderboard-table th,
 .leaderboard-table td {
     padding: 0.9rem;
     border-bottom: 1px solid #eee;
     font-size: 0.95rem;
-    text-wrap: balance;
+    white-space: nowrap;
 }
 
 .leaderboard-table tr:hover {
@@ -257,6 +260,60 @@
     background: #f8f9ff;
 }
 
+/* Star Student League highlight */
+.star-league {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.star-league-icon {
+    width: 36px;
+    height: 36px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.star-league-icon {
+    animation: starGlow 2s infinite alternate;
+}
+
+@keyframes starGlow {
+    from {
+        filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
+    }
+
+    to {
+        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.9));
+    }
+}
+
+/* .student-name-cell {
+    display: flex;
+    align-items: center;
+    padding: 0 !important;
+    height: 100% !;
+    gap: 5px;
+    background-color: red;
+} */
+
+.top-rank-crown {
+    color: gold;
+    font-size: 20px;
+    /* background-color: red; */
+    margin-bottom: 5px !important;
+    margin-right: 6px;
+}
+
+
+
+/* Mobile tuning */
+@media (max-width: 600px) {
+    .star-league-icon {
+        width: 28px;
+        height: 28px;
+    }
+}
 
 
 /* ===== RESPONSIVE DESIGN ===== */
