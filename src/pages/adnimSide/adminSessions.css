@@ -1,13 +1,13 @@
-/* adminSessions.css or global */
+
 .table-responsive {
   overflow: visible !important;
-  /* allow buttons to be clickable */
+
 }
 
 .table td,
 .table th {
   position: relative;
-  /* so z-index works if needed */
+
 }
 
 
@@ -16,7 +16,7 @@
   overflow-x: auto;
 }
 
-/* Prevent insane text from blowing up columns */
+
 .table-container table td,
 .table-container table th {
   word-wrap: break-word;

@@ -47,7 +47,8 @@ function SmoothCenter({ position }) {
     return null;
 }
 
-export default function AttendanceMap({ sessionLocation, onInsideChange, onLocationChange }) {
+export default function AttendanceMap({ sessionLocation, onInsideChange, onLocationChange, onGpsReady }) {
+    const stableCountRef = useRef(0);
     const [studentLocation, setStudentLocation] = useState(null);
     const [distance, setDistance] = useState(null);
     const [gpsReady, setGpsReady] = useState(false);
@@ -75,7 +76,16 @@ export default function AttendanceMap({ sessionLocation, onInsideChange, onLocat
                 };
 
                 setStudentLocation(studentLoc);
-                setGpsReady(true);
+                if (onLocationChange) onLocationChange(studentLoc);
+
+                // Require 2 consecutive accurate readings
+                stableCountRef.current += 1;
+
+                if (stableCountRef.current >= 2 && !gpsReady) {
+                    setGpsReady(true);
+                    if (onGpsReady) onGpsReady(true);
+                }
+
 
                 if (onLocationChange) onLocationChange(studentLoc);
 

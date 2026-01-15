@@ -117,7 +117,7 @@
     font-weight: 600;
 }
 
-/* text cells */
+
 .cell-text {
     vertical-align: middle;
     white-space: nowrap;
@@ -128,7 +128,7 @@
     font-weight: 600;
 }
 
-/* empty text row */
+
 .empty-text {
     font-size: 0.9rem;
     padding: 16px 0;

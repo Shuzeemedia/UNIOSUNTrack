@@ -105,6 +105,20 @@ const StudentScanPage = () => {
         }
     }, [location.state]);
 
+    useEffect(() => {
+        if (
+            faceVerified &&
+            locationReady &&
+            studentLocation &&
+            insideGeofence &&
+            !html5QrCodeRef.current
+        ) {
+            setStatusMessage("GPS locked. You can now scan the QR code");
+            startScanner();
+        }
+    }, [faceVerified, locationReady, studentLocation, insideGeofence]);
+
+
 
     /** ==================== INIT CAMERA ==================== */
     useEffect(() => {
@@ -193,7 +207,6 @@ const StudentScanPage = () => {
                         toast.success("Face verified successfully");
                         setFaceVerified(true);
                         stopVideoStream();
-                        setTimeout(startScanner, 300);
                         return;
                     } else {
                         setStatusMessage("Face detected, please blink...");
@@ -325,11 +338,10 @@ const StudentScanPage = () => {
                         <AttendanceMap
                             sessionLocation={sessionInfo.location}
                             onInsideChange={setInsideGeofence}
-                            onLocationChange={(loc) => {
-                                setStudentLocation(loc);
-                                setLocationReady(true); // mark ready
-                            }}
+                            onLocationChange={setStudentLocation}
+                            onGpsReady={setLocationReady}
                         />
+
 
                         <div id="reader" className="qr-reader" />
                     </>

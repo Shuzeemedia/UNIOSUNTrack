@@ -693,7 +693,7 @@ const CoursesTable = ({
   openManageStudentsModal,
   handleUnassignLecturer,
 }) => (
-  <div className="table-container">
+  <div className="sem-table-wrapper">
     <Table hover responsive className="admin-table">
       <thead>
         <tr>
