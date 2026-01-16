@@ -25,6 +25,12 @@ const LecturerQRPage = () => {
     const [lecturerLocation, setLecturerLocation] = useState(null);
     const [locationReady, setLocationReady] = useState(false); // stable GPS
     const lecturerWatchIdRef = useRef(null);
+    const lastUpdateRef = useRef(0);
+
+
+    const stableCountRef = useRef(0);
+    const bestLocationRef = useRef(null);
+
 
     // ==================== START GPS WATCH ==================== //
     const startLecturerGps = () => {
@@ -39,29 +45,57 @@ const LecturerQRPage = () => {
 
                 console.log("[LECTURER GPS]", { latitude, longitude, accuracy });
 
-                setLecturerLocation({
-                    lat: latitude,
-                    lng: longitude,
-                    accuracy
-                });
+                // Ignore very bad fixes
+                if (accuracy > 80) return;
 
-                // ✅ ACCEPT QUICKLY (LECTURER DOES NOT NEED PERFECT GPS)
-                if (!locationReady && accuracy <= 150) {
-                    setLocationReady(true);
-                    console.log("Lecturer GPS locked ✅");
+                const loc = { lat: latitude, lng: longitude, accuracy };
+                setLecturerLocation(loc);
+
+                // Track best accuracy
+                if (
+                    !bestLocationRef.current ||
+                    accuracy < bestLocationRef.current.accuracy
+                ) {
+                    bestLocationRef.current = loc;
                 }
+
+                // Stability check
+                if (accuracy <= 40) stableCountRef.current += 1;
+                else stableCountRef.current = 0;
+
+                if (stableCountRef.current >= 3 && !locationReady) {
+                    setLocationReady(true);
+                    console.log("Lecturer GPS STABLE ✅", bestLocationRef.current);
+                }
+
+                // PUT IT RIGHT HERE
+                if (sessionId && locationReady) {
+                    const now = Date.now();
+                    if (now - lastUpdateRef.current > 5000) {
+                        lastUpdateRef.current = now;
+
+                        axios.post(
+                            `${import.meta.env.VITE_API_URL}/sessions/${sessionId}/update-location`,
+                            { location: loc },
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        ).catch(() => { });
+                    }
+                }
+
             },
             (err) => {
                 console.error("GPS error:", err);
-                setError("Please allow location access.");
+                setError("Please enable precise location.");
             },
             {
                 enableHighAccuracy: true,
-                maximumAge: 5000,
-                timeout: 20000
+                maximumAge: 0,
+                timeout: 20000,
             }
         );
+
     };
+
 
 
     // ==================== STOP GPS WATCH ==================== //
@@ -131,6 +165,13 @@ const LecturerQRPage = () => {
         return () => stopLecturerGps();
     }, []);
 
+    useEffect(() => {
+        if (sessionId) {
+            stopLecturerGps();
+            startLecturerGps();
+        }
+    }, [sessionId]);
+
 
 
     const handleAutoEnd = async () => {
@@ -171,7 +212,16 @@ const LecturerQRPage = () => {
             }
 
 
-            const { lat, lng, accuracy } = lecturerLocation;
+            const loc = bestLocationRef.current || lecturerLocation;
+
+            if (!loc || !locationReady) {
+                setError("Waiting for stable GPS location...");
+                setLoading(false);
+                return;
+            }
+
+            const { lat, lng, accuracy } = loc;
+
             const token = localStorage.getItem("token");
 
             const res = await axios.post(
@@ -193,7 +243,6 @@ const LecturerQRPage = () => {
             setEnded(false);
             setEndMsg("");
 
-            stopLecturerGps();
 
 
             console.log("[SESSION CREATED]", { sessionId, lat, lng, accuracy });
