@@ -54,6 +54,7 @@ const StudentScanPage = () => {
     const [insideGeofence, setInsideGeofence] = useState(false);
     const [studentLocation, setStudentLocation] = useState(null);
     const [locationReady, setLocationReady] = useState(false);
+    const [shouldNavigate, setShouldNavigate] = useState(false);
 
     const [lecturerLocation, setLecturerLocation] = useState(null);
 
@@ -121,13 +122,38 @@ const StudentScanPage = () => {
     }, [location.state]);
 
     useEffect(() => {
-        if (faceVerified && locationReady && studentLocation && insideGeofence && !html5QrCodeRef.current) {
-            setStatusMessage("GPS locked and inside the attendance zone. You can now scan the QR code");
+        if (!faceVerified) return;
+
+        if (
+            locationReady &&
+            studentLocation &&
+            insideGeofence &&
+            !html5QrCodeRef.current
+        ) {
+            setStatusMessage(
+                "GPS locked and inside the attendance zone. You can now scan the QR code"
+            );
             startScanner();
         } else if (!insideGeofence) {
             setStatusMessage("Move closer to the lecture to scan the QR code");
         }
     }, [faceVerified, locationReady, studentLocation, insideGeofence]);
+
+
+
+    const fullCleanup = async () => {
+        stopVideoStream();
+
+        if (html5QrCodeRef.current) {
+            try {
+                await html5QrCodeRef.current.stop();
+                await html5QrCodeRef.current.clear();
+            } catch { }
+            html5QrCodeRef.current = null;
+        }
+
+        scanningLockedRef.current = true;
+    };
 
 
 
@@ -145,16 +171,33 @@ const StudentScanPage = () => {
                 toast.error("Failed to start camera");
             }
         };
+
         initCamera();
 
         return () => {
-            stopVideoStream();
-            if (html5QrCodeRef.current) {
-                html5QrCodeRef.current.stop().catch(() => { });
-                html5QrCodeRef.current.clear().catch(() => { });
-            }
+            fullCleanup();
         };
     }, []);
+
+
+    useEffect(() => {
+        if (!shouldNavigate) return;
+
+        fullCleanup().finally(() => {
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    navigate("/dashboard/student", { replace: true });
+                });
+            });
+        });
+    }, [shouldNavigate, navigate]);
+
+    useEffect(() => {
+        scanningLockedRef.current = false;
+    }, []);
+
+
+
 
     const stopVideoStream = () => {
         if (streamRef.current) {
@@ -166,6 +209,9 @@ const StudentScanPage = () => {
 
     /** ==================== FACE VERIFICATION ==================== */
     const verifyFace = async () => {
+        if (faceLoading) return;
+
+
         if (!sessionInfo || !videoRef.current) return;
 
         setFaceLoading(true);
@@ -325,31 +371,8 @@ const StudentScanPage = () => {
         return res.data;
     };
 
-    const cleanupAndNavigate = () => {
-        try {
-            // Stop camera stream
-            stopVideoStream();
 
-            // Stop QR scanner
-            if (html5QrCodeRef.current) {
-                html5QrCodeRef.current.stop().catch(() => { });
-                html5QrCodeRef.current.clear().catch(() => { });
-                html5QrCodeRef.current = null;
-            }
 
-            // Lock scanner permanently
-            scanningLockedRef.current = true;
-
-            // Give browser one frame to release resources
-            setTimeout(() => {
-                navigate("/dashboard/student", { replace: true });
-            }, 50);
-
-        } catch (err) {
-            console.error("Cleanup error:", err);
-            navigate("/dashboard/student", { replace: true });
-        }
-    };
 
 
     /** ==================== RENDER ==================== */
@@ -413,7 +436,7 @@ const StudentScanPage = () => {
                                 setModalShow(false);
 
                                 if (!modalMsg?.toLowerCase().includes("already")) {
-                                    cleanupAndNavigate();
+                                    setShouldNavigate(true);
                                 }
                             }}
                         >
