@@ -46,7 +46,8 @@ const LecturerQRPage = () => {
                 console.log("[LECTURER GPS]", { latitude, longitude, accuracy });
 
                 // Ignore very bad fixes
-                if (accuracy > 80) return;
+                if (accuracy > 120) return; // allow slower fixes
+
 
                 const loc = { lat: latitude, lng: longitude, accuracy };
                 setLecturerLocation(loc);
@@ -60,12 +61,11 @@ const LecturerQRPage = () => {
                 }
 
                 // Stability check
-                if (accuracy <= 40) stableCountRef.current += 1;
+                if (accuracy <= 80) stableCountRef.current += 1;
                 else stableCountRef.current = 0;
 
-                if (stableCountRef.current >= 3 && !locationReady) {
+                if (stableCountRef.current >= 2 && !locationReady) {
                     setLocationReady(true);
-                    console.log("Lecturer GPS STABLE ✅", bestLocationRef.current);
                 }
 
                 // PUT IT RIGHT HERE
@@ -165,12 +165,6 @@ const LecturerQRPage = () => {
         return () => stopLecturerGps();
     }, []);
 
-    useEffect(() => {
-        if (sessionId) {
-            stopLecturerGps();
-            startLecturerGps();
-        }
-    }, [sessionId]);
 
 
 
@@ -214,11 +208,17 @@ const LecturerQRPage = () => {
 
             const loc = bestLocationRef.current || lecturerLocation;
 
-            if (!loc || !locationReady) {
-                setError("Waiting for stable GPS location...");
+            if (!loc) {
+                setError("Unable to get lecturer location");
                 setLoading(false);
                 return;
             }
+
+            // Allow creation even if not fully stable
+            if (!locationReady) {
+                console.warn("GPS not fully stable, proceeding with best fix");
+            }
+
 
             const { lat, lng, accuracy } = loc;
 
@@ -433,8 +433,11 @@ const LecturerQRPage = () => {
                             <Spinner animation="border" size="sm" /> Generating QR...
                         </>
                         : !lecturerLocation
-                            ? "Getting your location..."
-                            : "Generate Attendance QR"}
+                            ? "Getting GPS location..."
+                            : !locationReady
+                                ? "Stabilizing GPS..."
+                                : "Generate Attendance QR"
+                    }
                 </Button>
 
             )}
