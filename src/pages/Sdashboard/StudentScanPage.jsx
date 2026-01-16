@@ -325,6 +325,33 @@ const StudentScanPage = () => {
         return res.data;
     };
 
+    const cleanupAndNavigate = () => {
+        try {
+            // Stop camera stream
+            stopVideoStream();
+
+            // Stop QR scanner
+            if (html5QrCodeRef.current) {
+                html5QrCodeRef.current.stop().catch(() => { });
+                html5QrCodeRef.current.clear().catch(() => { });
+                html5QrCodeRef.current = null;
+            }
+
+            // Lock scanner permanently
+            scanningLockedRef.current = true;
+
+            // Give browser one frame to release resources
+            setTimeout(() => {
+                navigate("/dashboard/student", { replace: true });
+            }, 50);
+
+        } catch (err) {
+            console.error("Cleanup error:", err);
+            navigate("/dashboard/student", { replace: true });
+        }
+    };
+
+
     /** ==================== RENDER ==================== */
     return (
         <div className="student-scan-wrapper">
@@ -384,14 +411,13 @@ const StudentScanPage = () => {
                             className="success-btn"
                             onClick={() => {
                                 setModalShow(false);
-                                scanningLockedRef.current = true; // unlock always
 
-                                // Navigate only for new attendance
                                 if (!modalMsg?.toLowerCase().includes("already")) {
-                                    navigate("/dashboard/student", { replace: true });
+                                    cleanupAndNavigate();
                                 }
                             }}
                         >
+
                             {modalMsg?.toLowerCase().includes("already") ? "Close" : "Go to Dashboard"}
                         </Button>
                     </Modal.Body>
