@@ -29,36 +29,40 @@ const LecturerQRPage = () => {
     // ==================== START GPS WATCH ==================== //
     const startLecturerGps = () => {
         if (!navigator.geolocation) {
-            setError("Geolocation not supported by your browser");
+            setError("Geolocation not supported");
             return;
-        }
-
-        // clear any previous watch
-        if (lecturerWatchIdRef.current) {
-            navigator.geolocation.clearWatch(lecturerWatchIdRef.current);
         }
 
         lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
+
                 console.log("[LECTURER GPS]", { latitude, longitude, accuracy });
 
-                // save current reading
-                setLecturerLocation({ lat: latitude, lng: longitude, accuracy });
+                setLecturerLocation({
+                    lat: latitude,
+                    lng: longitude,
+                    accuracy
+                });
 
-                // wait until GPS is reasonably accurate
-                if (accuracy <= 50 && !locationReady) {
+                // ✅ ACCEPT QUICKLY (LECTURER DOES NOT NEED PERFECT GPS)
+                if (!locationReady && accuracy <= 150) {
                     setLocationReady(true);
-                    console.log("Lecturer GPS stable ✅");
+                    console.log("Lecturer GPS locked ✅");
                 }
             },
             (err) => {
-                console.error("Lecturer GPS error:", err);
-                setError("GPS permission is required for accurate session location.");
+                console.error("GPS error:", err);
+                setError("Please allow location access.");
             },
-            { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
+            {
+                enableHighAccuracy: true,
+                maximumAge: 5000,
+                timeout: 20000
+            }
         );
     };
+
 
     // ==================== STOP GPS WATCH ==================== //
     const stopLecturerGps = () => {
@@ -160,11 +164,12 @@ const LecturerQRPage = () => {
 
         try {
             // Make sure GPS is ready
-            if (!locationReady || !lecturerLocation) {
-                setError("Waiting for GPS to stabilize...");
+            if (!lecturerLocation) {
+                setError("Unable to get lecturer location");
                 setLoading(false);
                 return;
             }
+
 
             const { lat, lng, accuracy } = lecturerLocation;
             const token = localStorage.getItem("token");
@@ -187,6 +192,9 @@ const LecturerQRPage = () => {
             setExpired(false);
             setEnded(false);
             setEndMsg("");
+
+            stopLecturerGps();
+
 
             console.log("[SESSION CREATED]", { sessionId, lat, lng, accuracy });
         } catch (err) {
@@ -368,14 +376,15 @@ const LecturerQRPage = () => {
             {!qrData && (
                 <Button
                     onClick={handleCreateSession}
-                    disabled={loading || !courseId || !locationReady}
+                    disabled={loading || !courseId || !lecturerLocation}
                 >
+
                     {loading
                         ? <>
                             <Spinner animation="border" size="sm" /> Generating QR...
                         </>
-                        : !locationReady
-                            ? `Waiting for GPS to stabilize (${lecturerLocation?.accuracy?.toFixed(0)} m)`
+                        : !lecturerLocation
+                            ? "Getting your location..."
                             : "Generate Attendance QR"}
                 </Button>
 
