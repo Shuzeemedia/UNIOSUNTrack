@@ -27,32 +27,42 @@ const LecturerQRPage = () => {
     const lecturerWatchIdRef = useRef(null);
     const lastUpdateRef = useRef(0);
 
+    const GPS_LOCK_TIMEOUT = 8000; // 8 seconds max
+    const gpsStartTimeRef = useRef(Date.now());
+
+
 
     const stableCountRef = useRef(0);
     const bestLocationRef = useRef(null);
 
 
-    // ==================== START GPS WATCH ==================== //
+    // ==================== START LECTURER GPS ==================== //
     const startLecturerGps = () => {
         if (!navigator.geolocation) {
-            setError("Geolocation not supported");
+            setError("Geolocation not supported on this device.");
             return;
         }
+
+        gpsStartTimeRef.current = Date.now();
+        stableCountRef.current = 0;
+        bestLocationRef.current = null;
 
         lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
 
-                console.log("[LECTURER GPS]", { latitude, longitude, accuracy });
+                // ❌ Ignore very poor fixes
+                if (accuracy > 200) return;
 
-                // Ignore very bad fixes
-                if (accuracy > 120) return; // allow slower fixes
+                const loc = {
+                    lat: latitude,
+                    lng: longitude,
+                    accuracy,
+                };
 
-
-                const loc = { lat: latitude, lng: longitude, accuracy };
                 setLecturerLocation(loc);
 
-                // Track best accuracy
+                // ✅ Keep best accuracy seen
                 if (
                     !bestLocationRef.current ||
                     accuracy < bestLocationRef.current.accuracy
@@ -60,51 +70,41 @@ const LecturerQRPage = () => {
                     bestLocationRef.current = loc;
                 }
 
-                // Stability check
-                if (accuracy <= 80) stableCountRef.current += 1;
-                else stableCountRef.current = 0;
+                // ✅ Stability check (3 good fixes OR timeout)
+                if (accuracy <= 60) {
+                    stableCountRef.current += 1;
+                }
 
-                if (stableCountRef.current >= 2 && !locationReady) {
+                const elapsed = Date.now() - gpsStartTimeRef.current;
+
+                if (
+                    stableCountRef.current >= 3 || // stable fixes
+                    elapsed >= GPS_LOCK_TIMEOUT    // max wait reached
+                ) {
                     setLocationReady(true);
                 }
-
-                // PUT IT RIGHT HERE
-                if (sessionId && locationReady) {
-                    const now = Date.now();
-                    if (now - lastUpdateRef.current > 5000) {
-                        lastUpdateRef.current = now;
-
-                        axios.post(
-                            `${import.meta.env.VITE_API_URL}/sessions/${sessionId}/update-location`,
-                            { location: loc },
-                            { headers: { Authorization: `Bearer ${token}` } }
-                        ).catch(() => { });
-                    }
-                }
-
             },
             (err) => {
                 console.error("GPS error:", err);
-                setError("Please enable precise location.");
+                setError("Enable precise location and stay outdoors.");
             },
             {
                 enableHighAccuracy: true,
                 maximumAge: 0,
-                timeout: 20000,
+                timeout: Infinity, // 🚫 do NOT timeout
             }
         );
-
     };
 
 
 
-    // ==================== STOP GPS WATCH ==================== //
     const stopLecturerGps = () => {
         if (lecturerWatchIdRef.current) {
             navigator.geolocation.clearWatch(lecturerWatchIdRef.current);
             lecturerWatchIdRef.current = null;
         }
     };
+
 
     // Restore active session on mount
     useEffect(() => {
@@ -198,15 +198,11 @@ const LecturerQRPage = () => {
         setError("");
 
         try {
-            // Make sure GPS is ready
-            if (!lecturerLocation) {
-                setError("Unable to get lecturer location");
-                setLoading(false);
-                return;
-            }
-
 
             const loc = bestLocationRef.current || lecturerLocation;
+
+            const safeAccuracy = Math.min(Number(loc.accuracy) || 50, 100);
+
 
             if (!loc) {
                 setError("Unable to get lecturer location");
@@ -228,7 +224,7 @@ const LecturerQRPage = () => {
                 `${import.meta.env.VITE_API_URL}/sessions/${courseId}/create`,
                 {
                     type: "QR",
-                    location: { lat, lng, accuracy },
+                    location: { lat, lng, accuracy: safeAccuracy },
                 },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
