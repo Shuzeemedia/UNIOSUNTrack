@@ -12,6 +12,8 @@ const LecturerQRPage = () => {
     const [loading, setLoading] = useState(false);
     const [expired, setExpired] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0);
+    const [totalDuration, setTotalDuration] = useState(0);
+
     const [sessionId, setSessionId] = useState(null);
     const [ending, setEnding] = useState(false);
     const [ended, setEnded] = useState(false);
@@ -32,8 +34,14 @@ const LecturerQRPage = () => {
 
 
 
+
     const stableCountRef = useRef(0);
     const bestLocationRef = useRef(null);
+
+    const savedRadius = Number(
+        localStorage.getItem(`attendance_radius_${courseId}`)
+    ) || 60;
+
 
 
     // ==================== START LECTURER GPS ==================== //
@@ -224,7 +232,14 @@ const LecturerQRPage = () => {
                 `${import.meta.env.VITE_API_URL}/sessions/${courseId}/create`,
                 {
                     type: "QR",
-                    location: { lat, lng, accuracy: safeAccuracy },
+                    duration: sessionDuration,
+                    location: {
+                        lat,
+                        lng,
+                        accuracy: safeAccuracy,
+                        radius: savedRadius, //SELECTED RADIUS
+                    },
+
                 },
                 { headers: { Authorization: `Bearer ${token}` } }
             );
@@ -234,6 +249,8 @@ const LecturerQRPage = () => {
             const qrUrl = `${import.meta.env.VITE_FRONTEND_URL}/student/scan/${sessionToken}`;
             setQrData(qrUrl);
             setExpiresAt(expiresAt);
+            setTotalDuration(sessionDuration * 60); // ✅ store duration in seconds
+
             setSessionId(sessionId);
             setExpired(false);
             setEnded(false);
@@ -454,10 +471,11 @@ const LecturerQRPage = () => {
                                 Expires in: <strong>{timeLeft}s</strong>
                             </p>
                             <ProgressBar
-                                now={(timeLeft / 600) * 100}
+                                now={totalDuration ? (timeLeft / totalDuration) * 100 : 0}
                                 variant="success"
                                 style={{ height: "6px", maxWidth: "300px", margin: "auto" }}
                             />
+
                         </>
                     )}
 

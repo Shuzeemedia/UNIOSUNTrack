@@ -39,6 +39,8 @@ const TeacherCourseDetails = () => {
   const [radius, setRadius] = useState(60);
 
   const [countdown, setCountdown] = useState(null);
+  const [sessionDuration, setSessionDuration] = useState(10); // minutes
+
 
 
 
@@ -191,6 +193,11 @@ const TeacherCourseDetails = () => {
     return () => socket.off("attendance-updated", handler);
 
   }, [id, students]);
+
+  useEffect(() => {
+    localStorage.setItem(`attendance_radius_${id}`, radius);
+  }, [radius, id]);
+
 
   const reloadSummary = async () => {
     const params = buildAttendanceParams();
@@ -378,42 +385,37 @@ const TeacherCourseDetails = () => {
       setSessionLoading(true);
       setSessionMessage("");
 
-      navigator.geolocation.getCurrentPosition(async (pos) => {
-        const { latitude, longitude, accuracy } = pos.coords;
-
-        // Ensure valid numbers
-        if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-          setSessionMessage("Invalid GPS coordinates");
-          setSessionLoading(false);
-          return;
-        }
-
-        const res = await api.post(`/sessions/${id}/create`, {
-          type: "MANUAL",
-          location: {
-            lat: latitude,
-            lng: longitude,
-            accuracy,
-            radius // <-- NEW
-          }
-        });
-
-
-        setSessionActive({
-          _id: res.data.sessionId,
-          expiresAt: res.data.expiresAt,
-          type: res.data.type,
-        });
-
-        setSessionMessage("Attendance session started");
+      if (sessionDuration <= 0) {
+        setSessionMessage("Invalid session duration");
         setSessionLoading(false);
+        return;
+      }
+
+      // Only get GPS if we are doing QR session
+      if (false /* always manual here */) {
+        // this block can be removed entirely
+      }
+
+      // ✅ For MANUAL session, just create session without GPS
+      const res = await api.post(`/sessions/${id}/create`, {
+        type: "MANUAL",
+        duration: sessionDuration,
       });
 
+      setSessionActive({
+        _id: res.data.sessionId,
+        expiresAt: res.data.expiresAt,
+        type: res.data.type,
+      });
+
+      setSessionMessage("Manual attendance session started");
     } catch (err) {
       setSessionMessage(err.response?.data?.msg || "Failed to start session");
+    } finally {
       setSessionLoading(false);
     }
   };
+
 
 
 
@@ -494,8 +496,8 @@ const TeacherCourseDetails = () => {
           <button
             onClick={handleGenerateQR}
             className="qr-btn"
-            disabled={sessionActive?.type === "manual"} // disable if manual session is active
-            title={sessionActive?.type === "manual" ? "QR disabled during manual session" : ""}
+            disabled={sessionActive?.type === "MANUAL"} // disable if manual session is active
+            title={sessionActive?.type === "MANUAL" ? "QR disabled during manual session" : ""}
           >
             <img src="/ranks/qricon.png" alt="QRCode Gen" className="qricon" />
             Generate QR for Attendance
@@ -554,6 +556,28 @@ const TeacherCourseDetails = () => {
             Students must be inside this distance to mark attendance automatically.
           </p>
         </div>
+
+        <div className="duration-settings mt-3">
+          <label><strong>⏱ Session Duration</strong></label>
+
+          <select
+            value={sessionDuration}
+            onChange={(e) => setSessionDuration(Number(e.target.value))}
+            className="filter-select"
+          >
+            <option value={5}>5 minutes — quick check</option>
+            <option value={10}>10 minutes — normal</option>
+            <option value={15}>15 minutes</option>
+            <option value={30}>30 minutes — long lecture</option>
+            <option value={45}>45 minutes</option>
+            <option value={60}>60 minutes — full class</option>
+          </select>
+
+          <p className="hint-text">
+            Attendance session will automatically close after this time.
+          </p>
+        </div>
+
 
         {!sessionActive ? (
           <button
