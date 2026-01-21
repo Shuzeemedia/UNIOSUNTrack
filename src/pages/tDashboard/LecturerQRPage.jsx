@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Button, Spinner, ProgressBar, Alert } from "react-bootstrap";
 import QRCode from "react-qr-code";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
+
+
 
 const LecturerQRPage = () => {
     const refreshIntervalRef = useRef(null);
@@ -41,6 +43,11 @@ const LecturerQRPage = () => {
     const savedRadius = Number(
         localStorage.getItem(`attendance_radius_${courseId}`)
     ) || 60;
+
+    const location = useLocation();
+
+    const sessionDuration = location.state?.duration ?? 10;
+    const radius = location.state?.radius ?? 60;
 
 
 

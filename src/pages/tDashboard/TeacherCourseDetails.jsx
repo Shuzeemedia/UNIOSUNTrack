@@ -377,8 +377,14 @@ const TeacherCourseDetails = () => {
   };
 
   const handleGenerateQR = () => {
-    navigate(`/teacher/qr/${id}`);
+    navigate(`/teacher/qr/${id}`, {
+      state: {
+        duration: sessionDuration,
+        radius,
+      },
+    });
   };
+  
 
   const startSession = async () => {
     try {
