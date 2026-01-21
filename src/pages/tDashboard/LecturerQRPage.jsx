@@ -214,21 +214,31 @@ const LecturerQRPage = () => {
 
         try {
 
-            const loc = bestLocationRef.current || lecturerLocation;
-
-            const safeAccuracy = Math.min(Number(loc.accuracy) || 50, 100);
-
+            const loc = bestLocationRef.current;
 
             if (!loc) {
-                setError("Unable to get lecturer location");
+                setError("Waiting for GPS. Please hold on.");
                 setLoading(false);
                 return;
             }
 
-            // Allow creation even if not fully stable
-            if (!locationReady) {
-                console.warn("GPS not fully stable, proceeding with best fix");
+            if (loc.accuracy > 60) {
+                setError("GPS not stable yet. Please wait a few seconds.");
+                setLoading(false);
+                return;
             }
+
+
+            const safeAccuracy = Math.min(Number(loc.accuracy) || 50, 100);
+
+
+
+            if (!locationReady) {
+                setError("Waiting for stable GPS signal. Please stay outdoors.");
+                setLoading(false);
+                return;
+            }
+
 
 
             const { lat, lng, accuracy } = loc;
