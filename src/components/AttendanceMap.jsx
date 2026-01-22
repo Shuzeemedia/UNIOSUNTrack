@@ -71,7 +71,7 @@ export default function AttendanceMap({
                 const { latitude, longitude, accuracy } = coords;
 
                 // Skip if GPS is too inaccurate
-                if (accuracy > 50) return;
+                // if (accuracy > 50) return;
 
                 const loc = { lat: latitude, lng: longitude, accuracy };
                 setUserLocation(loc);
@@ -93,7 +93,10 @@ export default function AttendanceMap({
                 );
 
                 setDistance(Math.round(dist));
-                onInsideChange?.(dist <= (sessionLocation.radius || 60));
+                const effectiveRadius = (sessionLocation.radius || 60) + accuracy;
+
+                onInsideChange?.(dist <= effectiveRadius);
+
             },
             err => {
                 console.error("GPS error:", err);
@@ -103,9 +106,14 @@ export default function AttendanceMap({
         );
 
         return () => navigator.geolocation.clearWatch(watchId);
-    }, [sessionLocation, gpsStable, onInsideChange, onLocationChange, onGpsReady]);
+    }, [sessionLocation, onInsideChange, onLocationChange, onGpsReady]);
 
-    const insideZone = gpsStable && distance !== null && distance <= (sessionLocation.radius || 60);
+    const insideZone =
+        distance !== null &&
+        userLocation &&
+        distance <= ((sessionLocation.radius || 60) + userLocation.accuracy);
+
+
 
     return (
         <div>

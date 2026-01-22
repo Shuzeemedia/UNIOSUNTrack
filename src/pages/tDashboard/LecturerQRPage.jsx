@@ -138,6 +138,17 @@ const LecturerQRPage = () => {
                 }
 
                 const { session } = res.data;
+
+                const expiresAtMs = new Date(session.expiresAt).getTime();
+                const createdAtMs = new Date(session.createdAt).getTime();
+
+                const totalSeconds = Math.ceil(
+                    (expiresAtMs - createdAtMs) / 1000
+                );
+
+                setTotalDuration(totalSeconds);
+
+
                 const qrUrl = `${import.meta.env.VITE_FRONTEND_URL}/student/scan/${session.token}`;
                 setQrData(qrUrl);
                 setExpiresAt(session.expiresAt);
