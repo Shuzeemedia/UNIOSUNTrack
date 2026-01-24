@@ -84,22 +84,21 @@ const LecturerQRPage = () => {
                     bestLocationRef.current = loc;
                 }
 
-                // ✅ Stability check (3 good fixes OR timeout)
-                if (accuracy <= 60) {
+                if (accuracy <= 100) {
                     stableCountRef.current += 1;
                 }
 
+
                 const elapsed = Date.now() - gpsStartTimeRef.current;
 
-                if (
-                    stableCountRef.current >= 3 ||
+                if (!locationReady && (
+                    stableCountRef.current >= 2 ||
                     elapsed >= GPS_LOCK_TIMEOUT
-                ) {
-                    if (!locationReady) {
-                        setLocationReady(true);
-                        stopLecturerGps(); // 🔒 lock GPS ONCE
-                    }
+                )) {
+                    setLocationReady(true);
+                    stopLecturerGps();
                 }
+
 
 
             },
@@ -242,10 +241,8 @@ const LecturerQRPage = () => {
 
 
 
-            const safeAccuracy = Math.min(
-                Math.max(Number(loc.accuracy), 10),
-                40
-            );
+            const safeAccuracy = Math.min(Math.max(Number(loc.accuracy), 10), 80);
+
 
 
 

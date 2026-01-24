@@ -21,6 +21,8 @@ const Login = () => {
   const videoRef = useRef(null);
   const navigate = useNavigate();
   const { login } = useContext(AuthContext);
+  const eyeClosedRef = useRef(false);
+
 
   // Load face-api models
   useEffect(() => {
@@ -103,6 +105,7 @@ const Login = () => {
 
   const handleFaceRecognition = async () => {
     if (!userData) return;
+    eyeClosedRef.current = false;
     setLoading(true);
     setStatusMessage("Initializing camera...");
 
@@ -143,7 +146,11 @@ const Login = () => {
         }
 
         const detection = await faceapi
-          .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+          .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({
+            inputSize: 224,
+            scoreThreshold: 0.5,
+          })
+          )
           .withFaceLandmarks()
           .withFaceDescriptor();
 
@@ -152,7 +159,17 @@ const Login = () => {
           if (bestMatch.label === userData.user.id) {
             const leftEye = detection.landmarks.getLeftEye();
             const ear = checkBlink(leftEye);
-            if (ear < 0.25) blinkCount += 1;
+
+            // Improved blink detection (state-based)
+            if (ear < 0.23 && !eyeClosedRef.current) {
+              eyeClosedRef.current = true;
+            }
+
+            if (ear > 0.28 && eyeClosedRef.current) {
+              blinkCount += 1;
+              eyeClosedRef.current = false;
+            }
+
 
             if (blinkCount >= 1) {
               recognized = true;

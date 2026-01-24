@@ -58,6 +58,7 @@ const StudentScanPage = () => {
 
     const [lecturerLocation, setLecturerLocation] = useState(null);
 
+    const eyeClosedRef = useRef(false);
 
 
 
@@ -168,6 +169,9 @@ const StudentScanPage = () => {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 streamRef.current = stream;
                 if (videoRef.current) videoRef.current.srcObject = stream;
+                await new Promise(res => (videoRef.current.onloadedmetadata = res));
+                await videoRef.current.play();
+
             } catch (err) {
                 console.error("Camera init error:", err);
                 toast.error("Failed to start camera");
@@ -225,7 +229,7 @@ const StudentScanPage = () => {
 
             const faceMatcher = new faceapi.FaceMatcher(
                 [new faceapi.LabeledFaceDescriptors("student", [storedDescriptor])],
-                0.6
+                0.45
             );
 
             let blinkCount = 0;
@@ -245,7 +249,11 @@ const StudentScanPage = () => {
                 }
 
                 const detection = await faceapi
-                    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+                    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({
+                        inputSize: 224,
+                        scoreThreshold: 0.5,
+                      })
+                      )
                     .withFaceLandmarks()
                     .withFaceDescriptor();
 
@@ -259,14 +267,31 @@ const StudentScanPage = () => {
                 if (bestMatch.label === "student") {
                     const leftEye = detection.landmarks.getLeftEye();
                     const ear = checkBlink(leftEye);
-                    if (ear < 0.25) blinkCount += 1;
+                    // Blink state-based detection
+                    if (ear < 0.23 && !eyeClosedRef.current) {
+                        eyeClosedRef.current = true;
+                    }
+
+                    if (ear > 0.28 && eyeClosedRef.current) {
+                        blinkCount += 1;
+                        eyeClosedRef.current = false;
+                    }
+
 
                     if (blinkCount >= 1) {
                         recognized = true;
                         setStatusMessage("Face verified, starting scanner...");
                         toast.success("Face verified successfully");
+                        setStatusMessage("Verifying face on server...");
+
+                        await api.post("/auth/verify-face", {
+                            faceDescriptor: Array.from(detection.descriptor),
+                        });
+
+                        toast.success("Face verified successfully");
                         setFaceVerified(true);
                         stopVideoStream();
+
                         return;
                     } else {
                         setStatusMessage("Face detected, please blink...");
