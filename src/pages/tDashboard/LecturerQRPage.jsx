@@ -84,20 +84,21 @@ const LecturerQRPage = () => {
                     bestLocationRef.current = loc;
                 }
 
-                if (accuracy <= 100) {
+                if (accuracy <= 150) {
                     stableCountRef.current += 1;
                 }
+
 
 
                 const elapsed = Date.now() - gpsStartTimeRef.current;
 
                 if (!locationReady && (
-                    stableCountRef.current >= 2 ||
-                    elapsed >= GPS_LOCK_TIMEOUT
+                    stableCountRef.current >= 1 || elapsed >= 5000
                 )) {
                     setLocationReady(true);
                     stopLecturerGps();
                 }
+
 
 
 
@@ -231,11 +232,12 @@ const LecturerQRPage = () => {
             const loc = bestLocationRef.current || lecturerLocation;
 
 
-            if (!loc || loc.accuracy > 40) {
-                setError("GPS accuracy too weak. Move outdoors.");
+            if (!loc) {
+                setError("Unable to get GPS location");
                 setLoading(false);
                 return;
             }
+
 
 
 
