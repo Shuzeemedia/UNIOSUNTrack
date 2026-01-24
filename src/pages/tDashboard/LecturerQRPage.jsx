@@ -29,7 +29,6 @@ const LecturerQRPage = () => {
     const [lecturerLocation, setLecturerLocation] = useState(null);
     const [locationReady, setLocationReady] = useState(false); // stable GPS
     const lecturerWatchIdRef = useRef(null);
-    const lastUpdateRef = useRef(0);
 
     const GPS_LOCK_TIMEOUT = 8000; // 8 seconds max
     const gpsStartTimeRef = useRef(Date.now());
@@ -93,11 +92,16 @@ const LecturerQRPage = () => {
                 const elapsed = Date.now() - gpsStartTimeRef.current;
 
                 if (
-                    stableCountRef.current >= 3 || // stable fixes
-                    elapsed >= GPS_LOCK_TIMEOUT    // max wait reached
+                    stableCountRef.current >= 3 ||
+                    elapsed >= GPS_LOCK_TIMEOUT
                 ) {
-                    setLocationReady(true);
+                    if (!locationReady) {
+                        setLocationReady(true);
+                        stopLecturerGps(); // 🔒 lock GPS ONCE
+                    }
                 }
+
+
             },
             (err) => {
                 console.error("GPS error:", err);
@@ -227,8 +231,9 @@ const LecturerQRPage = () => {
 
             const loc = bestLocationRef.current || lecturerLocation;
 
-            if (!loc) {
-                setError("Unable to get GPS location. Turn on location.");
+
+            if (!loc || loc.accuracy > 40) {
+                setError("GPS accuracy too weak. Move outdoors.");
                 setLoading(false);
                 return;
             }
@@ -236,10 +241,12 @@ const LecturerQRPage = () => {
 
 
 
+
             const safeAccuracy = Math.min(
-                Math.max(Number(loc.accuracy) || 50, 20),
-                150
+                Math.max(Number(loc.accuracy), 10),
+                40
             );
+
 
 
             const { lat, lng, accuracy } = loc;
@@ -456,7 +463,8 @@ const LecturerQRPage = () => {
             {!qrData && (
                 <Button
                     onClick={handleCreateSession}
-                    disabled={loading || !courseId || !lecturerLocation}
+                    disabled={loading || !courseId || !locationReady}
+
                 >
 
                     {loading

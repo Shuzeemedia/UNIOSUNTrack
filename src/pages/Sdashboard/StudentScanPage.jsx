@@ -125,10 +125,12 @@ const StudentScanPage = () => {
         if (!faceVerified) return;
 
         if (
+            faceVerified &&
             locationReady &&
             studentLocation &&
             insideGeofence &&
-            !html5QrCodeRef.current
+            !html5QrCodeRef.current &&
+            !scanningLockedRef.current
         ) {
             setStatusMessage(
                 "GPS locked and inside the attendance zone. You can now scan the QR code"

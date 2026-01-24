@@ -226,28 +226,6 @@ const TeacherCourseDetails = () => {
   };
 
 
-  useEffect(() => {
-    if (!id) return;
-
-    const handler = (payload) => {
-      console.log("📡 Socket received:", payload);
-      console.log("Expected course:", id);
-
-      if (payload.courseId !== id) {
-        console.warn("⚠ Course mismatch, ignoring update");
-        return;
-      }
-
-      // Force reload summary
-      reloadSummary();
-    };
-
-    socket.on("attendance-updated", handler);
-    return () => socket.off("attendance-updated", handler);
-  }, [id]);
-
-
-
 
 
   // Update countdown whenever sessionActive changes

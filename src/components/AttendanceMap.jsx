@@ -71,14 +71,15 @@ export default function AttendanceMap({
                 const { latitude, longitude, accuracy } = coords;
 
                 // Skip if GPS is too inaccurate
-                if (accuracy > 50) return;
+                if (accuracy > 150) return;
+
 
                 const loc = { lat: latitude, lng: longitude, accuracy };
                 setUserLocation(loc);
                 onLocationChange?.(loc);
 
                 // Stable GPS detection
-                if (accuracy <= 30) stableCountRef.current += 1;
+                if (accuracy <= 40) stableCountRef.current += 1;
                 else stableCountRef.current = 0;
 
                 if (stableCountRef.current >= 3 && !gpsStable) {
