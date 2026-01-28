@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Button, Spinner, ProgressBar, Alert } from "react-bootstrap";
 import QRCode from "react-qr-code";
+import api from "../../api/api";
 import { useParams, useLocation } from "react-router-dom";
 
 
@@ -47,6 +48,8 @@ const LecturerQRPage = () => {
 
     const sessionDuration = location.state?.duration ?? 10;
     const radius = location.state?.radius ?? 60;
+    const isGpsGood = lecturerLocation && lecturerLocation.accuracy <= 100;
+
 
 
 
@@ -61,52 +64,42 @@ const LecturerQRPage = () => {
             return;
         }
 
-        gpsStartTimeRef.current = Date.now();
-        stableCountRef.current = 0;
-        bestLocationRef.current = null;
-
         lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
 
-                // ignore trash fixes
-                if (accuracy > 150) return;
+                // Reject only extremely bad GPS
+                if (accuracy > 500) return;
 
                 const loc = { lat: latitude, lng: longitude, accuracy };
                 setLecturerLocation(loc);
 
-                // keep BEST accuracy
-                if (!bestLocationRef.current || accuracy < bestLocationRef.current.accuracy) {
-                    bestLocationRef.current = loc;
-                }
-
-                if (accuracy <= REQUIRED_ACCURACY) {
-                    stableCountRef.current += 1;
-                } else {
-                    stableCountRef.current = 0;
-                }
-
-                const elapsed = Date.now() - gpsStartTimeRef.current;
-
-                if (
-                    stableCountRef.current >= REQUIRED_STABLE_COUNT ||
-                    elapsed >= MAX_WAIT
-                ) {
+                // First usable fix unlocks QR
+                if (!locationReady && accuracy <= 200) {
                     setLocationReady(true);
-                    stopLecturerGps();
+                }
+
+                // 🔥 LIVE UPDATE SESSION LOCATION
+                if (sessionId) {
+                    api.post(`/sessions/${sessionId}/location`, {
+                        lat: latitude,
+                        lng: longitude,
+                        accuracy
+                    }).catch(() => { });
                 }
             },
             (err) => {
                 console.error("GPS error:", err);
-                setError("Enable Precise Location & stay outdoors");
+                setError("Enable Precise Location & move outdoors");
             },
             {
                 enableHighAccuracy: true,
-                maximumAge: 0,
-                timeout: MAX_WAIT,
+                timeout: 15000,
+                maximumAge: 0
             }
         );
     };
+
 
 
 
@@ -223,22 +216,13 @@ const LecturerQRPage = () => {
 
         try {
 
-            const loc = bestLocationRef.current || lecturerLocation;
-
+            const loc = lecturerLocation;
 
             if (!loc) {
                 setError("Unable to get GPS location");
                 setLoading(false);
                 return;
             }
-
-
-
-
-
-
-            const safeAccuracy = Math.min(Math.max(Number(loc.accuracy), 10), 80);
-
 
 
 
@@ -254,7 +238,7 @@ const LecturerQRPage = () => {
                     location: {
                         lat,
                         lng,
-                        accuracy: safeAccuracy,
+                        accuracy: accuracy,
                         radius: savedRadius, //SELECTED RADIUS
                     },
 
@@ -456,7 +440,9 @@ const LecturerQRPage = () => {
             {!qrData && (
                 <Button
                     onClick={handleCreateSession}
-                    disabled={loading || !courseId || !locationReady}
+                    disabled={loading || !courseId || !isGpsGood}
+
+
 
                 >
 
@@ -464,11 +450,11 @@ const LecturerQRPage = () => {
                         ? <>
                             <Spinner animation="border" size="sm" /> Generating QR...
                         </>
-                        : !lecturerLocation
-                            ? "Getting GPS location..."
-                            : !locationReady
-                                ? "Stabilizing GPS..."
-                                : "Generate Attendance QR"
+                        : !isGpsGood
+                            ? "Waiting for stable GPS..."
+                            : "Generate Attendance QR"
+
+
                     }
                 </Button>
 

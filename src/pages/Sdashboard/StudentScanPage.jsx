@@ -382,7 +382,7 @@ const StudentScanPage = () => {
                 location: {
                     lat: studentLocation.lat,
                     lng: studentLocation.lng,
-                    accuracy: Math.min(studentLocation.accuracy, 300)
+                    accuracy: Math.min(studentLocation.accuracy, 200)
 
                 }
             },
