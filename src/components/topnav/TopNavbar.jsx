@@ -3,12 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import { Navbar, Nav, Container, Dropdown } from "react-bootstrap";
 import { FaChevronDown } from "react-icons/fa"; // using react-icons
+import { verifyStudentFace } from "../../utils/faceVerification";
+import FaceVerificationModal from "../../components/FaceVerificationModal";
 import "./navbar.css"; // stylesheet
 
 const TopNavbar = () => {
     const navigate = useNavigate();
     const { user, logout } = useContext(AuthContext);
     const [open, setOpen] = useState(false);
+    const [showFaceModal, setShowFaceModal] = useState(false);
+
 
     const getInitials = (name) => {
         if (!name) return "U";
@@ -85,7 +89,8 @@ const TopNavbar = () => {
                                 <Dropdown.Item
                                     onClick={() => {
                                         setOpen(false);
-                                        navigate("/profile");
+                                        if (user?.role === "student") setShowFaceModal(true);
+                                        else navigate("/profile"); // no face verification for non-students
                                     }}
                                 >
                                     Account Settings
@@ -102,6 +107,16 @@ const TopNavbar = () => {
                                 </Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
+
+                        <FaceVerificationModal
+                            show={showFaceModal}
+                            onClose={() => setShowFaceModal(false)}
+                            user={user}
+                            onVerified={() => {
+                                setShowFaceModal(false);
+                                navigate("/profile");
+                            }}
+                        />
                     </Nav>
                 </Navbar.Collapse>
             </Container>

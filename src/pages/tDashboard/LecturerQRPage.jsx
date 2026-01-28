@@ -51,9 +51,13 @@ const LecturerQRPage = () => {
 
 
     // ==================== START LECTURER GPS ==================== //
+    const REQUIRED_ACCURACY = 30; // meters
+    const REQUIRED_STABLE_COUNT = 3;
+    const MAX_WAIT = 30000; // 30s
+
     const startLecturerGps = () => {
         if (!navigator.geolocation) {
-            setError("Geolocation not supported on this device.");
+            setError("Geolocation not supported");
             return;
         }
 
@@ -65,55 +69,45 @@ const LecturerQRPage = () => {
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
 
-                // ❌ Ignore very poor fixes
-                if (accuracy > 200) return;
+                // ignore trash fixes
+                if (accuracy > 150) return;
 
-                const loc = {
-                    lat: latitude,
-                    lng: longitude,
-                    accuracy,
-                };
-
+                const loc = { lat: latitude, lng: longitude, accuracy };
                 setLecturerLocation(loc);
 
-                // ✅ Keep best accuracy seen
-                if (
-                    !bestLocationRef.current ||
-                    accuracy < bestLocationRef.current.accuracy
-                ) {
+                // keep BEST accuracy
+                if (!bestLocationRef.current || accuracy < bestLocationRef.current.accuracy) {
                     bestLocationRef.current = loc;
                 }
 
-                if (accuracy <= 150) {
+                if (accuracy <= REQUIRED_ACCURACY) {
                     stableCountRef.current += 1;
+                } else {
+                    stableCountRef.current = 0;
                 }
-
-
 
                 const elapsed = Date.now() - gpsStartTimeRef.current;
 
-                if (!locationReady && (
-                    stableCountRef.current >= 1 || elapsed >= 5000
-                )) {
+                if (
+                    stableCountRef.current >= REQUIRED_STABLE_COUNT ||
+                    elapsed >= MAX_WAIT
+                ) {
                     setLocationReady(true);
                     stopLecturerGps();
                 }
-
-
-
-
             },
             (err) => {
                 console.error("GPS error:", err);
-                setError("Enable precise location and stay outdoors.");
+                setError("Enable Precise Location & stay outdoors");
             },
             {
                 enableHighAccuracy: true,
                 maximumAge: 0,
-                timeout: Infinity, // 🚫 do NOT timeout
+                timeout: MAX_WAIT,
             }
         );
     };
+
 
 
 

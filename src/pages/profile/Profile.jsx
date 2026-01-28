@@ -4,6 +4,7 @@ import LoadingSpinner from "../../components/Loader/LoadingSpinner";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/AuthContext";
 import Cropper from "react-easy-crop";
+// import { registerWebAuthn } from "../../utils/webauthn";
 import ReEnrollFaceModal from "../../components/ReEnrollFaceModal"; // Import new modal
 
 import "./profile.css";
@@ -314,6 +315,25 @@ const Profile = () => {
           <button type="submit" className="update-btn" disabled={updating}>
             {updating ? "Updating..." : "Update Profile"}
           </button>
+
+          {/* <div className="form-group">
+            <button
+              type="button"
+              className="update-btn"
+              onClick={async () => {
+                try {
+                  await registerWebAuthn();
+                  toast.success("Device authentication enabled!");
+                } catch (err) {
+                  console.error(err);
+                  toast.error("Failed to enable device login");
+                }
+              }}
+            >
+              Enable Fingerprint
+            </button>
+          </div> */}
+
         </form>
       </div>
 

@@ -7,6 +7,8 @@ import * as faceapi from "face-api.js";
 import { toast } from "react-toastify";
 import { MapContainer, TileLayer, Marker, Circle } from "react-leaflet";
 import { useLocation } from "react-router-dom";
+import { loginWebAuthn, registerWebAuthn } from "../../utils/webauthn";
+
 
 import "./StudentScanPage.css";
 import AttendanceMap from "../../components/AttendanceMap";
@@ -213,11 +215,9 @@ const StudentScanPage = () => {
         if (videoRef.current) videoRef.current.srcObject = null;
     };
 
-    /** ==================== FACE VERIFICATION ==================== */
+    /** ==================== FACE VERIFICATION (Head-turn Liveness) ==================== */
     const verifyFace = async () => {
         if (faceLoading) return;
-
-
         if (!sessionInfo || !videoRef.current) return;
 
         setFaceLoading(true);
@@ -232,10 +232,11 @@ const StudentScanPage = () => {
                 0.45
             );
 
-            let blinkCount = 0;
             let recognized = false;
+            let baseNoseX = null;   // baseline nose x-coordinate
+            let headTurned = false;
             const startTime = Date.now();
-            const TIMEOUT = 20000;
+            const TIMEOUT = 20000; // 20s max
 
             const detectLoop = async () => {
                 if (!videoRef.current) return;
@@ -249,11 +250,7 @@ const StudentScanPage = () => {
                 }
 
                 const detection = await faceapi
-                    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({
-                        inputSize: 224,
-                        scoreThreshold: 0.5,
-                      })
-                      )
+                    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.5 }))
                     .withFaceLandmarks()
                     .withFaceDescriptor();
 
@@ -265,36 +262,31 @@ const StudentScanPage = () => {
                 const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
 
                 if (bestMatch.label === "student") {
-                    const leftEye = detection.landmarks.getLeftEye();
-                    const ear = checkBlink(leftEye);
-                    // Blink state-based detection
-                    if (ear < 0.23 && !eyeClosedRef.current) {
-                        eyeClosedRef.current = true;
+                    // HEAD-TURN LIVELINESS
+                    const nose = detection.landmarks.getNose();
+                    const noseX = nose[3].x; // tip of the nose
+
+                    if (baseNoseX === null) baseNoseX = noseX;
+
+                    // Check if head turned at least ~15px horizontally
+                    if (Math.abs(noseX - baseNoseX) > 15) {
+                        headTurned = true;
                     }
 
-                    if (ear > 0.28 && eyeClosedRef.current) {
-                        blinkCount += 1;
-                        eyeClosedRef.current = false;
-                    }
-
-
-                    if (blinkCount >= 1) {
+                    if (headTurned) {
                         recognized = true;
-                        setStatusMessage("Face verified, starting scanner...");
+                        setStatusMessage("Head movement detected. Face verified!");
                         toast.success("Face verified successfully");
-                        setStatusMessage("Verifying face on server...");
 
                         await api.post("/auth/verify-face", {
                             faceDescriptor: Array.from(detection.descriptor),
                         });
 
-                        toast.success("Face verified successfully");
                         setFaceVerified(true);
                         stopVideoStream();
-
                         return;
                     } else {
-                        setStatusMessage("Face detected, please blink...");
+                        setStatusMessage("Face detected. Please turn your head slightly left or right...");
                     }
                 } else {
                     setStatusMessage("Face does not match. Try again...");
@@ -304,12 +296,14 @@ const StudentScanPage = () => {
             };
 
             detectLoop();
+
         } catch (err) {
             console.error(err);
             toast.error("Face verification failed");
             setFaceLoading(false);
         }
     };
+
 
     /** ==================== QR SCANNER ==================== */
 
@@ -370,9 +364,9 @@ const StudentScanPage = () => {
     const markAttendance = async (scannedToken) => {
 
         if (!insideGeofence) {
-            toast.error("You are outside the attendance zone ❌. Move closer to the lecture.");
-            throw new Error("Outside attendance zone");
+            toast.warn("You may be outside the zone. Trying server verification…");
         }
+
 
         if (!sessionInfo) throw new Error("Session info missing");
         if (!studentLocation || !locationReady) {
@@ -388,7 +382,8 @@ const StudentScanPage = () => {
                 location: {
                     lat: studentLocation.lat,
                     lng: studentLocation.lng,
-                    accuracy: studentLocation.accuracy
+                    accuracy: Math.min(studentLocation.accuracy, 300)
+
                 }
             },
 
