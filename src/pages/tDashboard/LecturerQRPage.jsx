@@ -58,37 +58,61 @@ const LecturerQRPage = () => {
             return;
         }
 
+        console.log("📡 Getting fast GPS...");
+
+        // ⚡ STEP 1: Get FAST rough location (WiFi/IP)
         navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
 
-                const loc = {
+                const quickLoc = {
                     lat: latitude,
                     lng: longitude,
-                    accuracy: Math.min(accuracy || 100, 200) // 🚀 accept network GPS
+                    accuracy: Math.min(accuracy || 150, 200)
                 };
 
-                setLecturerLocation(loc);
-                setLocationReady(true); // 🔓 unlock button immediately
+                setLecturerLocation(quickLoc);
+                setLocationReady(true); // unlock button FAST
 
-                console.log("[LECTURER GPS LOCKED]", loc);
+                console.log("⚡ Quick GPS:", quickLoc);
             },
-            () => {
-                // 🚨 FALLBACK: still allow session creation
-                setLecturerLocation({
-                    lat: 0,
-                    lng: 0,
-                    accuracy: 200
-                });
-                setLocationReady(true);
-            },
+            () => console.log("Quick GPS failed"),
             {
-                enableHighAccuracy: false, // 🔥 KEY FIX
-                timeout: 5000,
+                enableHighAccuracy: false,
+                timeout: 4000,
                 maximumAge: 60000
             }
         );
+
+        // 🎯 STEP 2: Improve accuracy in background
+        lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
+            (pos) => {
+                const { latitude, longitude, accuracy } = pos.coords;
+
+                if (accuracy < 80) { // good GPS lock
+                    const preciseLoc = {
+                        lat: latitude,
+                        lng: longitude,
+                        accuracy
+                    };
+
+                    setLecturerLocation(preciseLoc);
+
+                    console.log("Precise GPS locked:", preciseLoc);
+
+                    navigator.geolocation.clearWatch(lecturerWatchIdRef.current);
+                    lecturerWatchIdRef.current = null;
+                }
+            },
+            () => { },
+            {
+                enableHighAccuracy: true,
+                maximumAge: 0,
+                timeout: 10000
+            }
+        );
     };
+
 
 
 
@@ -167,6 +191,15 @@ const LecturerQRPage = () => {
         }, 1000);
         return () => clearInterval(timer);
     }, [expiresAt, sessionId, ended]);
+
+    useEffect(() => {
+        startLecturerGps();   // START GPS when page loads
+
+        return () => {
+            stopLecturerGps(); // cleanup when leaving page
+        };
+    }, []);
+
 
 
     const handleAutoEnd = async () => {
