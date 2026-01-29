@@ -67,13 +67,12 @@ const LecturerQRPage = () => {
             if (!gotFirstFix) {
                 console.log("⏳ GPS timeout fallback used");
 
-                setLecturerLocation(prev => prev || {
-                    lat: 0,
-                    lng: 0,
-                    accuracy: 150
-                });
-
-                setLocationReady(true); // 🚀 FORCE UNLOCK
+                if (!lecturerLocation) {
+                    console.log("No GPS fix yet — waiting...");
+                    return; //don't unlock with fake coords
+                }
+                
+                setLocationReady(true);
             }
         }, 6000); // wait max 6 seconds
 
