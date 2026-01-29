@@ -58,11 +58,30 @@ const LecturerQRPage = () => {
             return;
         }
 
-        console.log("📡 Getting fast GPS...");
+        console.log("📡 Starting GPS...");
 
-        // ⚡ STEP 1: Get FAST rough location (WiFi/IP)
+        let gotFirstFix = false;
+
+        // ⏳ SAFETY TIMER — never wait forever
+        setTimeout(() => {
+            if (!gotFirstFix) {
+                console.log("⏳ GPS timeout fallback used");
+
+                setLecturerLocation(prev => prev || {
+                    lat: 0,
+                    lng: 0,
+                    accuracy: 150
+                });
+
+                setLocationReady(true); // 🚀 FORCE UNLOCK
+            }
+        }, 6000); // wait max 6 seconds
+
+        // ⚡ QUICK LOCATION
         navigator.geolocation.getCurrentPosition(
             (pos) => {
+                gotFirstFix = true;
+
                 const { latitude, longitude, accuracy } = pos.coords;
 
                 const quickLoc = {
@@ -71,34 +90,32 @@ const LecturerQRPage = () => {
                     accuracy: Math.min(accuracy || 150, 200)
                 };
 
-                setLecturerLocation(quickLoc);
-                setLocationReady(true); // unlock button FAST
-
                 console.log("⚡ Quick GPS:", quickLoc);
+
+                setLecturerLocation(quickLoc);
+                setLocationReady(true); // unlock immediately
             },
-            () => console.log("Quick GPS failed"),
+            (err) => {
+                console.log("Quick GPS failed:", err.message);
+            },
             {
                 enableHighAccuracy: false,
-                timeout: 4000,
+                timeout: 5000,
                 maximumAge: 60000
             }
         );
 
-        // 🎯 STEP 2: Improve accuracy in background
+        // 🎯 BACKGROUND PRECISION
         lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
 
-                if (accuracy < 80) { // good GPS lock
-                    const preciseLoc = {
-                        lat: latitude,
-                        lng: longitude,
-                        accuracy
-                    };
+                if (accuracy < 80) {
+                    const preciseLoc = { lat: latitude, lng: longitude, accuracy };
+
+                    console.log("🎯 Precise GPS locked:", preciseLoc);
 
                     setLecturerLocation(preciseLoc);
-
-                    console.log("Precise GPS locked:", preciseLoc);
 
                     navigator.geolocation.clearWatch(lecturerWatchIdRef.current);
                     lecturerWatchIdRef.current = null;
@@ -112,6 +129,7 @@ const LecturerQRPage = () => {
             }
         );
     };
+
 
 
 
@@ -462,9 +480,12 @@ const LecturerQRPage = () => {
                 >
                     {loading
                         ? <><Spinner size="sm" /> Generating QR...</>
-                        : !locationReady
+                        : !lecturerLocation
                             ? "Getting GPS location..."
-                            : "Generate Attendance QR"}
+                            : !locationReady
+                                ? "Stabilizing GPS..."
+                                : "Generate Attendance QR"
+                    }
                 </Button>
 
 
