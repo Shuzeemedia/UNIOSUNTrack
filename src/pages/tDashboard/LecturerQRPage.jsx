@@ -48,7 +48,8 @@ const LecturerQRPage = () => {
 
     const sessionDuration = location.state?.duration ?? 10;
     const radius = location.state?.radius ?? 60;
-    const isGpsGood = lecturerLocation && lecturerLocation.accuracy <= 100;
+    const isGpsGood = locationReady && lecturerLocation;
+
 
 
 
@@ -64,41 +65,53 @@ const LecturerQRPage = () => {
             return;
         }
 
-        lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
+        // 🚀 STAGE 1: FAST GPS FIX (unlock QR)
+        navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
 
-                // Reject only extremely bad GPS
-                if (accuracy > 500) return;
-
                 const loc = { lat: latitude, lng: longitude, accuracy };
                 setLecturerLocation(loc);
+                setLocationReady(true); // 🔓 unlock button immediately
 
-                // First usable fix unlocks QR
-                if (!locationReady && accuracy <= 200) {
-                    setLocationReady(true);
-                }
+                console.log("[FAST GPS LOCK]", loc);
 
-                // 🔥 LIVE UPDATE SESSION LOCATION
-                if (sessionId) {
-                    api.post(`/sessions/${sessionId}/location`, {
-                        lat: latitude,
-                        lng: longitude,
-                        accuracy
-                    }).catch(() => { });
-                }
+                // 🚀 STAGE 2: CONTINUOUS TRACKING (refine accuracy)
+                lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
+                    (pos) => {
+                        const { latitude, longitude, accuracy } = pos.coords;
+
+                        if (accuracy > 500) return;
+
+                        const refinedLoc = { lat: latitude, lng: longitude, accuracy };
+                        setLecturerLocation(refinedLoc);
+
+                        // Live update backend if session exists
+                        if (sessionId) {
+                            api.post(`/sessions/${sessionId}/location`, refinedLoc)
+                                .catch(() => { });
+                        }
+                    },
+                    (err) => console.error("Watch GPS error", err),
+                    {
+                        enableHighAccuracy: true,
+                        maximumAge: 5000,
+                        timeout: 20000
+                    }
+                );
             },
             (err) => {
-                console.error("GPS error:", err);
-                setError("Enable Precise Location & move outdoors");
+                console.error("Initial GPS error:", err);
+                setError("Enable precise location and move outdoors");
             },
             {
                 enableHighAccuracy: true,
-                timeout: 15000,
+                timeout: 10000,
                 maximumAge: 0
             }
         );
     };
+
 
 
 
@@ -440,23 +453,15 @@ const LecturerQRPage = () => {
             {!qrData && (
                 <Button
                     onClick={handleCreateSession}
-                    disabled={loading || !courseId || !isGpsGood}
-
-
-
+                    disabled={loading || !courseId || !locationReady}
                 >
-
                     {loading
-                        ? <>
-                            <Spinner animation="border" size="sm" /> Generating QR...
-                        </>
-                        : !isGpsGood
-                            ? "Waiting for stable GPS..."
-                            : "Generate Attendance QR"
-
-
-                    }
+                        ? <><Spinner size="sm" /> Generating QR...</>
+                        : !locationReady
+                            ? "Getting GPS location..."
+                            : "Generate Attendance QR"}
                 </Button>
+
 
             )}
 
