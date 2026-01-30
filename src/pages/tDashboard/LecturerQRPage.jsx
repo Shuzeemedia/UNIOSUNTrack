@@ -43,7 +43,8 @@ const LecturerQRPage = () => {
     const location = useLocation();
 
     const sessionDuration = location.state?.duration ?? 10;
-    const isGpsUsable = locationReady && lecturerLocation;
+    const isGpsUsable = !!lecturerLocation;
+
 
 
 
@@ -62,91 +63,44 @@ const LecturerQRPage = () => {
             return;
         }
 
-        console.log("📡 Starting GPS...");
-
-        let gotFirstFix = false;
-
-        // ⏳ SAFETY TIMER — never wait forever
-        setTimeout(() => {
-            if (!gotFirstFix && lecturerLocation && lecturerLocation.accuracy <= 150) {
-                console.log("⏳ Using last known GPS after timeout");
-                setLocationReady(true);
-            }
-        }, 6000);
-
-
-        // ⚡ QUICK LOCATION
         navigator.geolocation.getCurrentPosition(
             (pos) => {
-                gotFirstFix = true;
-
                 const { latitude, longitude, accuracy } = pos.coords;
 
-                const quickLoc = {
+                const loc = {
                     lat: latitude,
                     lng: longitude,
-                    accuracy: Math.min(accuracy || 150, 200)
+                    accuracy: Math.min(accuracy || 200, 300)
                 };
 
-                console.log("⚡ Quick GPS:", quickLoc);
-
-                setLecturerLocation(quickLoc);
-
-                if (quickLoc.accuracy <= 150) {
-                    setLocationReady(true);
+                console.log("📍 Lecturer GPS locked:", loc);
+                if (loc.accuracy > 300) {
+                    setError("GPS signal too weak. Move closer to a window or outside.");
+                    return;
                 }
 
+                setLecturerLocation(loc);
+                setLocationReady(true);
             },
             (err) => {
-                console.log("Quick GPS failed:", err.message);
+                console.error("GPS error:", err);
 
                 if (err.code === 1) {
-                    setError("Location permission denied. Please allow GPS and refresh.");
+                    setError("Location permission denied");
                 } else if (err.code === 2) {
-                    setError("Location unavailable. Turn on device location.");
-                } else if (err.code === 3) {
-                    setError("GPS request timed out. Move near a window or go outside.");
+                    setError("Location unavailable. Turn on GPS.");
+                } else {
+                    setError("GPS timeout. Move near a window or outside.");
                 }
             },
-
             {
                 enableHighAccuracy: false,
-                timeout: 5000,
-                maximumAge: 60000
-            }
-        );
-
-        // 🎯 BACKGROUND PRECISION
-        lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
-            (pos) => {
-                const { latitude, longitude, accuracy } = pos.coords;
-
-                if (accuracy < 80) {
-                    const preciseLoc = { lat: latitude, lng: longitude, accuracy };
-
-                    console.log("🎯 Precise GPS locked:", preciseLoc);
-
-                    setLecturerLocation(preciseLoc);
-
-                    navigator.geolocation.clearWatch(lecturerWatchIdRef.current);
-                    lecturerWatchIdRef.current = null;
-                }
-            },
-            (err) => {
-                console.log("Watch GPS error:", err.message);
-
-                if (!lecturerLocation) {
-                    setError("Unable to get GPS signal. Please enable location services.");
-                }
-            },
-
-            {
-                enableHighAccuracy: true,
-                maximumAge: 0,
-                timeout: 10000
+                timeout: 10000,
+                maximumAge: 0
             }
         );
     };
+
 
 
 
@@ -514,9 +468,8 @@ const LecturerQRPage = () => {
                         ? <><Spinner size="sm" /> Generating QR...</>
                         : !lecturerLocation
                             ? "Getting GPS location..."
-                            : lecturerLocation.accuracy > 150
-                                ? "GPS weak inside building… hold on"
-                                : "Generate Attendance QR"
+                            : "Generate Attendance QR"
+
                     }
 
 
