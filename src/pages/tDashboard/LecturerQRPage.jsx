@@ -35,6 +35,7 @@ const LecturerQRPage = () => {
     const gpsStartTimeRef = useRef(Date.now());
 
 
+
     const savedRadius = Number(
         localStorage.getItem(`attendance_radius_${courseId}`)
     ) || 60;
@@ -42,8 +43,11 @@ const LecturerQRPage = () => {
     const location = useLocation();
 
     const sessionDuration = location.state?.duration ?? 10;
-    const radius = location.state?.radius ?? 60;
-    const isGpsGood = locationReady && lecturerLocation;
+    const isGpsUsable = locationReady && lecturerLocation;
+
+
+
+
 
 
 
@@ -64,17 +68,12 @@ const LecturerQRPage = () => {
 
         // ⏳ SAFETY TIMER — never wait forever
         setTimeout(() => {
-            if (!gotFirstFix) {
-                console.log("⏳ GPS timeout fallback used");
-
-                if (!lecturerLocation) {
-                    console.log("No GPS fix yet — waiting...");
-                    return; //don't unlock with fake coords
-                }
-                
+            if (!gotFirstFix && lecturerLocation && lecturerLocation.accuracy <= 150) {
+                console.log("⏳ Using last known GPS after timeout");
                 setLocationReady(true);
             }
-        }, 6000); // wait max 6 seconds
+        }, 6000);
+
 
         // ⚡ QUICK LOCATION
         navigator.geolocation.getCurrentPosition(
@@ -92,11 +91,24 @@ const LecturerQRPage = () => {
                 console.log("⚡ Quick GPS:", quickLoc);
 
                 setLecturerLocation(quickLoc);
-                setLocationReady(true); // unlock immediately
+
+                if (quickLoc.accuracy <= 150) {
+                    setLocationReady(true);
+                }
+
             },
             (err) => {
                 console.log("Quick GPS failed:", err.message);
+
+                if (err.code === 1) {
+                    setError("Location permission denied. Please allow GPS and refresh.");
+                } else if (err.code === 2) {
+                    setError("Location unavailable. Turn on device location.");
+                } else if (err.code === 3) {
+                    setError("GPS request timed out. Move near a window or go outside.");
+                }
             },
+
             {
                 enableHighAccuracy: false,
                 timeout: 5000,
@@ -120,7 +132,14 @@ const LecturerQRPage = () => {
                     lecturerWatchIdRef.current = null;
                 }
             },
-            () => { },
+            (err) => {
+                console.log("Watch GPS error:", err.message);
+
+                if (!lecturerLocation) {
+                    setError("Unable to get GPS signal. Please enable location services.");
+                }
+            },
+
             {
                 enableHighAccuracy: true,
                 maximumAge: 0,
@@ -216,6 +235,20 @@ const LecturerQRPage = () => {
             stopLecturerGps(); // cleanup when leaving page
         };
     }, []);
+
+
+
+
+    useEffect(() => {
+        if (!sessionId || !lecturerLocation) return;
+
+        const interval = setInterval(() => {
+            api.post(`/sessions/${sessionId}/location`, lecturerLocation)
+                .catch(() => { });
+        }, 20000);
+
+        return () => clearInterval(interval);
+    }, [sessionId, lecturerLocation]);
 
 
 
@@ -474,17 +507,19 @@ const LecturerQRPage = () => {
             {!qrData && (
                 <Button
                     onClick={handleCreateSession}
-                    disabled={loading || !courseId}
-
+                    disabled={loading || !courseId || !isGpsUsable}
                 >
+
                     {loading
                         ? <><Spinner size="sm" /> Generating QR...</>
                         : !lecturerLocation
                             ? "Getting GPS location..."
-                            : !locationReady
-                                ? "Stabilizing GPS..."
+                            : lecturerLocation.accuracy > 150
+                                ? "GPS weak inside building… hold on"
                                 : "Generate Attendance QR"
                     }
+
+
                 </Button>
 
 
