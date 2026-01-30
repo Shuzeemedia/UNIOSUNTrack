@@ -31,7 +31,6 @@ const LecturerQRPage = () => {
     const [locationReady, setLocationReady] = useState(false); // stable GPS
     const lecturerWatchIdRef = useRef(null);
 
-    const GPS_LOCK_TIMEOUT = 8000; // 8 seconds max
     const gpsStartTimeRef = useRef(Date.now());
 
 
@@ -64,24 +63,16 @@ const LecturerQRPage = () => {
             return;
         }
 
-        let stableCount = 0;
         gpsStartTimeRef.current = Date.now();
 
         lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
 
-                // ⏱ Timeout safety
-                if (Date.now() - gpsStartTimeRef.current > GPS_LOCK_TIMEOUT) {
-                    setError("GPS taking too long. Move outside or near a window.");
-                    setLocationReady(false);
-                    stopLecturerGps();
-                    return;
-                }
 
 
-                // 🚫 Ignore weak / network GPS
-                if (accuracy > 150) return;
+                if (accuracy > 300) return; // same as student rule
+
 
                 const loc = {
                     lat: latitude,
@@ -91,16 +82,14 @@ const LecturerQRPage = () => {
 
                 console.log("📡 Lecturer GPS update:", loc);
 
-                // ✅ Stability check (same idea as student)
-                if (accuracy <= 40) stableCount++;
-                else stableCount = 0;
-
-                if (stableCount >= 3) {
-                    console.log("📍 Lecturer GPS LOCKED:", loc);
+                // ✅ Accept good indoor GPS immediately
+                if (accuracy <= 100) {
+                    console.log("📍 Lecturer GPS LOCKED (indoor-safe):", loc);
                     setLecturerLocation(loc);
                     setLocationReady(true);
-                    stopLecturerGps(); // 🔥 LOCK GPS
+                    stopLecturerGps(); // lock once
                 }
+
             },
             (err) => {
                 console.error("Lecturer GPS error:", err);
@@ -499,6 +488,13 @@ const LecturerQRPage = () => {
 
 
             )}
+
+            {lecturerLocation && !qrData && (
+                <p className={`small mt-2 ${lecturerLocation.accuracy <= 100 ? "text-success" : "text-warning"}`}>
+                    GPS accuracy: {lecturerLocation.accuracy.toFixed(1)} m
+                </p>
+            )}
+
 
             {qrData && (
                 <div className="qr-wrapper mt-4">
