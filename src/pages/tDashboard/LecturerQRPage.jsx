@@ -43,7 +43,8 @@ const LecturerQRPage = () => {
     const location = useLocation();
 
     const sessionDuration = location.state?.duration ?? 10;
-    const isGpsUsable = !!lecturerLocation;
+    const isGpsUsable = locationReady && lecturerLocation;
+
 
 
 
@@ -63,40 +64,52 @@ const LecturerQRPage = () => {
             return;
         }
 
-        navigator.geolocation.getCurrentPosition(
+        let stableCount = 0;
+        gpsStartTimeRef.current = Date.now();
+
+        lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
+
+                // ⏱ Timeout safety
+                if (Date.now() - gpsStartTimeRef.current > GPS_LOCK_TIMEOUT) {
+                    setError("GPS taking too long. Move outside or near a window.");
+                    setLocationReady(false);
+                    stopLecturerGps();
+                    return;
+                }
+
+
+                // 🚫 Ignore weak / network GPS
+                if (accuracy > 150) return;
 
                 const loc = {
                     lat: latitude,
                     lng: longitude,
-                    accuracy: Math.min(accuracy || 200, 300)
+                    accuracy
                 };
 
-                console.log("📍 Lecturer GPS locked:", loc);
-                if (loc.accuracy > 300) {
-                    setError("GPS signal too weak. Move closer to a window or outside.");
-                    return;
-                }
+                console.log("📡 Lecturer GPS update:", loc);
 
-                setLecturerLocation(loc);
-                setLocationReady(true);
+                // ✅ Stability check (same idea as student)
+                if (accuracy <= 40) stableCount++;
+                else stableCount = 0;
+
+                if (stableCount >= 3) {
+                    console.log("📍 Lecturer GPS LOCKED:", loc);
+                    setLecturerLocation(loc);
+                    setLocationReady(true);
+                    stopLecturerGps(); // 🔥 LOCK GPS
+                }
             },
             (err) => {
-                console.error("GPS error:", err);
-
-                if (err.code === 1) {
-                    setError("Location permission denied");
-                } else if (err.code === 2) {
-                    setError("Location unavailable. Turn on GPS.");
-                } else {
-                    setError("GPS timeout. Move near a window or outside.");
-                }
+                console.error("Lecturer GPS error:", err);
+                setError("Enable precise location and stay still.");
             },
             {
-                enableHighAccuracy: false,
-                timeout: 10000,
-                maximumAge: 0
+                enableHighAccuracy: true, // 🔥 CRITICAL
+                maximumAge: 0,
+                timeout: 15000
             }
         );
     };
@@ -249,6 +262,13 @@ const LecturerQRPage = () => {
 
             const { lat, lng, accuracy } = loc;
 
+            if (accuracy > 100) {
+                setError("GPS accuracy too low. Please stay still or move outside.");
+                setLoading(false);
+                return;
+            }
+
+
             const token = localStorage.getItem("token");
 
             const res = await axios.post(
@@ -259,9 +279,10 @@ const LecturerQRPage = () => {
                     location: {
                         lat,
                         lng,
-                        accuracy: accuracy,
-                        radius: savedRadius, //SELECTED RADIUS
+                        accuracy,     // REAL accuracy
+                        radius: savedRadius
                     },
+
 
                 },
                 { headers: { Authorization: `Bearer ${token}` } }
@@ -466,9 +487,10 @@ const LecturerQRPage = () => {
 
                     {loading
                         ? <><Spinner size="sm" /> Generating QR...</>
-                        : !lecturerLocation
-                            ? "Getting GPS location..."
+                        : !locationReady
+                            ? "Locking GPS location..."
                             : "Generate Attendance QR"
+
 
                     }
 
