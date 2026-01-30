@@ -125,8 +125,6 @@ const StudentScanPage = () => {
     }, [location.state]);
 
     useEffect(() => {
-        if (!faceVerified) return;
-
         if (
             faceVerified &&
             locationReady &&
@@ -138,11 +136,19 @@ const StudentScanPage = () => {
             setStatusMessage(
                 "GPS locked and inside the attendance zone. You can now scan the QR code"
             );
-            startScanner();
-        } else if (!insideGeofence) {
+
+            const t = setTimeout(() => {
+                startScanner();
+            }, 1000); // 🔥 GPS stabilization delay
+
+            return () => clearTimeout(t);
+        }
+
+        if (!insideGeofence && faceVerified) {
             setStatusMessage("Move closer to the lecture to scan the QR code");
         }
     }, [faceVerified, locationReady, studentLocation, insideGeofence]);
+
 
 
 
@@ -369,10 +375,17 @@ const StudentScanPage = () => {
 
 
         if (!sessionInfo) throw new Error("Session info missing");
+        
         if (!studentLocation || !locationReady) {
             toast.error("Waiting for your real GPS location. Please stay still…");
             throw new Error("GPS not ready");
         }
+
+        if (studentLocation.accuracy > 300) {
+            toast.error("GPS accuracy too low. Please stay still.");
+            throw new Error("Poor GPS accuracy");
+        }
+
         // use studentLocation from map
 
         const token = localStorage.getItem("token");
