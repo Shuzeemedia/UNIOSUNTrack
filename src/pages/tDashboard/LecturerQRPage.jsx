@@ -33,10 +33,6 @@ const LecturerQRPage = () => {
     const [locationReady, setLocationReady] = useState(false); // stable GPS
     const lecturerWatchIdRef = useRef(null);
 
-    const GPS_LOCK_TIMEOUT = 8000; // 8 seconds max
-    const gpsStartTimeRef = useRef(Date.now());
-
-
 
     const savedRadius = Number(
         localStorage.getItem(`attendance_radius_${courseId}`)
@@ -45,7 +41,8 @@ const LecturerQRPage = () => {
     const location = useLocation();
 
     const sessionDuration = location.state?.duration ?? 10;
-    const isGpsUsable = !!lecturerLocation;
+    const isGpsUsable = locationReady;
+
 
 
 
@@ -65,46 +62,63 @@ const LecturerQRPage = () => {
             return;
         }
 
-        navigator.geolocation.getCurrentPosition(
+        let bestLocation = null;
+        const startTime = Date.now();
+        const MAX_WAIT = 7000; // ⏱️ 7 seconds
+
+        lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
+                if (!accuracy) return;
 
                 const loc = {
                     lat: latitude,
                     lng: longitude,
-                    accuracy: Math.min(accuracy || 200, 300)
+                    accuracy
                 };
 
-                console.log("📍 Lecturer GPS locked:", loc);
-                if (loc.accuracy > 300) {
-                    setError("GPS signal too weak. Move closer to a window or outside.");
-                    return;
+                console.log("📡 GPS reading:", loc);
+
+                // keep best (lowest accuracy)
+                if (!bestLocation || accuracy < bestLocation.accuracy) {
+                    bestLocation = loc;
+                    setLecturerLocation(loc); // update UI
                 }
 
-                setLecturerLocation(loc);
-                setLocationReady(true);
+                // 🚀 Lock early if accuracy is already decent
+                if (accuracy <= 80) {
+                    lockGps(loc);
+                }
             },
             (err) => {
                 console.error("GPS error:", err);
-
-                if (err.code === 1) {
-                    setError("Location permission denied");
-                } else if (err.code === 2) {
-                    setError("Location unavailable. Turn on GPS.");
-                } else {
-                    setError("GPS timeout. Move near a window or outside.");
-                }
+                setError("Unable to get GPS signal. Turn on location.");
             },
             {
-                enableHighAccuracy: false,
-                timeout: 10000,
-                maximumAge: 0
+                enableHighAccuracy: true, // 🔥 CRITICAL
+                maximumAge: 0,
+                timeout: 15000
             }
         );
+
+        // ⏱️ Fallback: lock best after MAX_WAIT
+        setTimeout(() => {
+            if (!locationReady && bestLocation) {
+                console.warn("⚠️ Using best available GPS:", bestLocation);
+                lockGps(bestLocation);
+            }
+        }, MAX_WAIT);
     };
 
 
 
+
+    const lockGps = (loc) => {
+        if (locationReady) return;
+        setLecturerLocation(loc);
+        setLocationReady(true);
+        stopLecturerGps();
+    };
 
 
 
@@ -233,6 +247,13 @@ const LecturerQRPage = () => {
 
     const handleCreateSession = async () => {
         if (!courseId) return alert("Course ID missing.");
+
+        if (!locationReady) {
+            setError("GPS still stabilizing. Please wait a moment.");
+            setLoading(false);
+            return;
+        }
+
 
         setLoading(true);
         setError("");
@@ -461,24 +482,34 @@ const LecturerQRPage = () => {
             {error && <Alert variant="danger">{error}</Alert>}
 
             {!qrData && (
-                <Button
-                    onClick={handleCreateSession}
-                    disabled={loading || !courseId || !isGpsUsable}
-                >
+                <>
+                    <Button
+                        onClick={handleCreateSession}
+                        disabled={loading || !courseId || !isGpsUsable}
+                    >
+                        {loading
+                            ? <><Spinner size="sm" /> Generating QR...</>
+                            : !lecturerLocation
+                                ? "Getting GPS location..."
+                                : "Generate Attendance QR"
+                        }
+                    </Button>
 
-                    {loading
-                        ? <><Spinner size="sm" /> Generating QR...</>
-                        : !lecturerLocation
-                            ? "Getting GPS location..."
-                            : "Generate Attendance QR"
+                    {/* ✅ GPS status message — CORRECT placement */}
+                    {lecturerLocation && !locationReady && (
+                        <p className="small text-warning mt-2">
+                            Locking GPS… accuracy {lecturerLocation.accuracy.toFixed(1)}m
+                        </p>
+                    )}
 
-                    }
-
-
-                </Button>
-
-
+                    {locationReady && lecturerLocation && (
+                        <p className="small text-success mt-2">
+                            GPS locked ✓ ({lecturerLocation.accuracy.toFixed(1)}m)
+                        </p>
+                    )}
+                </>
             )}
+
 
             {qrData && (
                 <div className="qr-wrapper mt-4">
