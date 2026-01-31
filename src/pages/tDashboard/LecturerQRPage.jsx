@@ -31,8 +31,6 @@ const LecturerQRPage = () => {
     const [locationReady, setLocationReady] = useState(false); // stable GPS
     const lecturerWatchIdRef = useRef(null);
 
-    const gpsStartTimeRef = useRef(Date.now());
-
 
 
     const savedRadius = Number(
@@ -63,58 +61,38 @@ const LecturerQRPage = () => {
 
 
     const startLecturerGps = () => {
-        if (!navigator.geolocation) {
-            setError("Geolocation not supported");
-            return;
-        }
-
         let bestLocation = null;
-        const startTime = Date.now();
-        const MAX_WAIT = 6000; // ⏱️ 6 seconds max (FAST)
+        const MAX_WAIT = 6000;
 
         lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
+                if (!accuracy) return;
 
-                // Ignore fake / IP-based GPS
-                if (!accuracy || accuracy > 500) return;
+                const loc = { lat: latitude, lng: longitude, accuracy };
 
-                const loc = {
-                    lat: latitude,
-                    lng: longitude,
-                    accuracy
-                };
-
-                console.log("📡 Lecturer GPS update:", loc);
-
-                // Keep BEST (lowest accuracy) reading
                 if (!bestLocation || accuracy < bestLocation.accuracy) {
                     bestLocation = loc;
+                    setLecturerLocation(loc); // show in UI
                 }
 
-                // ✅ Lock immediately if accuracy is GOOD
                 if (accuracy <= 120) {
-                    lockGps(bestLocation);
-                    return;
-                }
-
-                // ⏱️ Fallback: lock BEST we got after time limit
-                if (Date.now() - startTime >= MAX_WAIT && bestLocation) {
-                    console.warn("⚠️ GPS fallback lock:", bestLocation);
-                    lockGps(bestLocation);
+                    lockGps(loc);
                 }
             },
-            (err) => {
-                console.error("Lecturer GPS error:", err);
-                setError("Enable precise location and stay still.");
+            () => {
+                setError("Unable to get precise GPS. Using best available.");
             },
-            {
-                enableHighAccuracy: true,
-                maximumAge: 0,
-                timeout: 15000
-            }
+            { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
         );
+
+        setTimeout(() => {
+            if (!locationReady && bestLocation) {
+                lockGps(bestLocation);
+            }
+        }, MAX_WAIT);
     };
+
 
 
 
@@ -264,11 +242,12 @@ const LecturerQRPage = () => {
 
             const { lat, lng, accuracy } = loc;
 
-            if (accuracy > 100) {
-                setError("GPS accuracy too low. Please stay still or move outside.");
+            if (accuracy > 300) {
+                setError("GPS signal is very weak. Please move closer to a window or outside.");
                 setLoading(false);
                 return;
             }
+            
 
 
             const token = localStorage.getItem("token");
