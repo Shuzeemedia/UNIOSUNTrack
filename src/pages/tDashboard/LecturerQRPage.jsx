@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Button, Spinner, ProgressBar, Alert } from "react-bootstrap";
@@ -31,6 +33,9 @@ const LecturerQRPage = () => {
     const [locationReady, setLocationReady] = useState(false); // stable GPS
     const lecturerWatchIdRef = useRef(null);
 
+    const GPS_LOCK_TIMEOUT = 8000; // 8 seconds max
+    const gpsStartTimeRef = useRef(Date.now());
+
 
 
     const savedRadius = Number(
@@ -40,13 +45,7 @@ const LecturerQRPage = () => {
     const location = useLocation();
 
     const sessionDuration = location.state?.duration ?? 10;
-    const isGpsUsable = locationReady && lecturerLocation;
-
-    const lockGps = (loc) => {
-        setLecturerLocation(loc);
-        setLocationReady(true);
-        stopLecturerGps();
-    };
+    const isGpsUsable = !!lecturerLocation;
 
 
 
@@ -61,38 +60,48 @@ const LecturerQRPage = () => {
 
 
     const startLecturerGps = () => {
-        let bestLocation = null;
-        const MAX_WAIT = 6000;
+        if (!navigator.geolocation) {
+            setError("Geolocation not supported");
+            return;
+        }
 
-        lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
+        navigator.geolocation.getCurrentPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
-                if (!accuracy) return;
 
-                const loc = { lat: latitude, lng: longitude, accuracy };
+                const loc = {
+                    lat: latitude,
+                    lng: longitude,
+                    accuracy: Math.min(accuracy || 200, 300)
+                };
 
-                if (!bestLocation || accuracy < bestLocation.accuracy) {
-                    bestLocation = loc;
-                    setLecturerLocation(loc); // show in UI
+                console.log("📍 Lecturer GPS locked:", loc);
+                if (loc.accuracy > 300) {
+                    setError("GPS signal too weak. Move closer to a window or outside.");
+                    return;
                 }
 
-                if (accuracy <= 120) {
-                    lockGps(loc);
+                setLecturerLocation(loc);
+                setLocationReady(true);
+            },
+            (err) => {
+                console.error("GPS error:", err);
+
+                if (err.code === 1) {
+                    setError("Location permission denied");
+                } else if (err.code === 2) {
+                    setError("Location unavailable. Turn on GPS.");
+                } else {
+                    setError("GPS timeout. Move near a window or outside.");
                 }
             },
-            () => {
-                setError("Unable to get precise GPS. Using best available.");
-            },
-            { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
-        );
-
-        setTimeout(() => {
-            if (!locationReady && bestLocation) {
-                lockGps(bestLocation);
+            {
+                enableHighAccuracy: false,
+                timeout: 10000,
+                maximumAge: 0
             }
-        }, MAX_WAIT);
+        );
     };
-
 
 
 
@@ -242,14 +251,6 @@ const LecturerQRPage = () => {
 
             const { lat, lng, accuracy } = loc;
 
-            if (accuracy > 300) {
-                setError("GPS signal is very weak. Please move closer to a window or outside.");
-                setLoading(false);
-                return;
-            }
-            
-
-
             const token = localStorage.getItem("token");
 
             const res = await axios.post(
@@ -260,10 +261,9 @@ const LecturerQRPage = () => {
                     location: {
                         lat,
                         lng,
-                        accuracy,     // REAL accuracy
-                        radius: savedRadius
+                        accuracy: accuracy,
+                        radius: savedRadius, //SELECTED RADIUS
                     },
-
 
                 },
                 { headers: { Authorization: `Bearer ${token}` } }
@@ -468,10 +468,9 @@ const LecturerQRPage = () => {
 
                     {loading
                         ? <><Spinner size="sm" /> Generating QR...</>
-                        : !locationReady
-                            ? "Locking GPS location..."
+                        : !lecturerLocation
+                            ? "Getting GPS location..."
                             : "Generate Attendance QR"
-
 
                     }
 
@@ -480,13 +479,6 @@ const LecturerQRPage = () => {
 
 
             )}
-
-            {lecturerLocation && !qrData && (
-                <p className={`small mt-2 ${lecturerLocation.accuracy <= 100 ? "text-success" : "text-warning"}`}>
-                    GPS accuracy: {lecturerLocation.accuracy.toFixed(1)} m
-                </p>
-            )}
-
 
             {qrData && (
                 <div className="qr-wrapper mt-4">
