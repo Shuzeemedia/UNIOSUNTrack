@@ -44,6 +44,11 @@ const LecturerQRPage = () => {
     const sessionDuration = location.state?.duration ?? 10;
     const isGpsUsable = locationReady && lecturerLocation;
 
+    const lockGps = (loc) => {
+        setLecturerLocation(loc);
+        setLocationReady(true);
+        stopLecturerGps();
+    };
 
 
 
@@ -63,16 +68,16 @@ const LecturerQRPage = () => {
             return;
         }
 
-        gpsStartTimeRef.current = Date.now();
+        let bestLocation = null;
+        const startTime = Date.now();
+        const MAX_WAIT = 6000; // ⏱️ 6 seconds max (FAST)
 
         lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
 
-
-
-                if (accuracy > 300) return; // same as student rule
-
+                // Ignore fake / IP-based GPS
+                if (!accuracy || accuracy > 500) return;
 
                 const loc = {
                     lat: latitude,
@@ -82,21 +87,29 @@ const LecturerQRPage = () => {
 
                 console.log("📡 Lecturer GPS update:", loc);
 
-                // ✅ Accept good indoor GPS immediately
-                if (accuracy <= 100) {
-                    console.log("📍 Lecturer GPS LOCKED (indoor-safe):", loc);
-                    setLecturerLocation(loc);
-                    setLocationReady(true);
-                    stopLecturerGps(); // lock once
+                // Keep BEST (lowest accuracy) reading
+                if (!bestLocation || accuracy < bestLocation.accuracy) {
+                    bestLocation = loc;
                 }
 
+                // ✅ Lock immediately if accuracy is GOOD
+                if (accuracy <= 120) {
+                    lockGps(bestLocation);
+                    return;
+                }
+
+                // ⏱️ Fallback: lock BEST we got after time limit
+                if (Date.now() - startTime >= MAX_WAIT && bestLocation) {
+                    console.warn("⚠️ GPS fallback lock:", bestLocation);
+                    lockGps(bestLocation);
+                }
             },
             (err) => {
                 console.error("Lecturer GPS error:", err);
                 setError("Enable precise location and stay still.");
             },
             {
-                enableHighAccuracy: true, // 🔥 CRITICAL
+                enableHighAccuracy: true,
                 maximumAge: 0,
                 timeout: 15000
             }
