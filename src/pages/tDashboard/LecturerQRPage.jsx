@@ -61,42 +61,46 @@ const LecturerQRPage = () => {
             setError("Geolocation not supported");
             return;
         }
-    
+
         let bestLocation = null;
-        const MAX_WAIT = 7000; // fast UX
-    
+        const MAX_WAIT = 7000;
+
         lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
                 if (!accuracy) return;
-    
+
                 const loc = { lat: latitude, lng: longitude, accuracy };
                 setLecturerLocation(loc);
-    
+
                 if (!bestLocation || accuracy < bestLocation.accuracy) {
                     bestLocation = loc;
                 }
-    
-                // 🔑 LOCK FAST — indoor-friendly
+
+                // 🔑 lock when usable
                 if (accuracy <= 300) {
                     lockGps(loc);
                 }
             },
-            () => setError("Unable to get location. Ensure location is on."),
+            (err) => {
+                setError("Unable to get GPS. Please enable location services.");
+            },
             {
-                enableHighAccuracy: false, // 🔑 indoor friendly
-                maximumAge: 60000,
-                timeout: 8000
+                enableHighAccuracy: true, // 🔑 MUST be true on phones
+                maximumAge: 0,
+                timeout: 15000
             }
         );
-    
+
+        // ⏱ fallback
         setTimeout(() => {
             if (!locationReady && bestLocation) {
                 lockGps(bestLocation);
             }
         }, MAX_WAIT);
     };
-    
+
+
 
 
 
