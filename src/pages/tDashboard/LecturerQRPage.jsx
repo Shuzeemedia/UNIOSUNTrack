@@ -61,54 +61,42 @@ const LecturerQRPage = () => {
             setError("Geolocation not supported");
             return;
         }
-
+    
         let bestLocation = null;
-        const startTime = Date.now();
-        const MAX_WAIT = 7000; // ⏱️ 7 seconds
-
+        const MAX_WAIT = 7000; // fast UX
+    
         lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
                 if (!accuracy) return;
-
-                const loc = {
-                    lat: latitude,
-                    lng: longitude,
-                    accuracy
-                };
-
-                console.log("📡 GPS reading:", loc);
-
-                // keep best (lowest accuracy)
+    
+                const loc = { lat: latitude, lng: longitude, accuracy };
+                setLecturerLocation(loc);
+    
                 if (!bestLocation || accuracy < bestLocation.accuracy) {
                     bestLocation = loc;
-                    setLecturerLocation(loc); // update UI
                 }
-
-                // 🚀 Lock early if accuracy is already decent
-                if (accuracy <= 80) {
+    
+                // 🔑 LOCK FAST — indoor-friendly
+                if (accuracy <= 300) {
                     lockGps(loc);
                 }
             },
-            (err) => {
-                console.error("GPS error:", err);
-                setError("Unable to get GPS signal. Turn on location.");
-            },
+            () => setError("Unable to get location. Ensure location is on."),
             {
-                enableHighAccuracy: true, // 🔥 CRITICAL
-                maximumAge: 0,
-                timeout: 15000
+                enableHighAccuracy: false, // 🔑 indoor friendly
+                maximumAge: 60000,
+                timeout: 8000
             }
         );
-
-        // ⏱️ Fallback: lock best after MAX_WAIT
+    
         setTimeout(() => {
             if (!locationReady && bestLocation) {
-                console.warn("⚠️ Using best available GPS:", bestLocation);
                 lockGps(bestLocation);
             }
         }, MAX_WAIT);
     };
+    
 
 
 
