@@ -59,8 +59,11 @@ const StudentScanPage = () => {
     const [shouldNavigate, setShouldNavigate] = useState(false);
 
     const [lecturerLocation, setLecturerLocation] = useState(null);
-
+    const geofenceExitTimeoutRef = useRef(null);
     const eyeClosedRef = useRef(false);
+    const [graceCountdown, setGraceCountdown] = useState(null);
+    const geofenceGraceSeconds = 10; // grace period before stopping scanner
+    const geofenceIntervalRef = useRef(null); // for countdown updates
 
 
 
@@ -125,45 +128,93 @@ const StudentScanPage = () => {
     }, [location.state]);
 
     useEffect(() => {
-        if (
-            faceVerified &&
-            locationReady &&
-            studentLocation &&
-            insideGeofence &&
-            !html5QrCodeRef.current &&
-            !scanningLockedRef.current
-        ) {
-            setStatusMessage(
-                "GPS locked and inside the attendance zone. You can now scan the QR code"
-            );
+        if (!faceVerified || !locationReady || !studentLocation) return;
 
-            const t = setTimeout(() => {
-                startScanner();
-            }, 1000); // 🔥 GPS stabilization delay
+        // Clear old interval
+        if (geofenceIntervalRef.current) clearInterval(geofenceIntervalRef.current);
+        geofenceIntervalRef.current = null;
 
-            return () => clearTimeout(t);
+        if (insideGeofence) {
+            // ✅ Inside geofence → auto-start scanner
+            setStatusMessage("GPS locked and inside the attendance zone. You can now scan the QR code");
+            setGraceCountdown(null);
+
+            if (geofenceExitTimeoutRef.current) {
+                clearTimeout(geofenceExitTimeoutRef.current);
+                geofenceExitTimeoutRef.current = null;
+            }
+
+            startScanner(); // auto-resume
+        } else {
+            // ⚠ Outside geofence → start grace countdown
+            let countdown = geofenceGraceSeconds;
+            setGraceCountdown(countdown);
+            setStatusMessage(`You are outside the attendance zone. Scanner will stop in ${countdown}s if you don't return.`);
+
+            geofenceIntervalRef.current = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    setGraceCountdown(countdown);
+                    setStatusMessage(`You are outside the attendance zone. Scanner will stop in ${countdown}s if you don't return.`);
+                }
+            }, 1000);
+
+            geofenceExitTimeoutRef.current = setTimeout(async () => {
+                if (html5QrCodeRef.current) {
+                    await html5QrCodeRef.current.stop();
+                    html5QrCodeRef.current.clear();
+                    html5QrCodeRef.current = null;
+                }
+                setStatusMessage("You left the attendance zone. Move closer to scan the QR code.");
+                setGraceCountdown(null);
+
+                if (geofenceIntervalRef.current) {
+                    clearInterval(geofenceIntervalRef.current);
+                    geofenceIntervalRef.current = null;
+                }
+            }, geofenceGraceSeconds * 1000);
         }
 
-        if (!insideGeofence && faceVerified) {
-            setStatusMessage("Move closer to the lecture to scan the QR code");
+        return () => {
+            if (geofenceIntervalRef.current) clearInterval(geofenceIntervalRef.current);
+            if (geofenceExitTimeoutRef.current) clearTimeout(geofenceExitTimeoutRef.current);
+        };
+    }, [insideGeofence, faceVerified, locationReady, studentLocation]);
+
+
+    // Optional: show countdown in UI
+    useEffect(() => {
+        if (graceCountdown !== null) {
+            setStatusMessage(`You are outside the attendance zone. Scanner will stop in ${graceCountdown}s if you don't return.`);
         }
-    }, [faceVerified, locationReady, studentLocation, insideGeofence]);
-
-
+    }, [graceCountdown]);
 
 
     const fullCleanup = async () => {
         stopVideoStream();
 
+        // Stop QR scanner safely
         if (html5QrCodeRef.current) {
             try {
                 await html5QrCodeRef.current.stop();
-                await html5QrCodeRef.current.clear();
-            } catch { }
+                html5QrCodeRef.current.clear();
+            } catch (err) {
+                console.warn("Error stopping QR scanner:", err);
+            }
             html5QrCodeRef.current = null;
         }
 
-        scanningLockedRef.current = true;
+        // Cancel all timers and intervals
+        if (geofenceExitTimeoutRef.current) {
+            clearTimeout(geofenceExitTimeoutRef.current);
+            geofenceExitTimeoutRef.current = null;
+        }
+        if (geofenceIntervalRef.current) {
+            clearInterval(geofenceIntervalRef.current);
+            geofenceIntervalRef.current = null;
+        }
+
+        scanningLockedRef.current = true; // lock scanning until re-enabled
     };
 
 
@@ -314,6 +365,8 @@ const StudentScanPage = () => {
     /** ==================== QR SCANNER ==================== */
 
     const startScanner = async () => {
+        if (!insideGeofence || scanningLockedRef.current) return; // only start if inside zone
+
         const readerEl = document.getElementById("reader");
         if (!readerEl) return;
 
@@ -334,37 +387,31 @@ const StudentScanPage = () => {
 
                     try {
                         const res = await markAttendance(scannedToken);
-                        console.log("QR decoded token:", decodedText);
-                        console.log("Attendance result:", res);
-
-                        // Show modal for both new and already marked
                         setModalMsg(res.msg || "Attendance recorded");
                         setModalShow(true);
 
-                        // Stop scanner immediately
+                        // Stop scanner immediately after marking
                         await qr.stop();
                         qr.clear();
                         html5QrCodeRef.current = null;
-
                     } catch (err) {
-                        const msg =
+                        toast.error(
                             err?.response?.data?.msg ||
                             err?.message ||
-                            "Failed to mark attendance";
-
-                        toast.error(msg);
-
-                        // 🔓 UNLOCK scanner so student can retry
-                        scanningLockedRef.current = false;
+                            "Failed to mark attendance"
+                        );
+                        scanningLockedRef.current = false; // unlock for retry
                     }
-
                 }
             );
         } catch (err) {
             console.error("QR Scanner init failed:", err);
             toast.error("QR Scanner failed");
+            html5QrCodeRef.current = null;
+            scanningLockedRef.current = false;
         }
     };
+
 
     /** ==================== MARK ATTENDANCE ==================== */
     const markAttendance = async (scannedToken) => {
@@ -375,7 +422,7 @@ const StudentScanPage = () => {
 
 
         if (!sessionInfo) throw new Error("Session info missing");
-        
+
         if (!studentLocation || !locationReady) {
             toast.error("Waiting for your real GPS location. Please stay still…");
             throw new Error("GPS not ready");

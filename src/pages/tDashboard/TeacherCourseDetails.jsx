@@ -362,7 +362,7 @@ const TeacherCourseDetails = () => {
       },
     });
   };
-  
+
 
   const startSession = async () => {
     try {
@@ -422,6 +422,39 @@ const TeacherCourseDetails = () => {
       setSessionLoading(false);
     }
   };
+
+
+  const cancelSession = async () => {
+    if (!sessionActive?._id) return;
+
+    const confirm = window.confirm(
+      "Cancel this attendance session?\nNo attendance will be recorded."
+    );
+    if (!confirm) return;
+
+    try {
+      setSessionLoading(true);
+      setSessionMessage("");
+
+      await api.post(`/sessions/${sessionActive._id}/cancel`, {
+        reason: "Cancelled by lecturer"
+      });
+
+      setSessionActive(null);
+      setCountdown(null);
+      setSessionMessage(
+        "Attendance session cancelled. No attendance was recorded."
+      );
+    } catch (err) {
+      setSessionMessage(
+        err.response?.data?.msg || "Failed to cancel session"
+      );
+    } finally {
+      setSessionLoading(false);
+    }
+  };
+
+
 
   /** ====================== NORMALIZE & FILTER ====================== */
   const normalizeDept = (student) =>
@@ -520,46 +553,50 @@ const TeacherCourseDetails = () => {
       {/* ===== SESSION CONTROL ===== */}
       <div className="glass-card p-4 mb-4">
         <h3 className="section-title mb-2">Attendance Session</h3>
-        <div className="radius-settings">
-          <label><strong>📍 Attendance Geo-Fence Radius</strong></label>
+        <div className="flex_dyn">
 
-          <select
-            value={radius}
-            onChange={(e) => setRadius(Number(e.target.value))}
-            className="filter-select"
-          >
-            <option value={20}>20 meters — small classroom</option>
-            <option value={40}>40 meters — large classroom</option>
-            <option value={60}>60 meters — default</option>
-            <option value={80}>80 meters — building range</option>
-            <option value={100}>100 meters — campus area</option>
-            <option value={150}>150 meters — outdoor lecture</option>
-          </select>
+          <div className="radius-settings">
+            <label><strong>📍 Attendance Geo-Fence Radius</strong></label>
 
-          <p className="hint-text">
-            Students must be inside this distance to mark attendance automatically.
-          </p>
-        </div>
+            <select
+              value={radius}
+              onChange={(e) => setRadius(Number(e.target.value))}
+              className="filter-select"
+            >
+              <option value={20}>20 meters — small classroom</option>
+              <option value={40}>40 meters — large classroom</option>
+              <option value={60}>60 meters — default</option>
+              <option value={80}>80 meters — building range</option>
+              <option value={100}>100 meters — campus area</option>
+              <option value={150}>150 meters — outdoor lecture</option>
+            </select>
 
-        <div className="duration-settings mt-3">
-          <label><strong>⏱ Session Duration</strong></label>
+            <p className="hint-text">
+              Students must be inside this distance to mark attendance automatically.
+            </p>
+          </div>
 
-          <select
-            value={sessionDuration}
-            onChange={(e) => setSessionDuration(Number(e.target.value))}
-            className="filter-select"
-          >
-            <option value={5}>5 minutes — quick check</option>
-            <option value={10}>10 minutes — normal</option>
-            <option value={15}>15 minutes</option>
-            <option value={30}>30 minutes — long lecture</option>
-            <option value={45}>45 minutes</option>
-            <option value={60}>60 minutes — full class</option>
-          </select>
+          <div className="duration-settings mt-3">
+            <label><strong>⏱ Session Duration</strong></label>
 
-          <p className="hint-text">
-            Attendance session will automatically close after this time.
-          </p>
+            <select
+              value={sessionDuration}
+              onChange={(e) => setSessionDuration(Number(e.target.value))}
+              className="filter-select"
+            >
+              <option value={5}>5 minutes — quick check</option>
+              <option value={10}>10 minutes — normal</option>
+              <option value={15}>15 minutes</option>
+              <option value={30}>30 minutes — long lecture</option>
+              <option value={45}>45 minutes</option>
+              <option value={60}>60 minutes — full class</option>
+            </select>
+
+            <p className="hint-text">
+              Attendance session will automatically close after this time.
+            </p>
+          </div>
+
         </div>
 
 
@@ -572,14 +609,25 @@ const TeacherCourseDetails = () => {
             Start Attendance Session
           </button>
         ) : (
-          <button
-            onClick={endSession}
-            disabled={sessionLoading}
-            className="btn-absent"
-          >
-            End Attendance Session
-          </button>
+          <div className="session-actions">
+            <button
+              onClick={endSession}
+              disabled={sessionLoading}
+              className="btn-absent"
+            >
+              End Session
+            </button>
+
+            <button
+              onClick={cancelSession}
+              disabled={sessionLoading}
+              className="btn-cancel"
+            >
+              Cancel Session
+            </button>
+          </div>
         )}
+
 
         {sessionActive && countdown && (
           <p className="status-message">

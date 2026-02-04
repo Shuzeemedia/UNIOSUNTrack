@@ -18,6 +18,8 @@ const LecturerQRPage = () => {
     const [expired, setExpired] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0);
     const [totalDuration, setTotalDuration] = useState(0);
+    const [cancelled, setCancelled] = useState(false);
+
 
     const [sessionId, setSessionId] = useState(null);
     const [ending, setEnding] = useState(false);
@@ -32,6 +34,9 @@ const LecturerQRPage = () => {
     const [lecturerLocation, setLecturerLocation] = useState(null);
     const [locationReady, setLocationReady] = useState(false); // stable GPS
     const lecturerWatchIdRef = useRef(null);
+
+    const lastFullscreenUpdateRef = useRef(0);
+    const FULLSCREEN_THROTTLE_MS = 1200; // 1.2 seconds (safe & smooth)
 
 
     const savedRadius = Number(
@@ -63,14 +68,29 @@ const LecturerQRPage = () => {
         }
 
         let bestLocation = null;
-        const MAX_WAIT = 7000;
+        const MAX_WAIT = 10000;
 
         lecturerWatchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
                 const { latitude, longitude, accuracy } = pos.coords;
                 if (!accuracy) return;
 
-                const loc = { lat: latitude, lng: longitude, accuracy };
+                const getGpsConfidence = (accuracy) => {
+                    if (accuracy <= 100) return "high";
+                    if (accuracy <= 300) return "low";
+                    return "invalid";
+                };
+
+
+                const confidence = getGpsConfidence(accuracy);
+
+                const loc = {
+                    lat: latitude,
+                    lng: longitude,
+                    accuracy,
+                    confidence, // 👈 ADD THIS
+                };
+
                 setLecturerLocation(loc);
 
                 if (!bestLocation || accuracy < bestLocation.accuracy) {
@@ -99,9 +119,6 @@ const LecturerQRPage = () => {
             }
         }, MAX_WAIT);
     };
-
-
-
 
 
 
@@ -228,6 +245,8 @@ const LecturerQRPage = () => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
+
+
             setEndMsg(res.data.msg || "Session auto-ended due to expiry.");
             setEnded(true);
             setExpired(true);
@@ -308,6 +327,15 @@ const LecturerQRPage = () => {
 
 
     const sendQrToFullscreen = () => {
+        const now = Date.now();
+
+        // ⛔ throttle updates
+        if (now - lastFullscreenUpdateRef.current < FULLSCREEN_THROTTLE_MS) {
+            return;
+        }
+
+        lastFullscreenUpdateRef.current = now;
+
         const win = fullscreenWindowRef.current;
         if (!win || win.closed || !qrRef.current) return;
 
@@ -323,6 +351,7 @@ const LecturerQRPage = () => {
             "*"
         );
     };
+
 
     useEffect(() => {
         if (!sessionId || expired || ended) return;
@@ -398,6 +427,48 @@ const LecturerQRPage = () => {
             setEnding(false);
         }
     };
+
+    const handleCancelSession = async () => {
+        if (!sessionId) return;
+
+        const confirm = window.confirm(
+            "Cancel this session?\nNo attendance will be recorded."
+        );
+        if (!confirm) return;
+
+        try {
+            setEnding(true);
+
+            stopLecturerGps();
+
+            if (refreshIntervalRef.current) {
+                clearInterval(refreshIntervalRef.current);
+                refreshIntervalRef.current = null;
+            }
+
+            const token = localStorage.getItem("token");
+            const res = await axios.post(
+                `${import.meta.env.VITE_API_URL}/sessions/${sessionId}/cancel`,
+                {
+                    reason: "Cancelled by lecturer (QR session)"
+                },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
+
+
+            setCancelled(true);
+            setEndMsg(res.data.msg || "Session cancelled.");
+            setEnded(true);
+            setExpired(true);
+            setSessionId(null);
+            setQrData(null);
+        } catch (err) {
+            setError(err.response?.data?.msg || "Failed to cancel session.");
+        } finally {
+            setEnding(false);
+        }
+    };
+
 
 
 
@@ -535,21 +606,50 @@ const LecturerQRPage = () => {
                         <Button variant="outline-success" onClick={handleViewFullscreen}>
                             View Fullscreen
                         </Button>
+
                         <Button variant="outline-secondary" onClick={handleCopyLink}>
                             Copy QR Link
                         </Button>
+
                         {!expired && (
-                            <Button
-                                variant="outline-danger"
-                                onClick={handleEndSession}
-                                disabled={ending || ended}
-                            >
-                                {ending ? "Ending..." : ended ? "Session Ended" : "End Session"}
-                            </Button>
+                            <>
+                                <Button
+                                    variant="outline-danger"
+                                    onClick={handleEndSession}
+                                    disabled={ending || ended}
+                                >
+                                    {ending ? "Ending..." : ended ? "Session Ended" : "End Session"}
+                                </Button>
+
+                                {/* 🔴 CANCEL SESSION BUTTON — HERE */}
+                                <Button
+                                    variant="outline-danger"
+                                    className="ms-2"
+                                    onClick={handleCancelSession}
+                                >
+                                    Cancel Session
+                                </Button>
+                            </>
                         )}
                     </div>
 
-                    {endMsg && <Alert variant="info" className="mt-4">{endMsg}</Alert>}
+
+                    {endMsg && (
+                        <Alert
+                            variant={cancelled ? "danger" : "success"}
+                            className="mt-4"
+                        >
+                            {cancelled ? (
+                                <>
+                                    <strong>Session Cancelled.</strong><br />
+                                    No attendance was recorded for this class.
+                                </>
+                            ) : (
+                                endMsg
+                            )}
+                        </Alert>
+                    )}
+
 
                     {expired && !ended && (
                         <p className="text-danger fw-semibold mt-3">
