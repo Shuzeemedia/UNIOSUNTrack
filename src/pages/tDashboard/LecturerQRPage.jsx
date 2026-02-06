@@ -5,6 +5,8 @@ import axios from "axios";
 import { Button, Spinner, ProgressBar, Alert } from "react-bootstrap";
 import QRCode from "react-qr-code";
 import api from "../../api/api";
+import AttendanceMap from "../../components/AttendanceMap";
+
 import { useParams, useLocation } from "react-router-dom";
 
 
@@ -37,6 +39,7 @@ const LecturerQRPage = () => {
 
     const lastFullscreenUpdateRef = useRef(0);
     const FULLSCREEN_THROTTLE_MS = 1200; // 1.2 seconds (safe & smooth)
+    const [canceling, setCanceling] = useState(false);
 
 
     const savedRadius = Number(
@@ -48,12 +51,15 @@ const LecturerQRPage = () => {
     const sessionDuration = location.state?.duration ?? 10;
     const isGpsUsable = locationReady;
 
-
-
-
-
-
-
+    const sessionLocation =
+        lecturerLocation && locationReady
+            ? {
+                lat: lecturerLocation.lat,
+                lng: lecturerLocation.lng,
+                radius: savedRadius,
+                accuracy: lecturerLocation.accuracy
+            }
+            : null;
 
 
 
@@ -404,7 +410,7 @@ const LecturerQRPage = () => {
         try {
             setEnding(true);
 
-            stopLecturerGps(); // 🛑 stop GPS tracking
+            stopLecturerGps(); // stop GPS tracking
             if (refreshIntervalRef.current) {
                 clearInterval(refreshIntervalRef.current);
                 refreshIntervalRef.current = null;
@@ -437,7 +443,8 @@ const LecturerQRPage = () => {
         if (!confirm) return;
 
         try {
-            setEnding(true);
+            setCanceling(true);
+
 
             stopLecturerGps();
 
@@ -465,7 +472,7 @@ const LecturerQRPage = () => {
         } catch (err) {
             setError(err.response?.data?.msg || "Failed to cancel session.");
         } finally {
-            setEnding(false);
+            setCanceling(false);
         }
     };
 
@@ -621,14 +628,22 @@ const LecturerQRPage = () => {
                                     {ending ? "Ending..." : ended ? "Session Ended" : "End Session"}
                                 </Button>
 
-                                {/* 🔴 CANCEL SESSION BUTTON — HERE */}
+                                {/* CANCEL SESSION BUTTON — HERE */}
                                 <Button
                                     variant="outline-danger"
                                     className="ms-2"
                                     onClick={handleCancelSession}
+                                    disabled={canceling || ended}
                                 >
-                                    Cancel Session
+                                    {canceling ? (
+                                        <>
+                                            <Spinner size="sm" className="me-1" /> Canceling...
+                                        </>
+                                    ) : (
+                                        "Cancel Session"
+                                    )}
                                 </Button>
+
                             </>
                         )}
                     </div>
@@ -656,7 +671,21 @@ const LecturerQRPage = () => {
                             QR expired — click “Generate QR” to start a new one.
                         </p>
                     )}
+
+
+                    {sessionLocation && (
+                        <div className="mt-4">
+                            <h6 className="fw-semibold mb-2">Session Location</h6>
+
+                            <AttendanceMap
+                                sessionLocation={sessionLocation}
+                                mode="lecturer"
+                            />
+                        </div>
+                    )}
+
                 </div>
+
             )}
         </div>
     );
