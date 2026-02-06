@@ -6,6 +6,7 @@ import { Button, Spinner, ProgressBar, Alert } from "react-bootstrap";
 import QRCode from "react-qr-code";
 import api from "../../api/api";
 import AttendanceMap from "../../components/AttendanceMap";
+import socket from "../../socket";
 
 import { useParams, useLocation } from "react-router-dom";
 
@@ -234,6 +235,20 @@ const LecturerQRPage = () => {
 
         return () => clearInterval(interval);
     }, [sessionId, lecturerLocation]);
+
+    useEffect(() => {
+        if (!sessionId || !lecturerLocation) return;
+    
+        const interval = setInterval(() => {
+            socket.emit("lecturer-location-update", {
+                sessionId,
+                location: lecturerLocation,
+            });
+        }, 2000); // every 2s
+    
+        return () => clearInterval(interval);
+    }, [lecturerLocation, sessionId]);
+    
 
 
 

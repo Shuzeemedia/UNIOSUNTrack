@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { MapContainer, TileLayer, Marker, Circle } from "react-leaflet";
 import { useLocation } from "react-router-dom";
 import { loginWebAuthn, registerWebAuthn } from "../../utils/webauthn";
+import socket from "../../socket";
 
 
 import "./StudentScanPage.css";
@@ -105,6 +106,24 @@ const StudentScanPage = () => {
         };
 
         fetchSession();
+    }, [sessionToken]);
+
+
+    useEffect(() => {
+        if (!sessionToken) return;
+
+        // Join the session room
+        socket.emit("join-course", sessionToken);
+
+        // Listen for lecturer updates
+        socket.on("student-receive-location", (loc) => {
+            setLecturerLocation(loc); // update map
+        });
+
+        return () => {
+            socket.emit("leave-course", sessionToken);
+            socket.off("student-receive-location");
+        };
     }, [sessionToken]);
 
 
