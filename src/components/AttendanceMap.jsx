@@ -37,7 +37,7 @@ function SmoothCenter({ position }) {
             position.lng
         );
 
-        if (distance > 200) return; // ignore big jumps
+        if (distance > 200) return; // ignore jumps
 
         if (distance > 1) {
             map.flyTo([position.lat, position.lng], map.getZoom(), { duration: 0.6 });
@@ -62,14 +62,8 @@ export default function AttendanceMap({
     const [gpsStable, setGpsStable] = useState(false);
     const stableCountRef = useRef(0);
 
-    // Reset GPS stability when session changes
     useEffect(() => {
-        stableCountRef.current = 0;
-        setGpsStable(false);
-    }, [sessionLocation]);
-
-    // Watch student location
-    useEffect(() => {
+        // LECTURER MODE → NO GPS WATCHING
         if (mode === "lecturer") return;
 
         if (!navigator.geolocation) {
@@ -80,6 +74,7 @@ export default function AttendanceMap({
         const watchId = navigator.geolocation.watchPosition(
             ({ coords }) => {
                 const { latitude, longitude, accuracy } = coords;
+
                 if (accuracy > 150) return;
 
                 const loc = { lat: latitude, lng: longitude, accuracy };
@@ -95,26 +90,49 @@ export default function AttendanceMap({
                     onGpsReady?.(true);
                 }
 
-                // Distance calculation
-                if (sessionLocation) {
-                    const dist = getDistanceInMeters(
-                        latitude,
-                        longitude,
-                        sessionLocation.lat,
-                        sessionLocation.lng
-                    );
-                    setDistance(Math.round(dist));
-                    onInsideChange?.(dist <= (sessionLocation.radius || 60));
-                }
+                const dist = getDistanceInMeters(
+                    latitude,
+                    longitude,
+                    sessionLocation.lat,
+                    sessionLocation.lng
+                );
+
+                setDistance(Math.round(dist));
+                onInsideChange?.(
+                    dist <= (sessionLocation.radius || 60)
+                );
             },
             err => console.error("GPS error:", err),
             { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
         );
 
         return () => navigator.geolocation.clearWatch(watchId);
-    }, [mode, sessionLocation, gpsStable, onInsideChange, onLocationChange, onGpsReady]);
+    }, [mode, sessionLocation]);
 
-    const insideZone = gpsStable && distance !== null && distance <= (sessionLocation?.radius || 60);
+
+    useEffect(() => {
+        if (!userLocation || !sessionLocation) return;
+
+        const dist = getDistanceInMeters(
+            userLocation.lat,
+            userLocation.lng,
+            sessionLocation.lat,
+            sessionLocation.lng
+        );
+
+        setDistance(Math.round(dist));
+        onInsideChange?.(dist <= (sessionLocation.radius || 60));
+    }, [sessionLocation, userLocation, onInsideChange]);
+
+    useEffect(() => {
+        stableCountRef.current = 0;
+        setGpsStable(false);
+    }, [sessionLocation]);
+    
+
+
+
+    const insideZone = gpsStable && distance !== null && distance <= (sessionLocation.radius || 60);
 
     return (
         <div>
@@ -125,10 +143,16 @@ export default function AttendanceMap({
             >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-                {mode === "student" && userLocation && <SmoothCenter position={userLocation} />}
+                {/* Camera follows user */}
+                {mode === "student" && userLocation && (
+                    <SmoothCenter position={userLocation} />
+                )}
 
+
+                {/* Lecturer marker */}
                 <Marker position={[sessionLocation.lat, sessionLocation.lng]} />
 
+                {/* Attendance geofence */}
                 <Circle
                     center={[sessionLocation.lat, sessionLocation.lng]}
                     radius={sessionLocation.radius || 60}
@@ -138,7 +162,13 @@ export default function AttendanceMap({
                     }}
                 />
 
-                {mode === "student" && userLocation && <Marker position={[userLocation.lat, userLocation.lng]} />}
+
+
+                {/* User marker */}
+                {mode === "student" && userLocation && (
+                    <Marker position={[userLocation.lat, userLocation.lng]} />
+                )}
+
             </MapContainer>
 
             {mode === "lecturer" && (
@@ -146,6 +176,7 @@ export default function AttendanceMap({
                     <p style={{ marginTop: 10, fontWeight: 600 }}>
                         Session locked here • Radius: {sessionLocation.radius || 60}m
                     </p>
+
                     {sessionLocation.accuracy && (
                         <p
                             style={{
@@ -165,6 +196,7 @@ export default function AttendanceMap({
                 </>
             )}
 
+
             {mode === "student" && !gpsStable && (
                 <p style={{ marginTop: 10, fontWeight: 600, color: "orange" }}>
                     Waiting for stable GPS signal...
@@ -179,6 +211,7 @@ export default function AttendanceMap({
                     </span>
                 </p>
             )}
+
         </div>
     );
 }
