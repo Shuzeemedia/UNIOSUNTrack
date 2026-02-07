@@ -87,7 +87,7 @@ export default function AttendanceMap({
                 onLocationChange?.(loc);
 
                 // Stable GPS detection
-                if (accuracy <= 40) stableCountRef.current += 1;
+                if (accuracy <= 70) stableCountRef.current += 1;
                 else stableCountRef.current = 0;
 
                 if (stableCountRef.current >= 3 && !gpsStable) {
@@ -112,7 +112,8 @@ export default function AttendanceMap({
         );
 
         return () => navigator.geolocation.clearWatch(watchId);
-    }, [mode, sessionLocation, gpsStable, onInsideChange, onLocationChange, onGpsReady]);
+    }, [mode, sessionLocation]);
+
 
     const insideZone = gpsStable && distance !== null && distance <= (sessionLocation?.radius || 60);
 
