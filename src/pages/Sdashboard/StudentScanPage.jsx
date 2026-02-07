@@ -165,6 +165,8 @@ const StudentScanPage = () => {
 
             startScanner(); // auto-resume
         } else {
+            if (geofenceExitTimeoutRef.current) return;
+
             // ⚠ Outside geofence → start grace countdown
             let countdown = geofenceGraceSeconds;
             setGraceCountdown(countdown);
@@ -198,7 +200,7 @@ const StudentScanPage = () => {
             if (geofenceIntervalRef.current) clearInterval(geofenceIntervalRef.current);
             if (geofenceExitTimeoutRef.current) clearTimeout(geofenceExitTimeoutRef.current);
         };
-    }, [insideGeofence, faceVerified, locationReady, studentLocation]);
+    }, [insideGeofence, faceVerified, locationReady]);
 
 
     // Optional: show countdown in UI
