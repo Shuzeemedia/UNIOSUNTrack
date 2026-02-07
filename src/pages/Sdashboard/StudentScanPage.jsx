@@ -112,19 +112,19 @@ const StudentScanPage = () => {
     useEffect(() => {
         if (!sessionToken) return;
 
-        const handleLocationUpdate = (loc) => {
-            setLecturerLocation(loc);
-        };
-
+        // Join the session room
         socket.emit("join-course", sessionToken);
-        socket.on("student-receive-location", handleLocationUpdate);
+
+        // Listen for lecturer updates
+        socket.on("student-receive-location", (loc) => {
+            setLecturerLocation(loc); // update map
+        });
 
         return () => {
             socket.emit("leave-course", sessionToken);
-            socket.off("student-receive-location", handleLocationUpdate);
+            socket.off("student-receive-location");
         };
     }, [sessionToken]);
-
 
 
     // Set lecturer location once sessionInfo is available
@@ -198,8 +198,7 @@ const StudentScanPage = () => {
             if (geofenceIntervalRef.current) clearInterval(geofenceIntervalRef.current);
             if (geofenceExitTimeoutRef.current) clearTimeout(geofenceExitTimeoutRef.current);
         };
-    }, [insideGeofence, faceVerified, locationReady]);
-
+    }, [insideGeofence, faceVerified, locationReady, studentLocation]);
 
 
     // Optional: show countdown in UI
@@ -462,7 +461,8 @@ const StudentScanPage = () => {
                 location: {
                     lat: studentLocation.lat,
                     lng: studentLocation.lng,
-                    accuracy: studentLocation.accuracy
+                    accuracy: Math.min(studentLocation.accuracy, 200)
+
                 }
             },
 
@@ -471,10 +471,6 @@ const StudentScanPage = () => {
 
         return res.data;
     };
-
-    const liveSessionLocation = lecturerLocation
-        ? { ...lecturerLocation, radius: sessionInfo?.location?.radius }
-        : sessionInfo?.location;
 
 
 
@@ -503,19 +499,12 @@ const StudentScanPage = () => {
 
                     <>
                         <AttendanceMap
-                            sessionLocation={liveSessionLocation}
+                            sessionLocation={sessionInfo.location}
                             onInsideChange={setInsideGeofence}
                             onLocationChange={setStudentLocation}
                             onGpsReady={setLocationReady}
                             lecturerLocation={lecturerLocation}
                         />
-
-                        {graceCountdown !== null && (
-                            <div style={{ color: "red", fontWeight: 600, marginTop: 10 }}>
-                                You are outside the attendance zone.
-                                Scanner will stop in {graceCountdown}s.
-                            </div>
-                        )}
 
 
                         <div id="reader" className="qr-reader" />
