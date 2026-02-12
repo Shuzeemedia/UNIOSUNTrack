@@ -68,7 +68,7 @@ const FaceVerificationModal = ({ show, onClose, user, onVerified }) => {
         const TIMEOUT = 20000;
         const startTime = Date.now();
 
-        const directions = ["left", "right", "up", "down"];
+        const directions = ["left", "right", "down"];
         const targetDirection = directions[Math.floor(Math.random() * directions.length)];
 
         const detectLoop = async () => {
@@ -116,13 +116,13 @@ const FaceVerificationModal = ({ show, onClose, user, onVerified }) => {
                     case "right":
                         movedCorrectDirection = noseX > baseNoseX + thresholdX;
                         break;
-                    case "up":
-                        movedCorrectDirection = noseY < baseNoseY - thresholdY;
-                        break;
                     case "down":
                         movedCorrectDirection = noseY > baseNoseY + thresholdY;
                         break;
+                    default:
+                        movedCorrectDirection = false;
                 }
+
 
                 if (movedCorrectDirection) headMoveFrames++;
                 else headMoveFrames = 0;
@@ -144,7 +144,12 @@ const FaceVerificationModal = ({ show, onClose, user, onVerified }) => {
                     setVerifying(false);
                     return;
                 } else {
-                    setStatus(`Please move your head slightly ${targetDirection}...`);
+                    setStatus(
+                        targetDirection === "down"
+                            ? "Please nod your head slightly down..."
+                            : `Please turn your head slightly ${targetDirection}...`
+                    );
+
                 }
             } else {
                 setStatus("Face does not match. Try again...");

@@ -318,7 +318,7 @@ const StudentScanPage = () => {
             const TIMEOUT = 20000; // 20s max
 
             // Randomly pick a direction for this verification
-            const directions = ["left", "right", "up", "down"];
+            const directions = ["left", "right", "down"];
             const targetDirection = directions[Math.floor(Math.random() * directions.length)];
 
             const detectLoop = async () => {
@@ -367,13 +367,13 @@ const StudentScanPage = () => {
                         case "right":
                             movedCorrectDirection = noseX > baseNoseX + thresholdX;
                             break;
-                        case "up":
-                            movedCorrectDirection = noseY < baseNoseY - thresholdY;
-                            break;
                         case "down":
                             movedCorrectDirection = noseY > baseNoseY + thresholdY;
                             break;
+                        default:
+                            movedCorrectDirection = false;
                     }
+
 
                     if (movedCorrectDirection) {
                         headMoveFrames++;
@@ -395,7 +395,11 @@ const StudentScanPage = () => {
                         stopVideoStream();
                         return;
                     } else {
-                        setStatusMessage(`Please move your head slightly ${targetDirection}...`);
+                        setStatusMessage(
+                            targetDirection === "down"
+                                ? "Please nod your head slightly down..."
+                                : `Please turn your head slightly ${targetDirection}...`
+                        );
                     }
                 } else {
                     setStatusMessage("Face does not match. Try again...");
