@@ -563,6 +563,7 @@ const TeacherCourseDetails = () => {
               onChange={(e) => setRadius(Number(e.target.value))}
               className="filter-select"
             >
+              <option value={10}>10 meters — Strict mode (very close)</option>
               <option value={20}>20 meters — small classroom</option>
               <option value={40}>40 meters — large classroom</option>
               <option value={60}>60 meters — default</option>

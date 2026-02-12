@@ -293,7 +293,7 @@ const StudentScanPage = () => {
         if (videoRef.current) videoRef.current.srcObject = null;
     };
 
-    /** ==================== FACE VERIFICATION (Head-turn Liveness) ==================== */
+    /** ==================== FACE VERIFICATION (Random Head-turn Liveness) ==================== */
     const verifyFace = async () => {
         if (faceLoading) return;
         if (!sessionInfo || !videoRef.current) return;
@@ -311,10 +311,15 @@ const StudentScanPage = () => {
             );
 
             let recognized = false;
-            let baseNoseX = null;   // baseline nose x-coordinate
-            let headTurned = false;
+            let baseNoseX = null;
+            let baseNoseY = null;
+            let headMoveFrames = 0;
             const startTime = Date.now();
             const TIMEOUT = 20000; // 20s max
+
+            // Randomly pick a direction for this verification
+            const directions = ["left", "right", "up", "down"];
+            const targetDirection = directions[Math.floor(Math.random() * directions.length)];
 
             const detectLoop = async () => {
                 if (!videoRef.current) return;
@@ -340,18 +345,42 @@ const StudentScanPage = () => {
                 const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
 
                 if (bestMatch.label === "student") {
-                    // HEAD-TURN LIVELINESS
                     const nose = detection.landmarks.getNose();
-                    const noseX = nose[3].x; // tip of the nose
+                    const noseX = nose[3].x; // tip of nose
+                    const noseY = nose[3].y;
 
                     if (baseNoseX === null) baseNoseX = noseX;
+                    if (baseNoseY === null) baseNoseY = noseY;
 
-                    // Check if head turned at least ~15px horizontally
-                    if (Math.abs(noseX - baseNoseX) > 15) {
-                        headTurned = true;
+                    const thresholdX = video.videoWidth / 20; // ~5% of width
+                    const thresholdY = video.videoHeight / 25; // ~4% of height
+
+                    // Check if the correct direction is moved
+                    let movedCorrectDirection = false;
+
+                    switch (targetDirection) {
+                        case "left":
+                            movedCorrectDirection = noseX < baseNoseX - thresholdX;
+                            break;
+                        case "right":
+                            movedCorrectDirection = noseX > baseNoseX + thresholdX;
+                            break;
+                        case "up":
+                            movedCorrectDirection = noseY < baseNoseY - thresholdY;
+                            break;
+                        case "down":
+                            movedCorrectDirection = noseY > baseNoseY + thresholdY;
+                            break;
                     }
 
-                    if (headTurned) {
+                    if (movedCorrectDirection) {
+                        headMoveFrames++;
+                    } else {
+                        headMoveFrames = 0; // reset if movement stops or moves wrong way
+                    }
+
+                    // Require 3 consecutive frames in the correct direction
+                    if (headMoveFrames >= 3) {
                         recognized = true;
                         setStatusMessage("Head movement detected. Face verified!");
                         toast.success("Face verified successfully");
@@ -364,7 +393,7 @@ const StudentScanPage = () => {
                         stopVideoStream();
                         return;
                     } else {
-                        setStatusMessage("Face detected. Please turn your head slightly left or right...");
+                        setStatusMessage(`Please move your head slightly ${targetDirection}...`);
                     }
                 } else {
                     setStatusMessage("Face does not match. Try again...");
@@ -508,6 +537,13 @@ const StudentScanPage = () => {
                             lecturerLocation={lecturerLocation}
                         />
 
+                        {/* Show outside-zone warning if not inside */}
+                        {!insideGeofence && (
+                            <p style={{ color: "orange", fontWeight: 600, marginTop: 10 }}>
+                                You are outside the attendance zone. Move closer to start scanning.
+                                {graceCountdown !== null && ` Stopping in ${graceCountdown}s if you don't return.`}
+                            </p>
+                        )}
 
                         <div id="reader" className="qr-reader" />
                     </>

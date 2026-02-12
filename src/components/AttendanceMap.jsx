@@ -128,7 +128,7 @@ export default function AttendanceMap({
         stableCountRef.current = 0;
         setGpsStable(false);
     }, [sessionLocation]);
-    
+
 
 
 
@@ -197,21 +197,31 @@ export default function AttendanceMap({
             )}
 
 
-            {mode === "student" && !gpsStable && (
-                <p style={{ marginTop: 10, fontWeight: 600, color: "orange" }}>
-                    Waiting for stable GPS signal...
-                </p>
-            )}
+            {mode === "student" && (
+                <>
+                    {!gpsStable && (
+                        <p style={{ marginTop: 10, fontWeight: 600, color: "orange" }}>
+                            Waiting for stable GPS signal...
+                        </p>
+                    )}
 
-            {mode === "student" && gpsStable && distance !== null && (
-                <p style={{ marginTop: 10, fontWeight: 600 }}>
-                    Distance to lecture: {distance} meters —{" "}
-                    <span style={{ color: insideZone ? "green" : "red" }}>
-                        {insideZone ? "INSIDE zone" : "OUTSIDE zone"}
-                    </span>
-                </p>
-            )}
+                    {gpsStable && distance !== null && (
+                        <p style={{ marginTop: 10, fontWeight: 600 }}>
+                            Distance to lecture: {distance} meters —{" "}
+                            <span style={{ color: insideZone ? "green" : "red" }}>
+                                {insideZone ? "INSIDE zone" : "OUTSIDE zone"}
+                            </span>
+                        </p>
+                    )}
 
+                    {/* Add GPS accuracy feedback */}
+                    {userLocation && (
+                        <p style={{ marginTop: 4, fontWeight: 600, color: userLocation.accuracy <= 40 ? "green" : userLocation.accuracy <= 150 ? "orange" : "red" }}>
+                            GPS accuracy: ±{Math.round(userLocation.accuracy)}m
+                        </p>
+                    )}
+                </>
+            )}
         </div>
     );
 }

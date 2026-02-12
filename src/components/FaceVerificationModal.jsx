@@ -9,6 +9,7 @@ const FaceVerificationModal = ({ show, onClose, user, onVerified }) => {
     const videoRef = useRef(null);
     const [loading, setLoading] = useState(true);
     const [status, setStatus] = useState("Initializing camera...");
+    const [verifying, setVerifying] = useState(false);
 
     useEffect(() => {
         if (!show) return;
@@ -25,6 +26,7 @@ const FaceVerificationModal = ({ show, onClose, user, onVerified }) => {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 videoRef.current.srcObject = stream;
                 await new Promise((res) => (videoRef.current.onloadedmetadata = res));
+                await videoRef.current.play();
                 setLoading(false);
             } catch (err) {
                 console.error(err);
@@ -36,7 +38,6 @@ const FaceVerificationModal = ({ show, onClose, user, onVerified }) => {
         loadModels().then(startCamera);
 
         return () => {
-            // Cleanup
             const stream = videoRef.current?.srcObject;
             if (stream) stream.getTracks().forEach((t) => t.stop());
         };
@@ -48,9 +49,11 @@ const FaceVerificationModal = ({ show, onClose, user, onVerified }) => {
             return;
         }
 
-        setLoading(true);
-        setStatus("Verifying face...");
+        if (verifying) return;
+        setVerifying(true);
+        setStatus("Detecting face...");
 
+        const video = videoRef.current;
         const storedDescriptor = new Float32Array(user.faceDescriptor);
         const faceMatcher = new faceapi.FaceMatcher(
             [new faceapi.LabeledFaceDescriptors(user.id, [storedDescriptor])],
@@ -59,66 +62,92 @@ const FaceVerificationModal = ({ show, onClose, user, onVerified }) => {
 
         let recognized = false;
         let baseNoseX = null;
-        let headTurned = false;
+        let baseNoseY = null;
+        let headMoveFrames = 0;
         const TIMEOUT = 20000;
         const startTime = Date.now();
 
+        const directions = ["left", "right", "up", "down"];
+        const targetDirection = directions[Math.floor(Math.random() * directions.length)];
+
         const detectLoop = async () => {
-            if (recognized || Date.now() - startTime > TIMEOUT) {
+            if (!video || recognized || Date.now() - startTime > TIMEOUT) {
                 if (!recognized) {
-                    toast.error("Face verification failed!");
-                    setStatus("Face not recognized or liveness check failed");
+                    setStatus("Face not recognized or liveness failed");
+                    toast.error("Face verification failed");
                 }
-                setLoading(false);
+                setVerifying(false);
                 return;
             }
 
             const detection = await faceapi
-                .detectSingleFace(videoRef.current, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }))
+                .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224 }))
                 .withFaceLandmarks()
                 .withFaceDescriptor();
 
-            if (detection) {
-                const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
+            if (!detection) {
+                setStatus("No face detected...");
+                return requestAnimationFrame(detectLoop);
+            }
 
-                if (bestMatch.label === user.id) {
-                    const nose = detection.landmarks.getNose();
-                    const noseX = nose[3].x;
+            const bestMatch = faceMatcher.findBestMatch(detection.descriptor);
 
-                    if (baseNoseX === null) baseNoseX = noseX;
+            if (bestMatch.label === user.id) {
+                const nose = detection.landmarks.getNose();
+                const noseX = nose[3].x;
+                const noseY = nose[3].y;
 
-                    if (Math.abs(noseX - baseNoseX) > 15) headTurned = true;
+                if (baseNoseX === null) baseNoseX = noseX;
+                if (baseNoseY === null) baseNoseY = noseY;
 
-                    if (headTurned) {
-                        recognized = true;
-                        setStatus("Head movement detected. Verifying face...");
+                const thresholdX = video.videoWidth / 20;
+                const thresholdY = video.videoHeight / 25;
 
-                        try {
-                            await API.post("/auth/verify-face", {
-                                faceDescriptor: Array.from(detection.descriptor),
-                            });
-                            toast.success("Face verified!");
-                            onVerified(); // callback
-                            return;
-                        } catch {
-                            toast.error("Face verification failed!");
-                            recognized = false;
-                            headTurned = false;
-                            setStatus("Face verification failed. Try again...");
-                        }
-                    } else {
-                        setStatus("Face detected, please turn your head slightly left or right...");
+                let movedCorrectDirection = false;
+
+                switch (targetDirection) {
+                    case "left":
+                        movedCorrectDirection = noseX < baseNoseX - thresholdX;
+                        break;
+                    case "right":
+                        movedCorrectDirection = noseX > baseNoseX + thresholdX;
+                        break;
+                    case "up":
+                        movedCorrectDirection = noseY < baseNoseY - thresholdY;
+                        break;
+                    case "down":
+                        movedCorrectDirection = noseY > baseNoseY + thresholdY;
+                        break;
+                }
+
+                if (movedCorrectDirection) headMoveFrames++;
+                else headMoveFrames = 0;
+
+                if (headMoveFrames >= 3) {
+                    recognized = true;
+                    setStatus("Head movement detected. Face verified!");
+                    toast.success("Face verified successfully");
+
+                    try {
+                        await API.post("/auth/verify-face", {
+                            faceDescriptor: Array.from(detection.descriptor),
+                        });
+                        onVerified();
+                    } catch {
+                        toast.error("Face verification failed on server!");
                     }
+
+                    setVerifying(false);
+                    return;
                 } else {
-                    setStatus("Face does not match. Try again...");
+                    setStatus(`Please move your head slightly ${targetDirection}...`);
                 }
             } else {
-                setStatus("No face detected...");
+                setStatus("Face does not match. Try again...");
             }
 
             requestAnimationFrame(detectLoop);
         };
-
 
         detectLoop();
     };
@@ -133,11 +162,11 @@ const FaceVerificationModal = ({ show, onClose, user, onVerified }) => {
                 <p className="mt-2">{status}</p>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={onClose} disabled={loading}>
+                <Button variant="secondary" onClick={onClose} disabled={loading || verifying}>
                     Cancel
                 </Button>
-                <Button variant="primary" onClick={verifyFace} disabled={loading}>
-                    {loading ? <Spinner animation="border" size="sm" /> : "Verify"}
+                <Button variant="primary" onClick={verifyFace} disabled={loading || verifying}>
+                    {verifying ? <Spinner animation="border" size="sm" /> : "Verify"}
                 </Button>
             </Modal.Footer>
         </Modal>
