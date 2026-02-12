@@ -142,8 +142,19 @@
 
 .qr-reader {
     margin-top: 20px;
-  }
-  
+}
+
+
+.login-face-video {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    transform: scaleX(-1);
+    /* flips horizontally */
+}
+
+
+
 
 @media (max-width: 576px) {
     .student-scan-card {
@@ -151,7 +162,8 @@
     }
 
     .video-wrapper {
-        height: 380px;   /* Big, clean, phone-friendly */
+        height: 380px;
+        /* Big, clean, phone-friendly */
     }
 
 }

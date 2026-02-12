@@ -4,6 +4,7 @@ import { Modal, Button, Spinner } from "react-bootstrap";
 import * as faceapi from "face-api.js";
 import API from "../api/api";
 import { toast } from "react-toastify";
+import "./faceVerificationModal.css";
 
 const FaceVerificationModal = ({ show, onClose, user, onVerified }) => {
     const videoRef = useRef(null);
@@ -94,8 +95,11 @@ const FaceVerificationModal = ({ show, onClose, user, onVerified }) => {
 
             if (bestMatch.label === user.id) {
                 const nose = detection.landmarks.getNose();
-                const noseX = nose[3].x;
+
+                // Flip X because video is mirrored
+                const noseX = video.videoWidth - nose[3].x;
                 const noseY = nose[3].y;
+
 
                 if (baseNoseX === null) baseNoseX = noseX;
                 if (baseNoseY === null) baseNoseY = noseY;

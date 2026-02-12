@@ -346,7 +346,9 @@ const StudentScanPage = () => {
 
                 if (bestMatch.label === "student") {
                     const nose = detection.landmarks.getNose();
-                    const noseX = nose[3].x; // tip of nose
+
+                    // ✅ Flip X coordinate for mirrored video
+                    const noseX = video.videoWidth - nose[3].x; // tip of nose
                     const noseY = nose[3].y;
 
                     if (baseNoseX === null) baseNoseX = noseX;
@@ -410,6 +412,7 @@ const StudentScanPage = () => {
             setFaceLoading(false);
         }
     };
+
 
 
     /** ==================== QR SCANNER ==================== */
