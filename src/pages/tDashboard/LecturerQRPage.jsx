@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Button, Spinner, ProgressBar, Alert } from "react-bootstrap";
@@ -238,17 +236,17 @@ const LecturerQRPage = () => {
 
     useEffect(() => {
         if (!sessionId || !lecturerLocation) return;
-
+    
         const interval = setInterval(() => {
             socket.emit("lecturer-location-update", {
                 sessionId,
                 location: lecturerLocation,
             });
         }, 2000); // every 2s
-
+    
         return () => clearInterval(interval);
     }, [lecturerLocation, sessionId]);
-
+    
 
 
 
@@ -425,15 +423,13 @@ const LecturerQRPage = () => {
         try {
             setEnding(true);
 
-            stopLecturerGps();
-
+            stopLecturerGps(); // stop GPS tracking
             if (refreshIntervalRef.current) {
                 clearInterval(refreshIntervalRef.current);
                 refreshIntervalRef.current = null;
             }
 
             const token = localStorage.getItem("token");
-
             const res = await axios.post(
                 `${import.meta.env.VITE_API_URL}/sessions/${sessionId}/end`,
                 {},
@@ -441,20 +437,15 @@ const LecturerQRPage = () => {
             );
 
             setEndMsg(res.data.msg || "Session ended successfully.");
-
-            setEnded(true);      // ✅ means lecturer ended
-            setExpired(false);   // ✅ NOT expired
-
+            setEnded(true);
+            setExpired(true);
             setSessionId(null);
-            setQrData(null);
-
         } catch (err) {
             setError(err.response?.data?.msg || "Failed to end session.");
         } finally {
             setEnding(false);
         }
     };
-
 
     const handleCancelSession = async () => {
         if (!sessionId) return;
@@ -488,7 +479,7 @@ const LecturerQRPage = () => {
             setCancelled(true);
             setEndMsg(res.data.msg || "Session cancelled.");
             setEnded(true);
-            setExpired();
+            setExpired(true);
             setSessionId(null);
             setQrData(null);
         } catch (err) {
