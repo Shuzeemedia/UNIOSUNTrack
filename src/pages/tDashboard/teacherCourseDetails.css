@@ -952,7 +952,9 @@
     background: #4b5563;
 }
 
-
+.no_card1{
+    padding: 0 !important;
+}
 
 /* ===== RESPONSIVE ENHANCEMENTS ===== */
 @media (max-width: 768px) {

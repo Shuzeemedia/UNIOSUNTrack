@@ -28,11 +28,19 @@ const StudentCourseCard = ({ course, summary }) => {
           <div className="d-flex align-items-center gap-2">
             <FaBookOpen className="text-success" size={20} />
             <h6 className="fw-bold mb-0 text-dark">{course.code}</h6>
+
+            {course.hasActiveSession && (
+              <Badge bg="danger" className="live-badge ms-2">
+                 ● ACTIVE
+              </Badge>
+            )}
           </div>
+
           <Badge bg="success-subtle" text="success">
             {course.unit || 3} Units
           </Badge>
         </div>
+
 
         <Card.Title className="fw-semibold">{course.name}</Card.Title>
         <Card.Text className="text-muted small mb-3">

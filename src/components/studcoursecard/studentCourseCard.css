@@ -34,3 +34,51 @@
 .badge.bg-success-subtle {
     background-color: rgba(1, 105, 47, 0.1) !important;
 }
+
+.live-badge {
+    background: linear-gradient(135deg, #ff1e1e, #c40000);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.6rem !important;
+    letter-spacing: 0.5px;
+    /* padding: 6px 10px !important; */
+    border-radius: 999px;
+
+    /* glow */
+    box-shadow:
+        0 0 6px rgba(255, 30, 30, 0.8),
+        0 0 12px rgba(255, 30, 30, 0.6),
+        0 0 20px rgba(255, 30, 30, 0.4);
+
+    /* animation */
+    animation: liveGlow 1.6s ease-in-out infinite;
+
+    /* polish */
+    text-shadow: 0 0 4px rgba(255, 255, 255, 0.6);
+}
+
+@keyframes liveGlow {
+    0% {
+        opacity: 0.75;
+        box-shadow:
+            0 0 4px rgba(255, 30, 30, 0.4),
+            0 0 8px rgba(255, 30, 30, 0.3),
+            0 0 12px rgba(255, 30, 30, 0.2);
+    }
+
+    50% {
+        opacity: 1;
+        box-shadow:
+            0 0 10px rgba(255, 30, 30, 1),
+            0 0 20px rgba(255, 30, 30, 0.8),
+            0 0 30px rgba(255, 30, 30, 0.6);
+    }
+
+    100% {
+        opacity: 0.75;
+        box-shadow:
+            0 0 4px rgba(255, 30, 30, 0.4),
+            0 0 8px rgba(255, 30, 30, 0.3),
+            0 0 12px rgba(255, 30, 30, 0.2);
+    }
+}

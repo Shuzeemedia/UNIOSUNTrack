@@ -585,6 +585,7 @@ const TeacherCourseDetails = () => {
               onChange={(e) => setSessionDuration(Number(e.target.value))}
               className="filter-select"
             >
+              <option value={1}>1 minutes — quick pro check</option>
               <option value={5}>5 minutes — quick check</option>
               <option value={10}>10 minutes — normal</option>
               <option value={15}>15 minutes</option>
@@ -672,7 +673,7 @@ const TeacherCourseDetails = () => {
             <p className="empty-text">No attendance records found.</p>
           ) : (
             <>
-              <div className="summary-card glass-card">
+              <div className="summary-card glass-card no_card1">
                 <StudentSummaryTable
                   data={filteredAttendanceSummary} // ✅ use state/memo
                   course={course}
@@ -684,7 +685,7 @@ const TeacherCourseDetails = () => {
 
 
               </div>
-              <div className="chart-card glass-card mt-5">
+              <div className="chart-card glass-card mt-5 no_card1">
                 <TeacherAttendanceChart data={filteredAttendanceSummary} />
               </div>
             </>

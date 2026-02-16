@@ -51,10 +51,31 @@ const StudentDashboard = () => {
         return;
       }
 
-      // Fetch courses
       const res = await api.get("/courses/enrolled");
       const courseData = res.data || [];
-      setCourses(courseData);
+
+      // 🔥 Detect active session per course
+      const coursesWithSessionFlag = await Promise.all(
+        courseData.map(async (course) => {
+          try {
+            const { data } = await api.get(`/sessions/active/${course._id}`, {
+              headers: { "x-silent": "true" },
+            });
+
+            return {
+              ...course,
+              hasActiveSession: Boolean(data?.active),
+            };
+          } catch {
+            return {
+              ...course,
+              hasActiveSession: false,
+            };
+          }
+        })
+      );
+
+      setCourses(coursesWithSessionFlag);
 
       // Fetch attendance summaries
       const summaries = {};
@@ -148,13 +169,13 @@ const StudentDashboard = () => {
         </p>
 
         {/* 🎓 TRANSCRIPT ACTION */}
-      <div className="mt-4">
-        <Link to="/student/transcript">
-          <Button variant="success" size="lg" className="fw-semibold">
-            📄 View Academic Transcript
-          </Button>
-        </Link>
-      </div>
+        <div className="mt-4">
+          <Link to="/student/transcript">
+            <Button variant="success" size="lg" className="fw-semibold">
+              📄 View Academic Transcript
+            </Button>
+          </Link>
+        </div>
       </Container>
     );
   }
@@ -167,6 +188,11 @@ const StudentDashboard = () => {
       course.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       course.code.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const sortedCourses = [...filteredCourses].sort(
+    (a, b) => Number(b.hasActiveSession) - Number(a.hasActiveSession)
+  );
+
 
   return (
     <Container fluid className="student-dashboard py-4">
@@ -242,7 +268,7 @@ const StudentDashboard = () => {
         {filteredCourses.length === 0 ? (
           <p className="text-muted">No matching courses found.</p>
         ) : (
-          filteredCourses.map((course) => (
+          sortedCourses.map((course) => (
             <Col key={course._id} xs={12} sm={6} lg={4}>
               <StudentCourseCard
                 course={course}
