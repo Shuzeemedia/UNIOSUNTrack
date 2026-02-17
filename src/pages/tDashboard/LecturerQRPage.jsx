@@ -181,6 +181,17 @@ const LecturerQRPage = () => {
                 setExpired(false);
                 setEnded(false);
                 setSessionId(session._id);
+                
+                if (session.location) {
+                    setLecturerLocation({
+                        lat: session.location.lat,
+                        lng: session.location.lng,
+                        accuracy: session.location.accuracy,
+                        confidence: "locked",
+                    });
+                    setLocationReady(true); // 🔒 GPS is already locked
+                }
+
                 setEndMsg("Restored active session successfully.");
             } catch {
                 setError("No active session found. You can start a new one.");
@@ -213,40 +224,13 @@ const LecturerQRPage = () => {
     }, [expiresAt, sessionId, ended]);
 
     useEffect(() => {
-        startLecturerGps();   // START GPS when page loads
+        if (!sessionId) {
+            startLecturerGps(); // ONLY before session creation
+        }
 
-        return () => {
-            stopLecturerGps(); // cleanup when leaving page
-        };
-    }, []);
+        return () => stopLecturerGps();
+    }, [sessionId]);
 
-
-
-
-    useEffect(() => {
-        if (!sessionId || !lecturerLocation) return;
-
-        const interval = setInterval(() => {
-            api.post(`/sessions/${sessionId}/location`, lecturerLocation)
-                .catch(() => { });
-        }, 20000);
-
-        return () => clearInterval(interval);
-    }, [sessionId, lecturerLocation]);
-
-    useEffect(() => {
-        if (!sessionId || !lecturerLocation) return;
-    
-        const interval = setInterval(() => {
-            socket.emit("lecturer-location-update", {
-                sessionId,
-                location: lecturerLocation,
-            });
-        }, 2000); // every 2s
-    
-        return () => clearInterval(interval);
-    }, [lecturerLocation, sessionId]);
-    
 
 
 
