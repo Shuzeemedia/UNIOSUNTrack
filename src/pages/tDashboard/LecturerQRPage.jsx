@@ -5,6 +5,8 @@ import QRCode from "react-qr-code";
 import api from "../../api/api";
 import AttendanceMap from "../../components/AttendanceMap";
 import socket from "../../socket";
+import { FaMapMarkerAlt} from "react-icons/fa";
+import "./LecturerQRPage.css";
 
 import { useParams, useLocation } from "react-router-dom";
 
@@ -181,7 +183,7 @@ const LecturerQRPage = () => {
                 setExpired(false);
                 setEnded(false);
                 setSessionId(session._id);
-                
+
                 if (session.location) {
                     setLecturerLocation({
                         lat: session.location.lat,
@@ -549,76 +551,174 @@ const LecturerQRPage = () => {
             {error && <Alert variant="danger">{error}</Alert>}
 
             {!qrData && (
-                <>
+                <div className="start-session-card">
+                    <span className="gps-icon">
+                        <FaMapMarkerAlt />
+                    </span>
+
+                    <h2>Start Class Session</h2>
+
+                    <p className="start-text">
+                        Your location will be locked before the attendance QR is generated.
+                        Students must be within the selected attendance radius.
+                    </p>
+
                     <Button
+                        className="btn-start-session"
                         onClick={handleCreateSession}
                         disabled={loading || !courseId || !isGpsUsable}
                     >
-                        {loading
-                            ? <><Spinner size="sm" /> Generating QR...</>
-                            : !lecturerLocation
-                                ? "Getting GPS location..."
-                                : "Generate Attendance QR"
-                        }
+                        {loading ? (
+                            <>
+                                <Spinner size="sm" className="me-2" />
+                                Generating QR...
+                            </>
+                        ) : !lecturerLocation ? (
+                            <>
+                                <Spinner
+                                    animation="border"
+                                    size="sm"
+                                    className="me-2"
+                                />
+                                Getting GPS Location...
+                            </>
+                        ) : (
+                            <>
+                                Generate Attendance QR
+                            </>
+                        )}
                     </Button>
 
-                    {/* ✅ GPS status message — CORRECT placement */}
                     {lecturerLocation && !locationReady && (
-                        <p className="small text-warning mt-2">
-                            Locking GPS… accuracy {lecturerLocation.accuracy.toFixed(1)}m
-                        </p>
+                        <div className="gps-status waiting">
+                            <strong>Locking GPS...</strong>
+
+                            <span>
+                                Accuracy:
+                                {" "}
+                                {lecturerLocation.accuracy.toFixed(1)}m
+                            </span>
+                        </div>
                     )}
 
                     {locationReady && lecturerLocation && (
-                        <p className="small text-success mt-2">
-                            GPS locked ✓ ({lecturerLocation.accuracy.toFixed(1)}m)
-                        </p>
+                        <div className="gps-status success">
+
+                            <strong>✓ GPS Locked Successfully</strong>
+
+                            <span>
+                                Accuracy:
+                                {" "}
+                                {lecturerLocation.accuracy.toFixed(1)}m
+                            </span>
+
+                        </div>
                     )}
-                </>
+
+                </div>
             )}
 
 
             {qrData && (
-                <div className="qr-wrapper mt-4">
-                    <h5 className={`qr-status ${expired ? "expired" : "active"}`}>
-                        {expired ? "QR Code Expired" : "QR Code Active"}
-                    </h5>
+                <div className="qr-card mt-4">
+                    <div className="qr-header">
+
+                        <div>
+
+                            <h2>Attendance QR</h2>
+
+                            <p>
+                                Students should scan this QR to mark attendance.
+                            </p>
+
+                        </div>
+
+                        <span
+                            className={
+                                expired
+                                    ? "status-expired"
+                                    : "status-live"
+                            }
+                        >
+                            {expired ? "Expired" : "Live"}
+                        </span>
+
+                    </div>
 
                     <div className="qr-code-container mt-3" ref={qrRef}>
-                        <QRCode value={qrData} size={220} />
+                        <QRCode
+                            value={qrData}
+                            size={280}
+                        />
                     </div>
 
                     {!expired && (
                         <>
-                            <p className="qr-countdown mt-2">
-                                Expires in: <strong>{timeLeft}s</strong>
-                            </p>
-                            <ProgressBar
-                                now={totalDuration ? (timeLeft / totalDuration) * 100 : 0}
-                                variant="success"
-                                style={{ height: "6px", maxWidth: "300px", margin: "auto" }}
-                            />
+                            <div className="countdown-box">
+
+                                <span>Time Remaining</span>
+
+                                <h3>{timeLeft}s</h3>
+
+                            </div>
+                            <div className="progress-wrapper">
+                                <ProgressBar
+                                    now={totalDuration ? (timeLeft / totalDuration) * 100 : 0}
+                                    variant="success"
+                                />
+
+                            </div>
 
                         </>
                     )}
 
-                    <p className="qr-expiration mt-2">
-                        Expires at: <strong>{new Date(expiresAt).toLocaleTimeString()}</strong>
-                    </p>
+                    <div className="session-details">
 
-                    <div className="qr-controls mt-3 d-flex justify-content-center gap-2 flex-wrap">
-                        <Button variant="outline-success" onClick={handleViewFullscreen}>
+                        <div>
+
+                            <span>Expires</span>
+
+                            <strong>
+                                {new Date(expiresAt).toLocaleTimeString()}
+                            </strong>
+
+                        </div>
+
+                        <div>
+
+                            <span>Radius</span>
+
+                            <strong>
+                                {savedRadius} m
+                            </strong>
+
+                        </div>
+
+                        <div>
+
+                            <span>Duration</span>
+
+                            <strong>
+                                {sessionDuration} mins
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div className="qr-actions">
+                        <Button className="btn-fullscreen" onClick={handleViewFullscreen}>
                             View Fullscreen
                         </Button>
 
-                        <Button variant="outline-secondary" onClick={handleCopyLink}>
+                        <Button className="btn-copy" onClick={handleCopyLink}>
                             Copy QR Link
                         </Button>
 
                         {!expired && (
                             <>
                                 <Button
-                                    variant="outline-danger"
+                                    className="btn-end"
                                     onClick={handleEndSession}
                                     disabled={ending || ended}
                                 >
@@ -627,8 +727,7 @@ const LecturerQRPage = () => {
 
                                 {/* CANCEL SESSION BUTTON — HERE */}
                                 <Button
-                                    variant="outline-danger"
-                                    className="ms-2"
+                                    className="btn-cancel"
                                     onClick={handleCancelSession}
                                     disabled={canceling || ended}
                                 >
@@ -671,14 +770,27 @@ const LecturerQRPage = () => {
 
 
                     {sessionLocation && (
-                        <div className="mt-4">
-                            <h6 className="fw-semibold mb-2">Session Location</h6>
+
+
+                        <div className="map-card">
+
+                            <div className="map-header">
+
+                                <h5>Session Location</h5>
+
+                                <small>
+                                    Students must be inside the allowed radius.
+                                </small>
+
+                            </div>
 
                             <AttendanceMap
                                 sessionLocation={sessionLocation}
                                 mode="lecturer"
                             />
+
                         </div>
+
                     )}
 
                 </div>

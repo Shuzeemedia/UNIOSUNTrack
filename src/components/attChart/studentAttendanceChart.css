@@ -1,53 +1,187 @@
 :root {
-    --un-primary: #0B6623;
-    --un-accent: #FBBF24;
-    --un-bg: #F9FAFB;
-    --un-text: #1E293B;
+    --un-primary: #0b6623;
+    --un-accent: #fbbf24;
+    --un-text: #1e293b;
+    --un-muted: #64748b;
+    --un-border: #e5e7eb;
+    --un-bg: #f8fafc;
 }
 
+/* =====================================================
+   MAIN CARD
+===================================================== */
 
-.attendance-chart {
+.student-attendance-chart {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+    transition:
+        box-shadow 0.25s ease,
+        transform 0.25s ease;
+}
+
+.student-attendance-chart:hover {
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.09);
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.student-attendance-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.student-attendance-header h3 {
+    margin: 0;
+    color: var(--un-text);
+    font-size: 1.1rem;
+    font-weight: 750;
+    letter-spacing: -0.2px;
+}
+
+.student-attendance-header p {
+    margin: 5px 0 0;
+    color: var(--un-muted);
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+
+/* =====================================================
+   STATUS BADGE
+===================================================== */
+
+.attendance-status {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.attendance-good {
+    color: var(--un-primary);
+    background: rgba(11, 102, 35, 0.09);
+}
+
+.attendance-warning {
+    color: #9a6700;
+    background: rgba(251, 191, 36, 0.16);
+}
+
+.attendance-danger {
+    color: #b91c1c;
+    background: rgba(220, 38, 38, 0.09);
+}
+
+/* =====================================================
+   CHART CONTAINER
+===================================================== */
+
+.attendance-chart-container {
     position: relative;
     width: 100%;
-    max-width: 300px;
-    margin: auto;
+    height: 270px;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.chart-center {
+/* =====================================================
+   CENTER CONTENT
+===================================================== */
+
+.attendance-chart-center {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
     text-align: center;
 }
 
-.attendance-value {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--un-primary);
-    /* ✅ Uniosun Green */
-    margin-bottom: 4px;
-    animation: fadeIn 1s ease-in;
+.attendance-chart-value {
+    color: var(--un-text);
+    font-size: 2.15rem;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -1px;
 }
 
-.attendance-label {
-    font-size: 0.9rem;
-    color: #555;
-    font-weight: 500;
-    letter-spacing: 0.5px;
+.attendance-chart-label {
+    margin-top: 7px;
+    color: var(--un-muted);
+    font-size: 0.74rem;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, -60%);
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.attendance-chart-footer {
+    margin-top: 2px;
+}
+
+.attendance-progress-line {
+    width: 100%;
+    height: 5px;
+    overflow: hidden;
+    background: #edf1f2;
+    border-radius: 10px;
+}
+
+.attendance-progress-line span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    transition: width 1.1s ease;
+}
+
+.attendance-chart-footer p {
+    margin: 9px 0 0;
+    color: var(--un-muted);
+    font-size: 0.76rem;
+    line-height: 1.55;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 600px) {
+    .student-attendance-chart {
+        padding: 18px;
+        border-radius: 14px;
     }
 
-    to {
-        opacity: 1;
-        transform: translate(-50%, -50%);
+    .student-attendance-header {
+        flex-direction: column;
+        gap: 9px;
+    }
+
+    .attendance-status {
+        align-self: flex-start;
+    }
+
+    .attendance-chart-container {
+        height: 245px;
+    }
+
+    .attendance-chart-value {
+        font-size: 1.9rem;
     }
 }

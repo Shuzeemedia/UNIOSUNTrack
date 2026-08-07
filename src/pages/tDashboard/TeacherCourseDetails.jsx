@@ -8,7 +8,7 @@ import AttendanceHeader from "../../components/AttendanceHeader";
 import StudentAttendanceTable from "../../components/attChart/StudentAttendanceTable";
 import StudentSummaryTable from "../../components/attChart/StudentSummaryTable";
 
-
+import { FaMapMarkerAlt, FaClock } from "react-icons/fa";
 import MarkAttendance from "../../components/MarkAttendance";
 import LoadingSpinner from "../../components/Loader/LoadingSpinner";
 import socket from "../../socket";
@@ -72,62 +72,68 @@ const TeacherCourseDetails = () => {
 
   /** ====================== LOAD COURSE & STUDENTS ====================== */
   useEffect(() => {
-    const loadCourseData = async () => {
+    const loadCourse = async () => {
       setLoading(true);
-      setError("");
 
       try {
-        // Fetch course details
-        const res = await api.get(`/courses/${id}`);
-        const courseData = res.data;
-        setCourse(courseData);
+        const [courseRes, studentsRes] = await Promise.all([
+          api.get(`/courses/${id}`),
+          api.get(`/courses/${id}/students`)
+        ]);
 
-        // Fetch enrolled students
-        const studentsRes = await api.get(`/courses/${id}/students`);
-        const studentsData = studentsRes.data.students || [];
-        setStudents(studentsData);
+        setCourse(courseRes.data);
+        setStudents(studentsRes.data.students || []);
+      } catch (err) {
+        setError("Failed to load course");
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    if (id) loadCourse();
+  }, [id]);
+
+  useEffect(() => {
+    if (!course || students.length === 0) return;
+
+    const loadAttendance = async () => {
+      try {
         const params = buildAttendanceParams();
-        const sumRes = await api.get(`/attendance/${id}/summary`, { params });
+
+        const sumRes = await api.get(
+          `/attendance/${id}/summary`,
+          { params }
+        );
 
         const summary = sumRes.data.summary || [];
 
-        const classesHeld = sumRes.data.classesHeld || 0;
-
-
-
-        // ✅ Merge ONLY when attendance exists
-        const mergedSummary = studentsData.map((s) => {
+        const merged = students.map(student => {
           const record = summary.find(
-            (rec) => rec.student?._id?.toString() === s._id?.toString()
+            r => r.student?._id === student._id
           );
 
-
           return {
-            student: s,
+            student,
             present: record?.present || 0,
             absent: record?.absent || 0,
             classesHeld: record?.classesHeld || 0,
-            totalPlanned: record?.totalPlanned || courseData.totalClasses || 0,
+            totalPlanned:
+              record?.totalPlanned || course.totalClasses || 0,
             attendancePct: record?.attendancePct || 0,
             score: record?.score || 0,
           };
         });
 
-
-        setAttendanceSummary(mergedSummary);
-
+        setAttendanceSummary(merged);
 
       } catch (err) {
-        setError("Failed to fetch course, students, or attendance");
-        setAttendanceSummary([]);
+        console.error(err);
       }
-
-      setLoading(false);
     };
 
-    if (id) loadCourseData();
-  }, [id, filter, date]); // <-- REMOVE students and course?.totalClasses
+    loadAttendance();
+
+  }, [filter, date, students, course, id]);
 
 
 
@@ -498,15 +504,26 @@ const TeacherCourseDetails = () => {
       {/* ===== HEADER CARD ===== */}
       <div className="Tcourse-header-card glass-card">
         <div className="header-info">
+          <span className="page-badge">
+            Course Details
+          </span>
+
           <h2>{course.name}</h2>
-          <p className="tcourse-code">{course.code}</p>
+
+          <p className="tcourse-code">
+            {course.code}
+          </p>
+
           <div className="header-meta">
-            <p>
-              <strong>Lecturer:</strong> {course.teacher?.name || "N/A"}
-            </p>
-            <p>
-              <strong>Course Unit:</strong> {course.unit ?? "N/A"}
-            </p>
+            <div className="page-badges">
+              <span>Lecturer</span>
+              <strong>{course.teacher?.name || "N/A"}</strong>
+            </div>
+
+            <div className="page-badges">
+              <span>Course Unit</span>
+              <strong>{course.unit ?? "N/A"}</strong>
+            </div>
           </div>
         </div>
         <div className="qr-button-wrap">
@@ -551,51 +568,70 @@ const TeacherCourseDetails = () => {
       </div>
 
       {/* ===== SESSION CONTROL ===== */}
-      <div className="glass-card p-4 mb-4">
+      <div className="session-card glass-card">
         <h3 className="section-title mb-2">Attendance Session</h3>
-        <div className="flex_dyn">
+        <div className="session-settings">
 
-          <div className="radius-settings">
-            <label><strong>📍 Attendance Geo-Fence Radius</strong></label>
+          <div className="setting-card">
+            <div className="setting-header">
+              <span className="setting-icon">
+                <FaMapMarkerAlt />
+              </span>
+
+              <div>
+                <h5>Geo-Fence Radius</h5>
+                <small>Allowed student distance</small>
+              </div>
+            </div>
 
             <select
               value={radius}
               onChange={(e) => setRadius(Number(e.target.value))}
-              className="filter-select"
+              className="setting-select"
             >
-              <option value={10}>10 meters — Strict mode (very close)</option>
-              <option value={20}>20 meters — small classroom</option>
-              <option value={40}>40 meters — large classroom</option>
-              <option value={60}>60 meters — default</option>
-              <option value={80}>80 meters — building range</option>
-              <option value={100}>100 meters — campus area</option>
-              <option value={150}>150 meters — outdoor lecture</option>
+              <option value={10}>10 m — Strict</option>
+              <option value={20}>20 m — Small classroom</option>
+              <option value={40}>40 m — Large classroom</option>
+              <option value={60}>60 m — Recommended</option>
+              <option value={80}>80 m — Building range</option>
+              <option value={100}>100 m — Campus area</option>
+              <option value={150}>150 m — Outdoor lecture</option>
             </select>
 
-            <p className="hint-text">
-              Students must be inside this distance to mark attendance automatically.
+            <p className="setting-note">
+              Students outside this radius cannot mark attendance.
             </p>
           </div>
 
-          <div className="duration-settings mt-3">
-            <label><strong>⏱ Session Duration</strong></label>
+
+          <div className="setting-card">
+            <div className="setting-header">
+              <span className="setting-icon">
+                <FaClock />
+              </span>
+
+              <div>
+                <h5>Session Duration</h5>
+                <small>Attendance window</small>
+              </div>
+            </div>
 
             <select
               value={sessionDuration}
               onChange={(e) => setSessionDuration(Number(e.target.value))}
-              className="filter-select"
+              className="setting-select"
             >
-              <option value={1}>1 minutes — quick pro check</option>
-              <option value={5}>5 minutes — quick check</option>
-              <option value={10}>10 minutes — normal</option>
-              <option value={15}>15 minutes</option>
-              <option value={30}>30 minutes — long lecture</option>
-              <option value={45}>45 minutes</option>
-              <option value={60}>60 minutes — full class</option>
+              <option value={1}>1 Minute</option>
+              <option value={5}>5 Minutes</option>
+              <option value={10}>10 Minutes (Recommended)</option>
+              <option value={15}>15 Minutes</option>
+              <option value={30}>30 Minutes</option>
+              <option value={45}>45 Minutes</option>
+              <option value={60}>60 Minutes</option>
             </select>
 
-            <p className="hint-text">
-              Attendance session will automatically close after this time.
+            <p className="setting-note">
+              Attendance closes automatically after this duration.
             </p>
           </div>
 
@@ -666,7 +702,7 @@ const TeacherCourseDetails = () => {
       {/* ===== SUMMARY / STUDENT HISTORY ===== */}
       {!selectedStudent ? (
         <>
-          <h3 className="section-title">
+          <h3 className="section-titles">
             {/* <AttendanceHeader filter={filter} date={date} /> */}
           </h3>
           {filteredAttendanceSummary.length === 0 ? (

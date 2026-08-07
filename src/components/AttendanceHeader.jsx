@@ -1,19 +1,57 @@
-// src/components/AttendanceHeader.jsx
+import {
+    FaCalendarDay,
+    FaCalendarWeek,
+    FaCalendarAlt,
+    FaChartLine,
+} from "react-icons/fa";
+
 const AttendanceHeader = ({ filter }) => {
-    const getHeaderText = () => {
+    const getHeader = () => {
         switch (filter) {
             case "today":
-                return "Attendance Summary - Today";
+                return {
+                    title: "Today's Attendance",
+                    subtitle: "Attendance records captured for today.",
+                    icon: <FaCalendarDay />,
+                };
+
             case "week":
-                return "Attendance Summary - This Week";
+                return {
+                    title: "This Week",
+                    subtitle: "Your attendance performance this week.",
+                    icon: <FaCalendarWeek />,
+                };
+
             case "month":
-                return "Attendance Summary - This Month";
+                return {
+                    title: "This Month",
+                    subtitle: "Attendance overview for the current month.",
+                    icon: <FaCalendarAlt />,
+                };
+
             default:
-                return "Attendance Summary";
+                return {
+                    title: "Attendance Overview",
+                    subtitle: "View and monitor your attendance records.",
+                    icon: <FaChartLine />,
+                };
         }
     };
 
-    return <h3 className="text-xl font-semibold my-2">{getHeaderText()}</h3>;
+    const header = getHeader();
+
+    return (
+        <div className="attendance-header-card">
+            <div className="attendance-header-icon">
+                {header.icon}
+            </div>
+
+            <div>
+                <h4>{header.title}</h4>
+                <p>{header.subtitle}</p>
+            </div>
+        </div>
+    );
 };
 
 export default AttendanceHeader;

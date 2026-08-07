@@ -5,6 +5,14 @@ import StudentCourseCard from "../../components/studcoursecard/StudentCourseCard
 import LoadingSpinner from "../../components/Loader/LoadingSpinner";
 import { Container, Row, Col, Form, Button } from "react-bootstrap";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import {
+  FaGraduationCap,
+  FaCheckCircle,
+  FaCalendarCheck,
+  FaArchive,
+  FaFileAlt,
+  FaArrowRight,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
 
 import "./studentDashboard.css";
@@ -143,38 +151,143 @@ const StudentDashboard = () => {
   if (!userReady || loading) return <LoadingSpinner />;
 
   // =====================================================
-  // 🎓 GRADUATED VIEW (STOP HERE)
+  // GRADUATED VIEW
   // =====================================================
   if (user?.graduated) {
     return (
-      <Container className="py-5 text-center">
-        <h3 className="fw-bold text-success">
-          🎓 Congratulations, {user.name}!
-        </h3>
+      <Container fluid className="graduate-dashboard">
+        <div className="graduate-page">
 
-        <p className="text-muted mt-3">
-          You have successfully completed your academic program.
-        </p>
+          {/* ==============================================
+            GRADUATION HERO
+        ============================================== */}
+          <section className="graduate-hero">
 
-        {user.graduationDate && (
-          <p className="text-muted">
-            Graduation Date:{" "}
-            {new Date(user.graduationDate).toLocaleDateString()}
-          </p>
-        )}
+            <div className="graduate-hero-decoration graduate-decoration-one" />
+            <div className="graduate-hero-decoration graduate-decoration-two" />
 
-        <p className="mt-4">
-          Your attendance and academic records have been archived and are
-          available for official reference.
-        </p>
+            <div className="graduate-hero-content">
 
-        {/* 🎓 TRANSCRIPT ACTION */}
-        <div className="mt-4">
-          <Link to="/student/transcript">
-            <Button variant="success" size="lg" className="fw-semibold">
-              📄 View Academic Transcript
-            </Button>
-          </Link>
+              <div className="graduate-icon">
+                <FaGraduationCap />
+              </div>
+
+              <span className="graduate-badge">
+                Academic Program Completed
+              </span>
+
+              <h1>
+                Congratulations, {user.name}
+              </h1>
+
+              <p>
+                You have successfully completed your academic program.
+                Your UNIOSUNTrack academic and attendance records are now
+                archived for official reference.
+              </p>
+
+            </div>
+
+          </section>
+
+          {/* ==============================================
+            GRADUATION INFORMATION
+        ============================================== */}
+          <section className="graduate-info-grid">
+
+            <div className="graduate-info-card">
+
+              <div className="graduate-info-icon">
+                <FaCheckCircle />
+              </div>
+
+              <div>
+                <span>Program Status</span>
+                <strong>Completed</strong>
+              </div>
+
+            </div>
+
+            <div className="graduate-info-card">
+
+              <div className="graduate-info-icon">
+                <FaCalendarCheck />
+              </div>
+
+              <div>
+                <span>Graduation Date</span>
+
+                <strong>
+                  {user.graduationDate
+                    ? new Date(user.graduationDate).toLocaleDateString(
+                      "en-NG",
+                      {
+                        day: "numeric",
+                        month: "long",
+                        year: "numeric",
+                      }
+                    )
+                    : "Not available"}
+                </strong>
+              </div>
+
+            </div>
+
+            <div className="graduate-info-card">
+
+              <div className="graduate-info-icon">
+                <FaArchive />
+              </div>
+
+              <div>
+                <span>Academic Records</span>
+                <strong>Archived</strong>
+              </div>
+
+            </div>
+
+          </section>
+
+          {/* ==============================================
+            RECORDS SECTION
+        ============================================== */}
+          <section className="graduate-records-card">
+
+            <div className="graduate-records-content">
+
+              <div className="graduate-records-icon">
+                <FaFileAlt />
+              </div>
+
+              <div>
+                <h3>Your Academic Records</h3>
+
+                <p>
+                  Your attendance history and academic records have been
+                  securely archived and remain available for official
+                  reference.
+                </p>
+              </div>
+
+            </div>
+
+            <Link to="/student/transcript" className="graduate-transcript-btn">
+              <FaFileAlt />
+              <span>View Academic Transcript</span>
+              <FaArrowRight />
+            </Link>
+
+          </section>
+
+          {/* ==============================================
+            FOOTER MESSAGE
+        ============================================== */}
+          <div className="graduate-footer">
+            <p>
+              Thank you for using <strong>UNIOSUNTrack</strong>.
+            </p>
+          </div>
+
         </div>
       </Container>
     );
@@ -200,45 +313,94 @@ const StudentDashboard = () => {
         <p className="text-danger">{error}</p>
       )}
 
-      {/* HEADER */}
-      <div className="dashboard-header mb-4">
-        <h2 className="fw-bold text-dark mb-1">
-          Welcome, {user?.name}
-        </h2>
 
-        <div className="user-info d-flex align-items-center gap-3 mt-2 flex-wrap">
-          <span className="text-muted fw-semibold">
-            <i className="bi bi-building text-success me-1"></i>
-            {user?.department?.name || "No Department"}
-          </span>
+      {/* ================= HERO ================= */}
 
-          <span className="vr mx-2"></span>
+      <div className="student-hero">
 
-          <span className="text-muted fw-semibold">
-            <i className="bi bi-mortarboard text-success me-1"></i>
-            {user?.level ? `${user.level} Level` : "N/A"}
-          </span>
+        <div className="hero-overlay"></div>
 
-          {activeSession && (
-            <>
-              <span className="vr mx-2"></span>
-              <span className="text-muted fw-semibold">
-                <i className="bi bi-calendar-event text-success me-1"></i>
-                Session: {activeSession}
-              </span>
-            </>
-          )}
+        <div className="hero-content">
 
-          {activeSemester && (
-            <>
-              <span className="vr mx-2"></span>
-              <span className="text-muted fw-semibold">
-                <i className="bi bi-book text-success me-1"></i>
-                Semester: {activeSemester}
-              </span>
-            </>
-          )}
+          <div className="hero-left">
+
+            <span className="hero-badge">
+
+              Student Dashboard
+
+            </span>
+
+            <h1>
+
+              Welcome back,
+
+              <span>{user?.name}</span>
+
+            </h1>
+
+            <p>
+
+              Access your courses, monitor attendance,
+              and stay updated with active class sessions.
+
+            </p>
+
+          </div>
+
+          <div className="hero-rights">
+
+            <div className="hero-info-card">
+
+              <small>Department</small>
+
+              <strong>
+
+                {user?.department?.name || "N/A"}
+
+              </strong>
+
+            </div>
+
+            <div className="hero-info-card">
+
+              <small>Level</small>
+
+              <strong>
+
+                {user?.level || "N/A"} Level
+
+              </strong>
+
+            </div>
+
+            <div className="hero-info-card">
+
+              <small>Session</small>
+
+              <strong>
+
+                {activeSession || "--"}
+
+              </strong>
+
+            </div>
+
+            <div className="hero-info-card">
+
+              <small>Semester</small>
+
+              <strong>
+
+                {activeSemester || "--"}
+
+              </strong>
+
+            </div>
+
+          </div>
+
         </div>
+
       </div>
 
       {/* COURSES + SEARCH + ENROLL */}

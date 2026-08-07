@@ -1,16 +1,29 @@
 import React from "react";
+import { BsLightningChargeFill } from "react-icons/bs";
 import "./LoadingSpinner.css";
 
 const LoadingSpinner = () => {
   return (
     <div className="spinner-overlay">
-      <div className="circle-loader">
-        <div className="circle-container">
-          <div className="circle pulse"></div>
-          <div className="circle ring"></div>
+
+      <div className="loading-card">
+
+        <div className="loader">
+
+          <div className="spinner-ring"></div>
+
+          <div className="spinner-center">
+            <BsLightningChargeFill />
+          </div>
+
         </div>
-        <p className="loading-text">Loading...</p>
+
+        <h4>Loading</h4>
+
+        <p>Please wait a moment...</p>
+
       </div>
+
     </div>
   );
 };

@@ -141,17 +141,58 @@ const TeacherDashboard = () => {
   return (
     <div className="teacher-dashboard">
       {/* ===== HEADER CARD ===== */}
-      <div className="teacher-header-card d-flex justify-content-between flex-wrap">
+      <div className="teacher-header-card">
+
         <div className="teacher-info-left">
-          <h1>Welcome, {user?.name || "Teacher"}</h1>
-          <p><strong>Department:</strong> {user?.department?.name || "Not assigned"}</p>
-          <p><strong>Email:</strong> {user?.email}</p>
+
+          <p className="welcome-text">
+            Welcome back,
+          </p>
+
+          <h1>
+            {user?.name || "Lecturer"}
+          </h1>
+
+          <p className="teacher-department">
+            {user?.department?.name || "Department not assigned"}
+          </p>
+
+          <p className="teacher-email">
+            {user?.email}
+          </p>
+
         </div>
+
         <div className="teacher-info-right">
-          <p><strong>Current Session:</strong> {activeSession || "Loading..."}</p>
-          <p><strong>Active Semester:</strong> {activeSemester || "Loading..."}</p>
+
+          <div className="info-pill">
+
+            <span className="pill-label">
+              Session
+            </span>
+
+            <span className="pill-value">
+              {activeSession || "Loading..."}
+            </span>
+
+          </div>
+
+          <div className="info-pill">
+
+            <span className="pill-label">
+              Semester
+            </span>
+
+            <span className="pill-value">
+              {activeSemester || "Loading..."}
+            </span>
+
+          </div>
+
         </div>
+
       </div>
+
 
       {/* ===== FILTERS SECTION ===== */}
       <section className="filters-section d-flex flex-wrap justify-content-between align-items-center mb-3 gap-3">
@@ -216,16 +257,73 @@ const TeacherDashboard = () => {
                 className="course-card"
                 onClick={() => navigate(`/teacher/courses/${course._id}`)}
               >
-                <h3>{course.name}</h3>
-                {course.code && <span className="code-tag">{course.code}</span>}
-                <p className="desc">{course.description || "No description available"}</p>
-                <div className="meta">
-                  <p><strong>Course Unit:</strong> {course.unit ?? "N/A"}</p>
-                  <p><strong>Enrolled Students:</strong> {course.enrolledCount ?? 0}</p>
-                  <p><strong>Level:</strong> {course.level || "N/A"}</p>
-                  <p><strong>Semester:</strong> {course.semester || "N/A"}</p>
-                  <p><strong>Department:</strong> {course.department?.name || "N/A"}</p>
+
+                <div className="course-card-header">
+
+                  <div>
+
+                    <span className="code-tag">
+                      {course.code || "N/A"}
+                    </span>
+
+                    <h3>{course.name}</h3>
+
+                  </div>
+
+                  <span className="course-unit">
+                    {course.unit ?? "0"} Unit{course.unit > 1 ? "s" : ""}
+                  </span>
+
                 </div>
+
+                <p className="desc">
+                  {course.description || "No course description available."}
+                </p>
+
+                <div className="meta">
+
+                  <div className="meta-item">
+                    <span className="meta-title">Students</span>
+                    <span className="meta-value">
+                      {course.enrolledCount ?? 0}
+                    </span>
+                  </div>
+
+                  <div className="meta-item">
+                    <span className="meta-title">Level</span>
+                    <span className="meta-value">
+                      {course.level || "N/A"}
+                    </span>
+                  </div>
+
+                  <div className="meta-item">
+                    <span className="meta-title">Semester</span>
+                    <span className="meta-value">
+                      {course.semester || "N/A"}
+                    </span>
+                  </div>
+
+                  <div className="meta-item">
+                    <span className="meta-title">Department</span>
+                    <span className="meta-value">
+                      {course.department?.name || "N/A"}
+                    </span>
+                  </div>
+
+                </div>
+
+                <div className="course-footer">
+
+                  <span>
+                    View Course
+                  </span>
+
+                  <span className="arrow">
+                    →
+                  </span>
+
+                </div>
+
               </div>
             ))}
           </div>

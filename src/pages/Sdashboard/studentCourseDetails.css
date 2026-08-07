@@ -28,42 +28,314 @@
 
 /* --- HEADER CARD --- */
 .course-header-card {
-    background: #ffffff !important;
-    border: 1px solid #e6e6e6;
-    border-radius: 10px;
-    padding: 25px;
+
+    background: #fff;
+
+    border-radius: 22px;
+
+    padding: 30px;
+
     display: flex;
+
     justify-content: space-between;
+
     align-items: center;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+
+    gap: 30px;
+
+    box-shadow:
+        0 12px 30px rgba(15, 23, 42, .06);
+
+    position: relative;
+
+    overflow: hidden;
+
 }
 
-.course-header-info h2 {
-    color: var(--un-primary);
-    /* Uniosun green */
+.course-header-card::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: 0;
+
+    width: 100%;
+
+    height: 5px;
+
+    background: linear-gradient(90deg,
+            #198754,
+            #45d17c);
+
+}
+
+.course-header-left {
+
+    flex: 1;
+
+}
+
+.course-title-row {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 18px;
+
+    margin-bottom: 22px;
+
+}
+
+.course-icon-box {
+
+    width: 64px;
+
+    height: 64px;
+
+    border-radius: 18px;
+
+    background: #eef9f2;
+
+    color: #198754;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 28px;
+
+}
+
+.course-header-info h2,
+.course-title-row h2 {
+
+    margin: 0;
+
+    font-size: 2rem;
+
     font-weight: 700;
-    margin-bottom: 6px;
+
+    color: #184d32;
+
 }
 
 .course-code {
-    font-size: 0.95rem;
-    color: #888;
-    margin-bottom: 10px;
+
+    display: inline-block;
+
+    margin-top: 6px;
+
+    color: #6c757d;
+
+    font-weight: 600;
+
+    letter-spacing: .5px;
+
 }
 
 .course-meta {
+
     display: flex;
+
     flex-wrap: wrap;
-    gap: 12px;
-    font-size: 0.95rem;
+
+    gap: 14px;
+
 }
 
-.course-meta span {
+.meta-chip {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 10px 16px;
+
+    background: #f4fbf6;
+
+    border: 1px solid #dcefe2;
+
+    border-radius: 30px;
+
+    color: #1d6b42;
+
+    font-size: .92rem;
+
+    font-weight: 600;
+
+}
+
+.meta-chip svg {
+
+    font-size: 16px;
+
+}
+
+.scan-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.scan-status {
+    font-size: .82rem;
+    font-weight: 600;
+}
+
+.scan-status.active {
+    color: #198754;
+}
+
+.scan-status.inactive {
+    color: #8a8a8a;
+}
+
+.scan-btn {
+
+    min-width: 220px;
+
+    height: 52px;
+
+    border: none !important;
+
+    border-radius: 14px !important;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    font-weight: 600;
+
+    font-size: .95rem;
+
+    transition: .25s;
+
+    box-shadow: 0 8px 18px rgba(25, 135, 84, .15);
+
+}
+
+.scan-btn.active {
+
+    background: linear-gradient(135deg,
+            #198754,
+            #27b362) !important;
+
+    color: #fff;
+}
+
+.scan-btn.active:hover {
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 14px 30px rgba(25, 135, 84, .25);
+
+}
+
+.scan-btn.disabled {
+
+    background: #ececec !important;
+
+    color: #888 !important;
+
+    box-shadow: none;
+
+    cursor: not-allowed;
+
+}
+
+.scan-btn svg {
+
+    flex-shrink: 0;
+
+    font-size: 1.3rem;
+
+}
+
+.attendance-header-card {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 16px;
+
+    background: #fff;
+
+    padding: 18px 22px;
+
+    border-radius: 18px;
+
+    border: 1px solid #e7f1ea;
+
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .05);
+
+}
+
+.attendance-header-icon {
+
+    width: 52px;
+
+    height: 52px;
+
+    border-radius: 14px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #eef9f2;
+
+    color: #198754;
+
+    font-size: 22px;
+
+    flex-shrink: 0;
+
+}
+
+.attendance-header-card h4 {
+
+    margin: 0;
+
+    font-size: 1.15rem;
+
+    font-weight: 700;
+
+    color: #184d32;
+
+}
+
+.attendance-header-card p {
+
+    margin: 4px 0 0;
+
+    color: #6b7280;
+
+    font-size: .9rem;
+
+}
+
+/* .course-meta span {
     background: #f2f9f5;
     border-radius: 6px;
     padding: 4px 10px;
     color: var(--un-primary);
-}
+} */
 
 /* --- MARK BUTTON --- */
 .mark-btn {
@@ -106,7 +378,7 @@
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.records-card{
+.records-card {
     padding: 0 !important;
 }
 
@@ -124,6 +396,95 @@
     margin-top: 10px;
     color: #e63946;
     font-weight: 600;
+}
+
+
+.stat-box {
+
+    background: #fff;
+
+    border: 1px solid #e9ecef;
+
+    border-radius: 18px;
+
+    padding: 18px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    justify-content: center;
+
+    transition: .25s;
+
+}
+
+.stat-box:hover {
+
+    transform: translateY(-3px);
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, .06);
+
+}
+
+.stat-icon {
+
+    font-size: 22px;
+
+    color: #198754;
+
+    margin-bottom: 14px;
+
+}
+
+.stat-value {
+
+    font-size: 1.8rem;
+
+    font-weight: 700;
+
+    color: #1f2937;
+
+}
+
+.stat-box small {
+
+    color: #64748b;
+
+    font-size: .9rem;
+
+}
+
+.success {
+
+    color: #16a34a;
+
+}
+
+.danger {
+
+    color: #ef4444;
+
+}
+
+.primary {
+
+    color: #2563eb;
+
+}
+
+.gold {
+
+    color: #f59e0b;
+
+}
+
+.xp-card {
+
+    grid-column: 1/-1;
+
 }
 
 /* --- RECORDS TABLE CARD --- */
@@ -161,6 +522,134 @@
     margin-right: 10px;
 }
 
+
+.summary-section {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 24px;
+    margin: 30px 0;
+    align-items: start;
+}
+
+.summary-card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 24px;
+    border: 1px solid #ececec;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, .05);
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px;
+}
+
+.stat-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    border: 1px solid #ececec;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, .05);
+
+    transition: .25s;
+}
+
+
+
+.stat-box:hover {
+    transform: translateY(-4px);
+}
+
+.stat-icon {
+    font-size: 28px;
+    color: #0B6623;
+}
+
+.stat-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #222;
+}
+.filter-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+}
+.stat-box small {
+    color: #666;
+    font-size: .9rem;
+}
+
+.success {
+    color: #16a34a;
+}
+
+.danger {
+    color: #dc2626;
+}
+
+.primary {
+    color: #2563eb;
+}
+
+.gold {
+    color: #f59e0b;
+}
+
+.summary-alert {
+    grid-column: 1/-1;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 16px 20px;
+
+    border-radius: 14px;
+
+    background: #fff8e6;
+
+    border-left: 5px solid #f59e0b;
+
+    color: #8a5b00;
+
+    font-weight: 500;
+}
+
+.summary-alert svg {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.summary.percentage-good {
+    background: #eefbf3;
+    border-left-color: #198754;
+    color: #146c43;
+}
+
+.summary.percentage-bad {
+    background: #fff3f3;
+    border-left-color: #dc3545;
+    color: #b42318;
+}
+
+@media(max-width:900px) {
+
+    .summary-section {
+        grid-template-columns: 1fr;
+    }
+
+}
 
 /* --- RESPONSIVE --- */
 @media (max-width: 900px) {

@@ -1,4 +1,3 @@
-// src/components/TeacherAttendanceChart.jsx
 import {
   BarChart,
   Bar,
@@ -8,8 +7,8 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-  Cell,
 } from "recharts";
+
 import "./teacherAttendanceChart.css";
 
 const TeacherAttendanceChart = ({ data = [] }) => {
@@ -19,94 +18,191 @@ const TeacherAttendanceChart = ({ data = [] }) => {
     Absent: rec.absent ?? 0,
   }));
 
-
-  const colors = {
-    Present: "#4CAF50",
-    Absent: "#F44336",
-  };
-
-  // Custom tooltip with better visuals
+  // =====================================================
+  // Custom Tooltip
+  // =====================================================
   const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="teacher-chart-tooltip">
-          <h4>{label}</h4>
-          <p style={{ color: "#0B6623" }}>Present: {payload[0]?.value ?? 0}</p>
-          <p style={{ color: "red" }}>Absent: {payload[1]?.value ?? 0}</p>
+    if (!active || !payload?.length) return null;
+
+    const present =
+      payload.find((item) => item.dataKey === "Present")?.value ?? 0;
+
+    const absent =
+      payload.find((item) => item.dataKey === "Absent")?.value ?? 0;
+
+    const total = Number(present) + Number(absent);
+
+    return (
+      <div className="teacher-chart-tooltip">
+        <div className="tooltip-student">
+          {label}
         </div>
-      );
-    }
-    return null;
+
+        <div className="tooltip-row">
+          <span className="tooltip-label">
+            <span className="tooltip-dot present-dot" />
+            Present
+          </span>
+
+          <strong>{present}</strong>
+        </div>
+
+        <div className="tooltip-row">
+          <span className="tooltip-label">
+            <span className="tooltip-dot absent-dot" />
+            Absent
+          </span>
+
+          <strong>{absent}</strong>
+        </div>
+
+        <div className="tooltip-divider" />
+
+        <div className="tooltip-total">
+          <span>Total Records</span>
+          <strong>{total}</strong>
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="teacher-chart-card">
-      <h3 className="chart-title">Attendance Overview</h3>
+    <section className="teacher-chart-card">
 
+      {/* =================================================
+          HEADER
+      ================================================= */}
+      <div className="teacher-chart-header">
+        <div>
+          <h3 className="chart-title">
+            Attendance Overview
+          </h3>
+
+          <p className="chart-subtitle">
+            Student attendance records for the selected period
+          </p>
+        </div>
+
+        {chartData.length > 0 && (
+          <div className="chart-record-count">
+            {chartData.length}{" "}
+            {chartData.length === 1 ? "Student" : "Students"}
+          </div>
+        )}
+      </div>
+
+      {/* =================================================
+          EMPTY STATE
+      ================================================= */}
       {chartData.length === 0 ? (
-        <p className="empty-text">No attendance records yet.</p>
+        <div className="teacher-chart-empty">
+          <div className="empty-chart-icon">
+            <span />
+            <span />
+            <span />
+          </div>
+
+          <h4>No attendance records</h4>
+
+          <p>
+            Attendance data will appear here once students
+            begin recording attendance.
+          </p>
+        </div>
       ) : (
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart
-            data={chartData}
-            margin={{ top: 20, right: 30, left: 10, bottom: 50 }}
-            barGap={10}
-          >
-            <defs>
-              <linearGradient id="presentGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#4CAF50" stopOpacity={0.8} />
-                <stop offset="100%" stopColor="#2E7D32" stopOpacity={0.8} />
-              </linearGradient>
-
-              <linearGradient id="absentGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#F44336" stopOpacity={0.8} />
-                <stop offset="100%" stopColor="#C62828" stopOpacity={0.8} />
-              </linearGradient>
-            </defs>
-
-            <CartesianGrid strokeDasharray="3 3" stroke="#ddd" />
-            <XAxis
-              dataKey="name"
-              angle={-30}
-              textAnchor="end"
-              height={70}
-              tick={{ fontSize: 12, fill: "#555" }}
-            />
-            <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: "#555" }} />
-            <Tooltip content={<CustomTooltip />} />
-            <Legend
-              verticalAlign="top"
-              height={36}
-              wrapperStyle={{ fontSize: "14px", color: "#444" }}
-            />
-
-            <Bar
-              dataKey="Present"
-              fill="url(#presentGradient)"
-              name="Present"
-              radius={[6, 6, 0, 0]}
-              animationDuration={800}
+        /* =================================================
+           CHART
+        ================================================= */
+        <div className="teacher-chart-wrapper">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={chartData}
+              margin={{
+                top: 20,
+                right: 10,
+                left: 0,
+                bottom: 55,
+              }}
+              barGap={8}
+              barCategoryGap="22%"
             >
-              {chartData.map((_, idx) => (
-                <Cell key={`present-${idx}`} />
-              ))}
-            </Bar>
+              <CartesianGrid
+                stroke="#e5e7eb"
+                strokeDasharray="4 4"
+                vertical={false}
+              />
 
-            <Bar
-              dataKey="Absent"
-              fill="url(#absentGradient)"
-              name="Absent"
-              radius={[6, 6, 0, 0]}
-              animationDuration={800}
-            >
-              {chartData.map((_, idx) => (
-                <Cell key={`absent-${idx}`} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
+              <XAxis
+                dataKey="name"
+                axisLine={false}
+                tickLine={false}
+                interval={0}
+                angle={-30}
+                textAnchor="end"
+                height={75}
+                tick={{
+                  fontSize: 11,
+                  fill: "#64748b",
+                  fontWeight: 500,
+                }}
+              />
+
+              <YAxis
+                allowDecimals={false}
+                axisLine={false}
+                tickLine={false}
+                width={35}
+                tick={{
+                  fontSize: 11,
+                  fill: "#64748b",
+                  fontWeight: 500,
+                }}
+              />
+
+              <Tooltip
+                content={<CustomTooltip />}
+                cursor={{
+                  fill: "rgba(11, 102, 35, 0.04)",
+                }}
+              />
+
+              <Legend
+                verticalAlign="top"
+                align="right"
+                height={45}
+                iconType="circle"
+                wrapperStyle={{
+                  fontSize: "12px",
+                  fontWeight: 600,
+                  color: "#475569",
+                }}
+              />
+
+              <Bar
+                dataKey="Present"
+                name="Present"
+                fill="#0B6623"
+                radius={[6, 6, 0, 0]}
+                maxBarSize={32}
+                animationDuration={900}
+                animationEasing="ease-out"
+              />
+
+              <Bar
+                dataKey="Absent"
+                name="Absent"
+                fill="#DC2626"
+                radius={[6, 6, 0, 0]}
+                maxBarSize={32}
+                animationDuration={900}
+                animationEasing="ease-out"
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       )}
-    </div>
+
+    </section>
   );
 };
 

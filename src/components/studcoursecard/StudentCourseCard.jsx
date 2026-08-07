@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { Card, Badge } from "react-bootstrap";
 import { FaBookOpen } from "react-icons/fa";
 import { getRank } from "../../utils/getRank";
+import { FaChalkboardTeacher } from "react-icons/fa";
 import "./studentCourseCard.css";
 
 const StudentCourseCard = ({ course, summary }) => {
@@ -26,19 +27,21 @@ const StudentCourseCard = ({ course, summary }) => {
       <Card.Body>
         <div className="d-flex justify-content-between align-items-center mb-2">
           <div className="d-flex align-items-center gap-2">
-            <FaBookOpen className="text-success" size={20} />
+            <div className="course-icon">
+              <FaBookOpen />
+            </div>
             <h6 className="fw-bold mb-0 text-dark">{course.code}</h6>
 
             {course.hasActiveSession && (
-              <Badge bg="danger" className="live-badge ms-2">
-                 ● ACTIVE
-              </Badge>
+              <div bg="danger" className="live-badge ms-2">
+                ● ACTIVE
+              </div>
             )}
           </div>
 
-          <Badge bg="success-subtle" text="success">
+          <div className="units-badges">
             {course.unit || 3} Units
-          </Badge>
+          </div>
         </div>
 
 
@@ -47,8 +50,17 @@ const StudentCourseCard = ({ course, summary }) => {
           {course.description || "No description available"}
         </Card.Text>
 
-        <div className="text-muted small mb-2">
-          <strong>Lecturer:</strong> {course.teacher?.name || "N/A"}
+        <div className="lecturer-row">
+
+          <div className="lecturer-avatar">
+            <FaChalkboardTeacher />
+          </div>
+
+          <div className="lecturer-info">
+            <small>Course Lecturer</small>
+            <strong>{course.teacher?.name || "Not Assigned"}</strong>
+          </div>
+
         </div>
 
         {summary ? (
@@ -61,27 +73,56 @@ const StudentCourseCard = ({ course, summary }) => {
               <span>Absent:</span>
               <span>{absent}</span>
             </div>
-            <div className="d-flex justify-content-between fw-semibold">
-              <span>Attendance:</span>
-              <span className="text-success">
-                {formatPercentage(attendancePercentage)}%
-              </span>
+            <div className="attendance-circle-wrapper">
+
+              <div
+                className="attendance-circle"
+                style={{
+                  "--percentage": attendancePercentage
+                }}
+              >
+
+                <div className="attendance-circle-inner">
+
+                  <strong>
+                    {formatPercentage(attendancePercentage)}%
+                  </strong>
+
+                  <small>Attendance</small>
+
+                </div>
+
+              </div>
+
             </div>
 
             {rank && (
-              <div className="rank-badge d-flex align-items-center mt-3">
+              <div className="rank-badge">
+
                 <img
                   src={rank.img}
                   alt={rank.name}
-                  className="rank-img me-2"
+                  className="rank-img"
                 />
-                <div>
-                  <span className="fw-bold">{rank.name}</span>
-                  <br />
-                  <small className="text-muted">
-                    Score: {formatXP(xpScore)} XP
+
+                <div className="rank-content">
+
+                  <span className="rank-title">
+                    {rank.name}
+                  </span>
+
+                  <small>
+                    {formatXP(xpScore)} XP Earned
                   </small>
+
                 </div>
+
+                <div className="rank-arrow">
+
+                  →
+
+                </div>
+
               </div>
             )}
           </div>

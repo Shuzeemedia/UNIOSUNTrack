@@ -49,6 +49,7 @@
 .actions {
     display: flex;
     flex-wrap: wrap;
+    align-items: center;
     gap: 8px;
 }
 
@@ -142,12 +143,12 @@
 }
 
 .attendance-table .present {
-    background: #e6ffe6;
+
     color: var(--un-primary);
 }
 
 .attendance-table .absent {
-    background: #ffe6e6;
+
     color: #b22222;
 }
 
@@ -207,6 +208,232 @@
 
 .editable-cell.editable:hover {
     background-color: #d0e6ff;
+}
+
+.table-title h3 {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #184d32;
+}
+
+.table-title p {
+    margin: 3px 0 0;
+    color: #6b7280;
+    font-size: .9rem;
+}
+
+.export-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: fit-content;
+    padding: 9px 14px;
+
+    border: none;
+    border-radius: 10px;
+
+    font-weight: 600;
+
+    transition: .25s;
+}
+
+.export-btn.csv {
+    background: #198754;
+    color: #fff;
+}
+
+.export-btn.pdf {
+    background: #dc3545;
+    color: #fff;
+}
+
+.export-btn:hover {
+    transform: translateY(-2px);
+}
+
+.session-filter {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 8px 12px;
+
+    border: 1px solid #ddd;
+
+    border-radius: 10px;
+
+    background: #fff;
+
+}
+
+.session-filter svg {
+
+    color: #198754;
+
+    font-size: 18px;
+
+}
+
+.session-filter select {
+
+    border: none;
+
+    outline: none;
+
+    background: transparent;
+
+    font-weight: 500;
+
+}
+
+.status-badge {
+
+    padding: 6px 12px;
+
+    border-radius: 30px;
+
+    font-weight: 600;
+
+    font-size: .82rem;
+
+    display: inline-flex;
+
+    align-items: center;
+
+}
+
+.status-badge.present {
+
+    background: #dcfce7;
+
+    color: #15803d;
+
+}
+
+.status-badge.absent {
+
+    background: #fee2e2;
+
+    color: #b91c1c;
+
+}
+
+.session-chip {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    padding: 6px 12px;
+
+    background: #eef9f2;
+
+    border-radius: 30px;
+
+    color: #198754;
+
+    font-weight: 600;
+
+}
+
+.date-cell {
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+.date-cell span {
+
+    font-weight: 600;
+
+}
+
+.date-cell small {
+
+    color: #6b7280;
+
+}
+
+.attendance-table tbody tr:nth-child(even) {
+
+    background: #fafafa;
+
+}
+
+.attendance-table tr:hover {
+    background: #f9f9f9;
+}
+
+.attendance-table tbody tr {
+
+    transition: .2s;
+
+}
+
+.attendance-table tbody tr:hover {
+
+    background: #f5fff7;
+
+    transform: scale(1.002);
+
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    padding: 70px 30px;
+
+    text-align: center;
+
+    background: #fff;
+
+    border: 1px dashed #d7d7d7;
+
+    border-radius: 14px;
+}
+
+.empty-icon {
+    width: 80px;
+    height: 80px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: #eef9f2;
+
+    color: #198754;
+
+    font-size: 34px;
+
+    margin-bottom: 18px;
+}
+
+.empty-state h3 {
+    margin: 0 0 8px;
+    color: #184d32;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.empty-state p {
+    max-width: 420px;
+    color: #6b7280;
+    line-height: 1.6;
+    margin: 0;
 }
 
 /* ===================== RESPONSIVENESS ===================== */
@@ -286,7 +513,7 @@
     }
 
     .pagination {
-        flex-direction: column;
+        flex-direction: row;
         gap: 6px;
     }
 

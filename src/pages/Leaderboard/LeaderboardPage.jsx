@@ -1,10 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import API from "../../api/api";
 import "./LeaderboardPage.css";
 import { toast } from "react-toastify";
 import { getRank } from "../../utils/getRank";
 import LoadingSpinner from "../../components/Loader/LoadingSpinner";
 import { BiCrown } from "react-icons/bi";
+
+import { FaAward } from "react-icons/fa";
+
+import {
+  FaUsers,
+  FaChartLine,
+  FaStar,
+  FaTrophy,
+  FaMedal,
+  FaBullseye
+} from "react-icons/fa";
+
 
 
 function LeaderboardPage() {
@@ -15,7 +27,8 @@ function LeaderboardPage() {
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedCourse, setSelectedCourse] = useState("");
   const [leaderboard, setLeaderboard] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
+  const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [accessBlocked, setAccessBlocked] = useState(false);
   const [visibleTooltip, setVisibleTooltip] = useState(null);
 
@@ -23,7 +36,10 @@ function LeaderboardPage() {
 
   // Fetch courses (teacher/admin/student)
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      setPageLoading(false);
+      return;
+    }
 
     const fetchCourses = async () => {
       try {
@@ -76,6 +92,8 @@ function LeaderboardPage() {
         console.error(err);
         setAccessBlocked(true);
         toast.error("Failed to fetch courses for leaderboard.");
+      } finally {
+        setPageLoading(false);
       }
     };
 
@@ -110,7 +128,7 @@ function LeaderboardPage() {
     }
 
     try {
-      setLoading(true);
+      setLoadingLeaderboard(true);
       const { data } = await API.get("/leaderboard", {
         params: {
           department: user.role === "student" ? undefined : selectedDept || undefined,
@@ -122,9 +140,46 @@ function LeaderboardPage() {
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to fetch leaderboard");
     } finally {
-      setLoading(false);
+      setLoadingLeaderboard(false);
     }
   };
+
+  const stats = useMemo(() => {
+    if (!leaderboard.length)
+      return {
+        students: 0,
+        averageXP: 0,
+        averageAttendance: 0,
+        topStudent: "-"
+      };
+
+    const totalXP = leaderboard.reduce(
+      (sum, s) =>
+        sum +
+        ((s.totalPresent || 0) /
+          Math.max(s.totalClasses || 1, 1)) *
+        10,
+      0
+    );
+
+    const totalAttendance = leaderboard.reduce(
+      (sum, s) =>
+        sum +
+        ((s.totalPresent || 0) /
+          Math.max(s.totalClasses || 1, 1)) *
+        100,
+      0
+    );
+
+    return {
+      students: leaderboard.length,
+      averageXP: (totalXP / leaderboard.length).toFixed(1),
+      averageAttendance: (
+        totalAttendance / leaderboard.length
+      ).toFixed(0),
+      topStudent: leaderboard[0]?.name || "-"
+    };
+  }, [leaderboard]);
 
   const rankImages = {
     Bronze: "/ranks/bronze.png",
@@ -143,7 +198,7 @@ function LeaderboardPage() {
     setTimeout(() => setVisibleTooltip(null), 2000);
   };
 
-  if (loading) return <LoadingSpinner />;
+  if (pageLoading) return <LoadingSpinner />;
 
   if (accessBlocked) {
     return (
@@ -158,59 +213,203 @@ function LeaderboardPage() {
 
   return (
     <div className="leaderboard-wrapper">
-      <h2 className="leaderboard-title">🏆 Attendance Leaderboard</h2>
 
-      <div className="filter-section">
-        {user.role !== "student" && (
-          <>
+      <div className="leaderboard-hero">
+
+        <div className="hero-left">
+
+          <div className="hero-badge">
+            <BiCrown />
+            Student Ranking System
+          </div>
+
+          <h1>
+            Attendance <span>Leaderboard</span>
+          </h1>
+
+          <p>
+            Earn XP through consistent attendance, unlock prestigious ranks,
+            and compete with classmates to become the top-performing student.
+          </p>
+
+          <div className="hero-tags">
+
+            <span className="hero-tag">
+              <FaStar />
+              XP Rewards
+            </span>
+
+            <span className="hero-tag">
+              <FaMedal />
+              8 Rank Levels
+            </span>
+
+            <span className="hero-tag">
+              <FaChartLine />
+              Live Ranking
+            </span>
+
+            <span className="hero-tag">
+              <FaBullseye />
+              Attendance Based
+            </span>
+
+          </div>
+
+        </div>
+
+        <div className="hero-right">
+
+          <div className="hero-card">
+
+            <BiCrown className="hero-crown" />
+
+            <h2>Become #1</h2>
+
+            <p>
+              Attend every class consistently to reach the
+              <strong> Star Student League.</strong>
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+      <div className="leaderboard-stats">
+
+        <div className="stat-card">
+
+          <div className="stat-icon">
+            <FaUsers />
+          </div>
+
+          <span>Total Students</span>
+
+          <h3>{stats.students}</h3>
+
+        </div>
+
+        <div className="stat-card">
+
+          <div className="stat-icon">
+            <FaChartLine />
+          </div>
+
+          <span>Average Attendance</span>
+
+          <h3>{stats.averageAttendance}%</h3>
+
+        </div>
+
+        <div className="stat-card">
+
+          <div className="stat-icon">
+            <FaStar />
+          </div>
+
+          <span>Average XP</span>
+
+          <h3>{stats.averageXP}</h3>
+
+        </div>
+
+        <div className="stat-card">
+
+          <div className="stat-icon trophy">
+            <FaTrophy />
+          </div>
+
+          <span>Top Student</span>
+
+          <h3>{stats.topStudent}</h3>
+
+        </div>
+
+      </div>
+
+      <div className="leaderboard-filter-card">
+
+        <div className="filter-header">
+          <div>
+            <h3>Filter Leaderboard</h3>
+            <p>Select a department, level and course to view rankings.</p>
+          </div>
+        </div>
+
+        <div className="filter-grid">
+
+          {user.role !== "student" && (
+            <>
+              <div className="filter-group">
+                <label>Department</label>
+
+                <select
+                  value={selectedDept}
+                  onChange={(e) => setSelectedDept(e.target.value)}
+                  className="filter-select"
+                >
+                  <option value="">Select Department</option>
+
+                  {departments.map((dept) => (
+                    <option key={dept._id} value={dept._id}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="filter-group">
+                <label>Level</label>
+
+                <select
+                  value={selectedLevel}
+                  onChange={(e) => setSelectedLevel(parseInt(e.target.value))}
+                  className="filter-select"
+                >
+                  <option value="">Select Level</option>
+
+                  {levels.map((lvl) => (
+                    <option key={lvl} value={lvl}>
+                      {lvl} Level
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          <div className="filter-group">
+            <label>Course</label>
+
             <select
-              value={selectedDept}
-              onChange={(e) => setSelectedDept(e.target.value)}
+              value={selectedCourse}
+              onChange={(e) => setSelectedCourse(e.target.value)}
               className="filter-select"
             >
-              <option value="">Select Department</option>
-              {departments.map((dept) => (
-                <option key={dept._id} value={dept._id}>
-                  {dept.name}
+              <option value="">Select Course</option>
+
+              {filteredCourses.map((course) => (
+                <option key={course._id} value={course._id}>
+                  {course.name}
                 </option>
               ))}
             </select>
+          </div>
 
-            <select
-              value={selectedLevel}
-              onChange={(e) => setSelectedLevel(parseInt(e.target.value))}
-              className="filter-select"
+          <div className="filter-btn-wrapper">
+            <button
+              className="load-btn"
+              onClick={fetchLeaderboard}
+              disabled={loadingLeaderboard || !selectedCourse}
             >
-              <option value="">Select Level</option>
-              {levels.map((lvl) => (
-                <option key={lvl} value={lvl}>
-                  {lvl} Level
-                </option>
-              ))}
-            </select>
-          </>
-        )}
+              {loadingLeaderboard ? "Loading..." : "Load Leaderboard"}
+            </button>
+          </div>
 
-        <select
-          value={selectedCourse}
-          onChange={(e) => setSelectedCourse(e.target.value)}
-          className="filter-select"
-        >
-          <option value="">Select Course</option>
-          {filteredCourses.map((course) => (
-            <option key={course._id} value={course._id}>
-              {course.name}
-            </option>
-          ))}
-        </select>
+        </div>
 
-        <button
-          className="load-btn"
-          onClick={fetchLeaderboard}
-          disabled={loading || !selectedCourse}
-        >
-          {loading ? "Loading..." : "Load Leaderboard"}
-        </button>
       </div>
 
       <div className="table-container">
@@ -238,9 +437,37 @@ function LeaderboardPage() {
                 return (
                   <tr key={student.studentId} className={`rank-${student.rank}`}>
                     <td>{student.rank}</td>
-                    <td className="student-name-cell">
-                      {student.rank === 1 && <BiCrown className="top-rank-crown crn" />}
-                      {student.name || "N/A"}
+                    <td className="student-cell">
+                      <div
+                        className={`student-info ${student.rank === 1
+                          ? "first-place"
+                          : student.rank === 2
+                            ? "second-place"
+                            : student.rank === 3
+                              ? "third-place"
+                              : ""
+                          }`}
+                      >
+                        {student.rank === 1 && (
+                          <div className="leader-badge gold">
+                            <BiCrown />
+                          </div>
+                        )}
+
+                        {student.rank === 2 && (
+                          <div className="leader-badge silver">
+                            <FaMedal />
+                          </div>
+                        )}
+
+                        {student.rank === 3 && (
+                          <div className="leader-badge bronze">
+                            <FaAward />
+                          </div>
+                        )}
+
+                        <strong>{student.name}</strong>
+                      </div>
                     </td>
 
 
@@ -248,7 +475,11 @@ function LeaderboardPage() {
                     <td>{student.studentId || student.matric || "N/A"}</td>
                     <td>{deptName}</td>
                     <td>{student.level || "N/A"}</td>
-                    <td>{ratio} XP</td>
+                    <td>
+                      <span className="xp-badge">
+                        {ratio} XP
+                      </span>
+                    </td>
                     <td style={{ position: "relative" }}>
                       <img
                         src={rank.img}
@@ -270,44 +501,89 @@ function LeaderboardPage() {
       </div>
 
 
-      <p className="ranking-description">
-        The leaderboard rewards students based on their attendance performance. Your XP score is calculated from how consistently you attend classes.
-        Higher XP = higher rank.
+      <div className="leaderboard-info">
 
-        <br />
-        Ranks progress from <div className="rank-legend">
-          {[
-            "Bronze",
-            "Silver",
-            "Gold",
-            "Platinum",
-            "Diamond",
-            "Champion",
-            "Grand Champion",
-            "Star Student League",
-          ].map((r) => (
-            <div key={r} className="rank-legend-item">
-              <img src={rankImages[r]} alt={r} className="rank-icon-small" />
-              <span>{r}</span>
+        <div className="ranking-card">
+
+          <div className="ranking-card-header">
+            <FaChartLine />
+            <div>
+              <h3>How Ranking Works</h3>
+              <p>
+                Rankings are generated automatically from your attendance consistency.
+                The higher your attendance, the more XP you earn and the higher your league.
+              </p>
             </div>
-          ))}
+          </div>
+
+          <div className="rank-legend">
+
+            {[
+              "Bronze",
+              "Silver",
+              "Gold",
+              "Platinum",
+              "Diamond",
+              "Champion",
+              "Grand Champion",
+              "Star Student League",
+            ].map((r) => (
+              <div key={r} className="rank-legend-item">
+                <img
+                  src={rankImages[r]}
+                  alt={r}
+                  className="rank-icon-small"
+                />
+
+                <span>{r}</span>
+              </div>
+            ))}
+
+          </div>
+
+          <div className="ranking-note">
+            <FaStar />
+            <span>
+              Higher Attendance → More XP → Higher Rank
+            </span>
+          </div>
+
         </div>
 
-        <b className="text-success">Only the most consistent students reach the top tiers.</b>
-      </p>
 
-      <div className="rank-hype">
-        <div className="star-league">
-          <img
-            src={rankImages["Star Student League"]}
-            alt="Star Student League"
-            className="star-league-icon"
-          />
+
+        <div className="star-card">
+
+          <div className="star-top">
+
+            <img
+              src={rankImages["Star Student League"]}
+              alt="Star Student League"
+              className="star-league-icon"
+            />
+
+            <div>
+
+              <h3>Star Student League</h3>
+
+              <span>Highest Achievement</span>
+
+            </div>
+
+          </div>
+
           <p>
-            <strong>Star Student League</strong> is reserved for excellence.
-            Few ever reach it.
+            Reserved for students with exceptional attendance consistency.
+            Only the most committed students earn this prestigious title.
           </p>
+
+          <div className="star-footer">
+            <FaTrophy />
+            Excellence • Discipline • Consistency
+          </div>
+
         </div>
+
       </div>
 
     </div>

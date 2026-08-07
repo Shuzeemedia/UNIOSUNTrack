@@ -1,109 +1,1070 @@
-/* ===========================
-   UNIOSUN FACE ENROLL PAGE
-=========================== */
+/* =========================================================
+   UNIOSUNTrack - FACE ENROLLMENT
+========================================================= */
 
 :root {
     --un-primary: #0B6623;
+    --un-primary-dark: #09581e;
     --un-accent: #FBBF24;
-    --un-bg: #F9FAFB;
-    --un-text: #1E293B;
+
+    --un-bg: #F4F7F5;
+    --un-card: #FFFFFF;
+
+    --un-text: #0F172A;
+    --un-muted: #64748B;
+    --un-border: #E2E8F0;
+
+    --un-success: #15803D;
 }
 
-/* Wrapper */
-.face-enroll-wrapper {
-    padding: 80px 0;
-    background-color: var(--un-bg);
+
+/* =========================================================
+   PAGE
+========================================================= */
+
+.face-enroll-page {
+
     min-height: 100vh;
+
+    padding: 35px 20px;
+
     display: flex;
+
     justify-content: center;
+
     align-items: center;
+
+    background:
+        radial-gradient(circle at top left,
+            rgba(11, 102, 35, 0.08),
+            transparent 32%),
+        linear-gradient(135deg,
+            #EEF4FF 0%,
+            #F8FAFC 50%,
+            #FFFFFF 100%);
+
 }
 
-/* Card */
-.face-enroll-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
-    padding: 40px 30px;
+
+/* =========================================================
+   CONTAINER
+========================================================= */
+
+.face-enroll-container {
+
     width: 100%;
-    max-width: 400px;
+
+    max-width: 760px;
+
+}
+
+
+/* =========================================================
+   BRAND
+========================================================= */
+
+.face-enroll-brand {
+
     display: flex;
-    flex-direction: column;
+
     align-items: center;
+
+    gap: 12px;
+
+    margin-bottom: 18px;
+
+    padding-left: 5px;
+
 }
 
-/* Header */
-.face-enroll-header {
+.face-enroll-brand img {
+
+    width: 46px;
+
+    height: 46px;
+
+    object-fit: contain;
+
+}
+
+.face-enroll-brand div {
+
     display: flex;
+
     flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 30px;
+
 }
 
-.face-enroll-logo {
-    width: 58px;
-}
+.face-enroll-brand strong {
 
-.face-enroll-header h3 {
-    font-size: 22px;
-    font-weight: 700;
+    font-size: 17px;
+
+    font-weight: 800;
+
     color: var(--un-text);
+
 }
 
-/* Video */
-.face-video-wrapper {
-    width: 100%;
-    text-align: center;
-    margin-bottom: 20px;
+.face-enroll-brand span {
+
+    font-size: 12px;
+
+    color: var(--un-muted);
+
 }
+
+
+/* =========================================================
+   CARD
+========================================================= */
+
+.face-enroll-card {
+
+    background: var(--un-card);
+
+    border: 1px solid var(--un-border);
+
+    border-radius: 22px;
+
+    padding: 32px;
+
+    box-shadow:
+        0 25px 70px rgba(15, 23, 42, 0.10);
+
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.face-enroll-header {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 16px;
+
+    margin-bottom: 24px;
+
+}
+
+.face-enroll-security-icon {
+
+    width: 52px;
+
+    height: 52px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 15px;
+
+    color: var(--un-primary);
+
+    background: rgba(11, 102, 35, 0.09);
+
+    font-size: 27px;
+
+}
+
+.face-enroll-step {
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    color: var(--un-primary);
+
+    margin-bottom: 3px;
+
+}
+
+.face-enroll-heading h1 {
+
+    margin: 0;
+
+    font-size: 27px;
+
+    font-weight: 800;
+
+    color: var(--un-text);
+
+}
+
+.face-enroll-heading p {
+
+    margin: 5px 0 0;
+
+    font-size: 14px;
+
+    color: var(--un-muted);
+
+}
+
+
+/* =========================================================
+   INSTRUCTION
+========================================================= */
+
+.face-enroll-instruction {
+
+    display: flex;
+
+    gap: 12px;
+
+    padding: 15px 16px;
+
+    margin-bottom: 20px;
+
+    border-radius: 13px;
+
+    border: 1px solid #DCE8DF;
+
+    background: #F5FAF6;
+
+}
+
+.instruction-icon {
+
+    width: 34px;
+
+    height: 34px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 9px;
+
+    background: #E3F1E6;
+
+    color: var(--un-primary);
+
+    font-size: 19px;
+
+}
+
+.face-enroll-instruction strong {
+
+    display: block;
+
+    color: var(--un-text);
+
+    font-size: 14px;
+
+    margin-bottom: 5px;
+
+}
+
+.face-enroll-instruction ul {
+
+    margin: 0;
+
+    padding-left: 18px;
+
+    color: var(--un-muted);
+
+    font-size: 12px;
+
+    line-height: 1.7;
+
+}
+
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+.face-enroll-camera {
+
+    position: relative;
+
+    width: 100%;
+
+    aspect-ratio: 4 / 3;
+
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    background: #07100A;
+
+    border: 1px solid #D8E0DB;
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+}
+
+
+/* VIDEO */
 
 .face-enroll-video {
+
     width: 100%;
-    border-radius: 8px;
-    border: 1px solid #e6e6e6;
+
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transform: scaleX(-1);
+
 }
 
-/* Status text */
-.status-message {
-    margin-top: 8px;
-    font-size: 0.9rem;
-    color: var(--un-text);
+
+/* =========================================================
+   CAMERA OVERLAY
+========================================================= */
+
+.camera-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(to bottom,
+            rgba(0, 0, 0, 0.20),
+            transparent 30%,
+            transparent 70%,
+            rgba(0, 0, 0, 0.28));
+
 }
 
-/* Button */
-.face-enroll-btn {
-    background: var(--un-primary);
-    border: none;
-    border-radius: 4px;
-    padding: 10px 12px;
+
+/* =========================================================
+   FACE GUIDE
+========================================================= */
+
+.face-guide {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    pointer-events: none;
+
+}
+
+.face-outline {
+
+    width: 39%;
+
+    height: 62%;
+
+    border: 2px solid rgba(255, 255, 255, 0.75);
+
+    border-radius: 48% 48% 45% 45%;
+
+    box-shadow:
+        0 0 0 999px rgba(0, 0, 0, 0.12);
+
+}
+
+
+/* CORNERS */
+
+.face-corner {
+
+    position: absolute;
+
+    width: 28px;
+
+    height: 28px;
+
+    border-color: var(--un-accent);
+
+}
+
+.top-left {
+
+    top: 18%;
+
+    left: 27%;
+
+    border-top: 3px solid;
+    border-left: 3px solid;
+
+    border-radius: 7px 0 0 0;
+
+}
+
+.top-right {
+
+    top: 18%;
+
+    right: 27%;
+
+    border-top: 3px solid;
+    border-right: 3px solid;
+
+    border-radius: 0 7px 0 0;
+
+}
+
+.bottom-left {
+
+    bottom: 18%;
+
+    left: 27%;
+
+    border-bottom: 3px solid;
+    border-left: 3px solid;
+
+    border-radius: 0 0 0 7px;
+
+}
+
+.bottom-right {
+
+    bottom: 18%;
+
+    right: 27%;
+
+    border-bottom: 3px solid;
+    border-right: 3px solid;
+
+    border-radius: 0 0 7px 0;
+
+}
+
+
+/* =========================================================
+   CAMERA LIVE
+========================================================= */
+
+.camera-live {
+
+    position: absolute;
+
+    top: 14px;
+
+    left: 14px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 7px 10px;
+
+    border-radius: 999px;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    backdrop-filter: blur(8px);
+
+    color: white;
+
+    font-size: 11px;
+
     font-weight: 600;
-    color: #fff;
-    width: 100%;
+
+}
+
+.camera-live span {
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #22C55E;
+
+    box-shadow:
+        0 0 0 4px rgba(34, 197, 94, 0.15);
+
+}
+
+
+/* =========================================================
+   CAMERA LOADING
+========================================================= */
+
+.camera-loading {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 10px;
+
+    color: white;
+
+    background: rgba(4, 10, 6, 0.78);
+
+    font-size: 13px;
+
+}
+
+
+/* =========================================================
+   FACE DETECTED
+========================================================= */
+
+.face-detected {
+
+    position: absolute;
+
+    right: 14px;
+
+    top: 14px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 7px 10px;
+
+    border-radius: 999px;
+
+    background: rgba(21, 128, 61, 0.90);
+
+    color: white;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   SUCCESS
+========================================================= */
+
+.enrollment-success {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    text-align: center;
+
+    color: white;
+
+    background:
+        linear-gradient(rgba(5, 55, 20, 0.90),
+            rgba(5, 55, 20, 0.94));
+
+}
+
+.success-icon {
+
+    width: 64px;
+
+    height: 64px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-bottom: 5px;
+
+    border-radius: 50%;
+
+    background: #22C55E;
+
+    font-size: 34px;
+
+}
+
+.enrollment-success strong {
+
+    font-size: 17px;
+
+}
+
+.enrollment-success span {
+
+    font-size: 12px;
+
+    opacity: 0.8;
+
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.face-enroll-status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    margin-top: 16px;
+
+    padding: 13px 15px;
+
+    border-radius: 13px;
+
+    background: #F8FAFC;
+
+    border: 1px solid var(--un-border);
+
+}
+
+.status-icon {
+
+    width: 36px;
+
+    height: 36px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 10px;
+
+    color: var(--un-primary);
+
+    background: #EAF4EC;
+
+    font-size: 20px;
+
+}
+
+.face-enroll-status strong {
+
+    display: block;
+
+    font-size: 13px;
+
+    color: var(--un-text);
+
+    margin-bottom: 2px;
+
+}
+
+.face-enroll-status span {
+
+    display: block;
+
+    font-size: 12px;
+
+    color: var(--un-muted);
+
+    line-height: 1.4;
+
+}
+
+.face-enroll-status.active {
+
+    border-color: #DCE8DF;
+
+    background: #F5FAF6;
+
+}
+
+.face-enroll-status.success {
+
+    border-color: #BBF7D0;
+
+    background: #F0FDF4;
+
+}
+
+.face-enroll-status.success .status-icon {
+
+    color: var(--un-success);
+
+    background: #DCFCE7;
+
+}
+
+
+/* =========================================================
+   SECURITY NOTE
+========================================================= */
+
+.face-security-note {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-top: 14px;
+
+    color: #64748B;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+
+}
+
+.face-security-note svg {
+
+    flex-shrink: 0;
+
     font-size: 16px;
+
+    color: var(--un-primary);
+
+}
+
+
+/* =========================================================
+   ACTIONS
+========================================================= */
+
+.face-enroll-actions {
+
+    display: flex;
+
+    gap: 10px;
+
+    margin-top: 20px;
+
+}
+
+.face-cancel-btn,
+.face-enroll-btn {
+
+    height: 48px;
+
+    border-radius: 10px;
+
+    border: none;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 8px;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
     cursor: pointer;
-    transition: background-color 0.15s ease, transform 0.08s ease;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+
 }
 
-.face-enroll-btn:hover {
-    background-color: #09581e;
+.face-cancel-btn {
+
+    width: 110px;
+
+    background: #F1F5F9;
+
+    color: #475569;
+
+}
+
+.face-cancel-btn:hover:not(:disabled) {
+
+    background: #E2E8F0;
+
+}
+
+.face-enroll-btn {
+
+    flex: 1;
+
+    color: white;
+
+    background: var(--un-primary);
+
+}
+
+.face-enroll-btn:hover:not(:disabled) {
+
+    background: var(--un-primary-dark);
+
     transform: translateY(-1px);
-    box-shadow: 0 0 10px #09581e;
+
+    box-shadow:
+        0 8px 20px rgba(11, 102, 35, 0.20);
+
 }
 
+.face-cancel-btn:disabled,
 .face-enroll-btn:disabled {
-    opacity: 0.7;
+
+    opacity: 0.55;
+
     cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow: none;
+
 }
 
-/* Responsive */
-@media (max-width: 576px) {
-    .face-enroll-card {
-        padding: 20px;
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.face-enroll-footer {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 6px;
+
+    margin-top: 16px;
+
+    color: #94A3B8;
+
+    font-size: 11px;
+
+    text-align: center;
+
+}
+
+.face-enroll-footer svg {
+
+    font-size: 14px;
+
+}
+
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+.spin {
+
+    animation: faceSpin 1s linear infinite;
+
+}
+
+@keyframes faceSpin {
+
+    from {
+        transform: rotate(0deg);
     }
 
-    .face-enroll-wrapper {
-        padding-left: 12px;
-        padding-right: 12px;
+    to {
+        transform: rotate(360deg);
     }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .face-enroll-page {
+
+        padding: 20px 12px;
+
+        align-items: flex-start;
+
+    }
+
+    .face-enroll-container {
+
+        margin-top: 10px;
+
+    }
+
+    .face-enroll-card {
+
+        padding: 20px;
+
+        border-radius: 17px;
+
+    }
+
+    .face-enroll-header {
+
+        align-items: flex-start;
+
+    }
+
+    .face-enroll-heading h1 {
+
+        font-size: 23px;
+
+    }
+
+    .face-enroll-heading p {
+
+        font-size: 13px;
+
+    }
+
+    .face-outline {
+
+        width: 45%;
+
+        height: 62%;
+
+    }
+
+    .top-left,
+    .bottom-left {
+
+        left: 22%;
+
+    }
+
+    .top-right,
+    .bottom-right {
+
+        right: 22%;
+
+    }
+
+}
+
+
+@media (max-width: 480px) {
+
+    .face-enroll-brand {
+
+        margin-bottom: 12px;
+
+    }
+
+    .face-enroll-brand img {
+
+        width: 40px;
+
+        height: 40px;
+
+    }
+
+    .face-enroll-brand strong {
+
+        font-size: 15px;
+
+    }
+
+    .face-enroll-brand span {
+
+        font-size: 10px;
+
+    }
+
+    .face-enroll-card {
+
+        padding: 16px;
+
+    }
+
+    .face-enroll-security-icon {
+
+        width: 45px;
+
+        height: 45px;
+
+        font-size: 23px;
+
+    }
+
+    .face-enroll-heading h1 {
+
+        font-size: 21px;
+
+    }
+
+    .face-enroll-instruction {
+
+        padding: 12px;
+
+    }
+
+    .face-enroll-camera {
+
+        border-radius: 14px;
+
+    }
+
+    .face-enroll-actions {
+
+        flex-direction: column-reverse;
+
+    }
+
+    .face-cancel-btn {
+
+        width: 100%;
+
+    }
+
+    .face-enroll-btn {
+
+        width: 100%;
+
+    }
+
+    .face-enroll-footer {
+
+        padding: 0 10px;
+
+    }
+
 }

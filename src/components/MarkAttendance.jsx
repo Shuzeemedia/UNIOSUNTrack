@@ -202,80 +202,188 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
       <h3 className="section-title mb-4">Mark Attendance</h3>
 
       {!sessionActive && (
-        <p className="info-text warning mb-3">
-          ⚠️ Please start an attendance session to enable manual, bulk, or roll call marking.
-        </p>
-      )}
+        <div className="session-warning">
+          <div className="warning-icon">
+            ⚠️
+          </div>
 
+          <div className="warning-content">
+            <h4>No Active Attendance Session</h4>
+
+            <p>
+              Start an attendance session before marking students manually,
+              using bulk actions, or beginning roll call.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Not in roll call */}
       {!rollCallMode && (
         <>
-          <div className="flex justify-between mb-3">
-            <input
-              type="text"
-              placeholder="Search by name or matric"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
-            />
-            <select
-              value={sortKey}
-              onChange={(e) => setSortKey(e.target.value)}
-              className="sort-select"
-            >
-              <option value="">Sort By</option>
-              <option value="name">Name</option>
-              <option value="department">Department</option>
-              <option value="level">Level</option>
-            </select>
+          <div className="attendance-toolbar">
+
+            <div className="toolbar-left">
+              <input
+                type="text"
+                placeholder="Search student..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+            </div>
+
+            <div className="toolbar-right">
+
+              <select
+                value={sortKey}
+                onChange={(e) => setSortKey(e.target.value)}
+                className="sort-select"
+              >
+                <option value="">Sort</option>
+                <option value="name">Name</option>
+                <option value="department">Department</option>
+                <option value="level">Level</option>
+              </select>
+
+              <div className="student-counter">
+                {filteredStudents.length} Students
+              </div>
+
+            </div>
+
           </div>
 
-          <div className="blk_btn flex gap-2 mb-4">
-            <button onClick={() => bulkMarkAttendance("Present")} className="btn-present">
-              Bulk Present
-            </button>
-            <button onClick={() => bulkMarkAttendance("Absent")} className="btn-absent">
-              Bulk Absent
-            </button>
-            <button onClick={() => bulkMarkAttendance("N/A")} className="btn-na">
-              Bulk N/A
-            </button>
-            <button onClick={startRollCall} className="btn-rollcall">
-              Start Roll Call
-            </button>
+          <div className="bulk-card">
+
+            <div className="bulk-header">
+              <div>
+                <h4>Bulk Actions</h4>
+                <p>Manage attendance for the entire class.</p>
+              </div>
+            </div>
+
+            <div className="bulk-grid">
+
+              <button
+                onClick={() => bulkMarkAttendance("Present")}
+                className="bulk-btn bulk-present"
+              >
+                <span className="bulk-icon">✓</span>
+
+                <div>
+                  <strong>Present All</strong>
+                  <small>Mark every student present</small>
+                </div>
+              </button>
+
+
+              <button
+                onClick={() => bulkMarkAttendance("Absent")}
+                className="bulk-btn bulk-absent"
+              >
+                <span className="bulk-icon">✕</span>
+
+                <div>
+                  <strong>Absent All</strong>
+                  <small>Mark everyone absent</small>
+                </div>
+              </button>
+
+
+              <button
+                onClick={() => bulkMarkAttendance("N/A")}
+                className="bulk-btn bulk-reset"
+              >
+                <span className="bulk-icon">↺</span>
+
+                <div>
+                  <strong>Reset</strong>
+                  <small>Clear all attendance</small>
+                </div>
+              </button>
+
+
+              <button
+                onClick={startRollCall}
+                className="bulk-btn bulk-roll"
+              >
+                <span className="bulk-icon">🎤</span>
+
+                <div>
+                  <strong>Roll Call</strong>
+                  <small>Call students one by one</small>
+                </div>
+              </button>
+
+            </div>
+
           </div>
 
           <ul className="student-list">
             {paginatedStudents.map((s) => (
-              <li key={s._id} className="student-item flex justify-between items-center mb-2">
-                <div className="hld_studlist flex items-center gap-3">
-                  <StudentAvatar student={s} size={48} />
-                  <div>
-                    <p className="student-name">{s.name}</p>
-                    <p className="student-id">{s.studentId || "N/A"}</p>
-                    <p className="student-dept">
-                      {s.department?.name || "N/A"} | Level: {s.level || "N/A"}
-                    </p>
+              <li key={s._id} className="student-card">
+
+                <div className="student-top">
+
+                  <div className="student-profile">
+
+                    <StudentAvatar
+                      student={s}
+                      size={58}
+                    />
+
+                    <div>
+
+                      <h4 className="student-name">{s.name}</h4>
+
+                      <p>{s.studentId}</p>
+
+                      <div className="student-meta">
+
+                        <span>{s.department?.name}</span>
+
+                        <span>•</span>
+
+                        <span>{s.level} Level</span>
+
+                      </div>
+
+                    </div>
+
                   </div>
+
+
+                  <span
+                    className={`student-badge ${studentStatus[s._id]?.toLowerCase()}`}
+                  >
+                    {studentStatus[s._id]}
+                  </span>
+
                 </div>
-                <div className="flex items-center gap-2">
+
+
+                <div className="student-bottom">
+
+                  <label>Attendance Status</label>
+
                   <select
                     value={studentStatus[s._id] || "N/A"}
                     onChange={(e) => markAttendance(s._id, e.target.value)}
                     disabled={loadingState.id === s._id || !sessionActive}
                     className="attendance-dropdown"
                   >
+
                     <option value="Present">Present</option>
+
                     <option value="Absent">Absent</option>
+
                     <option value="N/A">N/A</option>
+
                   </select>
-                  <span id="badge_stat"
-                    className={`student-badge ${studentStatus[s._id]?.toLowerCase()}`}
-                  >
-                    {studentStatus[s._id] || "N/A"}
-                  </span>
+
                 </div>
+
               </li>
             ))}
           </ul>
@@ -299,8 +407,18 @@ function MarkAttendance({ courseId, students = [], onMarked, sessionActive }) {
       {rollCallMode && currentRollCallStudent && (
         <div className="rollcall-mode p-6 flex flex-col items-center gap-6">
           <h2>{currentRollCallStudent.name}</h2>
-          <p>Matric: {currentRollCallStudent.studentId || "N/A"}</p>
-          <p>Dept: {currentRollCallStudent.department?.name || "N/A"}</p>
+
+          <div className="rollcall-info">
+
+            <span>{currentRollCallStudent.studentId}</span>
+
+            <span>{currentRollCallStudent.department?.name}</span>
+
+            <span>
+              {rollCallIndex + 1} / {rollCallData.length}
+            </span>
+
+          </div>
           <div className="hld_rollprof">
             <StudentAvatar student={currentRollCallStudent} size={128} />
           </div>

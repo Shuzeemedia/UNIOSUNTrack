@@ -72,7 +72,7 @@ const StudentCourses = () => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      
+
 
       setCourses((prev) =>
         prev.map((c) => (c._id === courseId ? { ...c, enrolled: true } : c))
@@ -91,27 +91,71 @@ const StudentCourses = () => {
 
   return (
     <div className="student-courses-container">
-      <h2>Available Courses</h2>
+      <div className="courses-header">
+
+        <div>
+
+          <h2>Available Courses</h2>
+
+          <p>
+            Browse and enroll in courses available for your current academic level.
+          </p>
+
+        </div>
+
+        <div className="course-count">
+
+          {filteredCourses.length}
+
+          <small>Courses</small>
+
+        </div>
+
+      </div>
 
       {/* =================== Search Bar =================== */}
-      <Form className="filter-bar glass-card p-3 mb-3">
-        <Col xs={12} md={6}>
+      <div className="search-card">
+
+        <div className="search-top">
+
+          <div>
+            <h4>Find Your Course</h4>
+
+            <p>
+              Browse available courses and enroll in the ones for your current level.
+            </p>
+          </div>
+
+          {/* <div className="course-result-badge">
+            <span>{filteredCourses.length}</span>
+            <small>
+              {filteredCourses.length === 1 ? "Course" : "Courses"}
+            </small>
+          </div> */}
+
+        </div>
+
+        <div className="search-input-wrapper">
+
+          <i className="bi bi-search search-icon"></i>
+
           <Form.Control
             type="text"
-            placeholder="Search by name, code, teacher, or semester..."
+            placeholder="Search by course code, title, lecturer or semester..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-        </Col>
-        <Col xs={12} md={2} className="mt-2 mt-md-0">
-          <Button
-            className="w-100 btn-secondary"
-            onClick={() => setSearchTerm("")}
-          >
-            Reset
-          </Button>
-        </Col>
-      </Form>
+
+          {searchTerm && (
+            <i
+              className="bi bi-x-circle-fill clear-search"
+              onClick={() => setSearchTerm("")}
+            />
+          )}
+
+        </div>
+
+      </div>
 
       {/* =================== Courses List =================== */}
       {filteredCourses.length === 0 ? (

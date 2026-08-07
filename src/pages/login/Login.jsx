@@ -217,10 +217,49 @@ const Login = () => {
 
   return (
     <div className="login-wrapper">
+
+      <div className="login-showcase">
+
+        <img
+          src="/ranks/uniosunlogo.png"
+          alt="UNIOSUN"
+          className="showcase-logo"
+        />
+
+        <h1>UNIOSUNTrack</h1>
+
+        <p className="showcase-text">
+          Smart Attendance Management System
+        </p>
+
+        <div className="showcase-features">
+
+          <div>✓ Biometric Face Verification</div>
+
+          <div>✓ Secure QR Authentication</div>
+
+          <div>✓ GPS Geofencing</div>
+
+          <div>✓ Real-time Attendance Monitoring</div>
+
+        </div>
+
+
+      </div>
+
+
       <div className="login-card">
         <div className="login-header">
           <img src="/ranks/uniosunlogo.png" alt="Uniosun Logo" className="login-logo" />
-          <h3>Welcome Back</h3>
+          <div>
+
+            <h3>Welcome Back</h3>
+
+            <p className="login-subtitle small">
+              Sign in to continue to your dashboard
+            </p>
+
+          </div>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -316,12 +355,12 @@ const Login = () => {
 
         <div className="login-links text-muted">
           <p>
-            <Link to="/forgot-password" className="login-link">
+            <Link to="/forgot-password" className="login-link small">
               Forgot your password?
             </Link>
           </p>
-          <p>
-            Don’t have an account? <Link to="/signup" className="login-link">Sign up here</Link>
+          <p className="small">
+            Don’t have an account? <Link to="/signup" className="login-link ">Sign up here</Link>
           </p>
         </div>
       </div>

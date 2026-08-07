@@ -9,23 +9,174 @@
     background-color: #f9faf9;
     min-height: 100vh;
     color: #212529;
-    /* margin-top: 10vh; */
 }
 
-.dashboard-header h2 {
-    font-size: 1.6rem;
-    color: var(--un-primary);
+/* ===================================
+   HERO
+=================================== */
+
+.student-hero {
+
+    position: relative;
+
+    overflow: hidden;
+
+    border-radius: 26px;
+
+    padding: 45px;
+
+    margin-bottom: 35px;
+
+    background: linear-gradient(135deg,
+            #0B6623 0%,
+            #138D4B 60%,
+            #1BAE5D 100%);
+
+    color: white;
+
+    box-shadow:
+        0 20px 45px rgba(0, 0, 0, .12);
+
 }
 
-.user-info i {
-    color: #01692f;
+.hero-overlay {
+
+    position: absolute;
+
+    width: 420px;
+
+    height: 420px;
+
+    background: rgba(255, 255, 255, .08);
+
+    border-radius: 50%;
+
+    right: -120px;
+
+    top: -160px;
+
 }
 
-.vr {
-    height: 18px;
-    background-color: #ccc;
-    width: 1px;
+.hero-content {
+
+    position: relative;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 40px;
+
 }
+
+.hero-left {
+
+    flex: 1;
+
+}
+
+.hero-badge {
+
+    display: inline-block;
+
+    padding: 8px 18px;
+
+    background: rgba(255, 255, 255, .18);
+
+    border-radius: 30px;
+
+    backdrop-filter: blur(10px);
+
+    font-size: .85rem;
+
+    margin-bottom: 20px;
+
+}
+
+.hero-left h1 {
+
+    font-size: 2.3rem;
+
+    font-weight: 700;
+
+    margin-bottom: 15px;
+
+}
+
+.hero-left h1 span {
+
+    display: block;
+
+    color: #FFD95A;
+
+    margin-top: 6px;
+
+}
+
+.hero-left p {
+
+    max-width: 520px;
+
+    font-size: 1rem;
+
+    line-height: 1.8;
+
+    opacity: .95;
+
+}
+
+.hero-rights {
+
+    display: grid;
+
+    grid-template-columns: repeat(2, 170px);
+
+    gap: 18px;
+
+}
+
+.hero-info-card {
+
+    background: rgba(255, 255, 255, .14);
+
+    backdrop-filter: blur(14px);
+
+    border: 1px solid rgba(255, 255, 255, .15);
+
+    border-radius: 18px;
+
+    padding: 18px;
+
+    transition: .25s;
+
+}
+
+.hero-info-card:hover {
+
+    transform: translateY(-5px);
+
+    background: rgba(255, 255, 255, .20);
+
+}
+
+.hero-info-card small {
+
+    display: block;
+
+    opacity: .8;
+
+    margin-bottom: 8px;
+
+}
+
+.hero-info-card strong {
+
+    font-size: 1.05rem;
+
+}
+
 
 .courses-grid {
     display: grid;
@@ -49,6 +200,413 @@
     outline: none;
 }
 
+
+/* =====================================================
+   GRADUATE DASHBOARD
+===================================================== */
+
+.graduate-dashboard {
+    min-height: 100vh;
+    background: #f8faf9;
+    padding: 40px 20px;
+    color: var(--un-text);
+}
+
+.graduate-page {
+    width: 100%;
+    max-width: 1050px;
+    margin: 0 auto;
+}
+
+
+/* =====================================================
+   GRADUATE HERO
+===================================================== */
+
+.graduate-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    padding: 55px 40px;
+    margin-bottom: 25px;
+
+    background:
+        linear-gradient(135deg,
+            #0b6623 0%,
+            #0f7a2f 55%,
+            #149447 100%);
+
+    color: #ffffff;
+
+    box-shadow:
+        0 18px 40px rgba(11, 102, 35, 0.16);
+}
+
+.graduate-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 720px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.graduate-icon {
+    width: 74px;
+    height: 74px;
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+
+    backdrop-filter: blur(10px);
+
+    font-size: 32px;
+}
+
+.graduate-badge {
+    display: inline-flex;
+    align-items: center;
+
+    padding: 7px 14px;
+    margin-bottom: 15px;
+
+    border-radius: 30px;
+
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+}
+
+.graduate-hero h1 {
+    margin: 0 0 14px;
+
+    font-size: 2.35rem;
+    font-weight: 800;
+    letter-spacing: -0.6px;
+}
+
+.graduate-hero p {
+    max-width: 650px;
+    margin: 0 auto;
+
+    color: rgba(255, 255, 255, 0.9);
+
+    font-size: 0.98rem;
+    line-height: 1.8;
+}
+
+
+/* Decorative shapes */
+
+.graduate-hero-decoration {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    pointer-events: none;
+}
+
+.graduate-decoration-one {
+    width: 300px;
+    height: 300px;
+    top: -150px;
+    right: -70px;
+}
+
+.graduate-decoration-two {
+    width: 220px;
+    height: 220px;
+    bottom: -130px;
+    left: -70px;
+}
+
+
+/* =====================================================
+   INFORMATION CARDS
+===================================================== */
+
+.graduate-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 25px;
+}
+
+.graduate-info-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    padding: 20px;
+
+    background: #ffffff;
+
+    border: 1px solid #e7ece9;
+    border-radius: 16px;
+
+    box-shadow: 0 5px 16px rgba(15, 23, 42, 0.045);
+
+    transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.graduate-info-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 9px 22px rgba(15, 23, 42, 0.08);
+}
+
+.graduate-info-icon {
+    width: 46px;
+    height: 46px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 12px;
+
+    background: rgba(11, 102, 35, 0.08);
+    color: var(--un-primary);
+
+    font-size: 19px;
+}
+
+.graduate-info-card span {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #64748b;
+
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.graduate-info-card strong {
+    display: block;
+
+    color: var(--un-text);
+
+    font-size: 0.95rem;
+    font-weight: 750;
+}
+
+
+/* =====================================================
+   RECORDS CARD
+===================================================== */
+
+.graduate-records-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 25px;
+
+    padding: 28px;
+
+    background: #ffffff;
+
+    border: 1px solid #e7ece9;
+    border-radius: 18px;
+
+    box-shadow:
+        0 6px 20px rgba(15, 23, 42, 0.05);
+}
+
+.graduate-records-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.graduate-records-icon {
+    width: 50px;
+    height: 50px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: rgba(251, 191, 36, 0.14);
+    color: #b77900;
+
+    font-size: 20px;
+}
+
+.graduate-records-content h3 {
+    margin: 0 0 6px;
+
+    color: var(--un-text);
+
+    font-size: 1.05rem;
+    font-weight: 750;
+}
+
+.graduate-records-content p {
+    max-width: 570px;
+
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 0.85rem;
+    line-height: 1.65;
+}
+
+
+/* =====================================================
+   TRANSCRIPT BUTTON
+===================================================== */
+
+.graduate-transcript-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+
+    flex-shrink: 0;
+
+    padding: 12px 18px;
+
+    border-radius: 10px;
+
+    background: var(--un-primary);
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-size: 0.86rem;
+    font-weight: 700;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.graduate-transcript-btn:hover {
+    background: #09551d;
+    color: #ffffff;
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 7px 18px rgba(11, 102, 35, 0.18);
+}
+
+.graduate-transcript-btn svg:last-child {
+    margin-left: 3px;
+    font-size: 12px;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.graduate-footer {
+    text-align: center;
+    margin-top: 25px;
+}
+
+.graduate-footer p {
+    margin: 0;
+
+    color: #94a3b8;
+
+    font-size: 0.78rem;
+}
+
+.graduate-footer strong {
+    color: var(--un-primary);
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 800px) {
+
+    .graduate-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .graduate-records-card {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .graduate-transcript-btn {
+        width: 100%;
+    }
+
+}
+
+
+@media (max-width: 576px) {
+
+    .graduate-dashboard {
+        padding: 25px 14px;
+    }
+
+    .graduate-hero {
+        padding: 38px 22px;
+        border-radius: 20px;
+    }
+
+    .graduate-icon {
+        width: 64px;
+        height: 64px;
+        font-size: 27px;
+    }
+
+    .graduate-hero h1 {
+        font-size: 1.75rem;
+    }
+
+    .graduate-hero p {
+        font-size: 0.88rem;
+        line-height: 1.7;
+    }
+
+    .graduate-badge {
+        font-size: 0.68rem;
+    }
+
+    .graduate-info-card {
+        padding: 17px;
+    }
+
+    .graduate-records-card {
+        padding: 20px;
+    }
+
+    .graduate-records-content {
+        gap: 12px;
+    }
+
+}
+
 /* Responsive tweak for mobile */
 @media (max-width: 576px) {
     .search-bar {
@@ -56,8 +614,53 @@
         margin-top: 0.5rem;
     }
 
-    .student-dashboard, .student-courses-container{
+    .student-dashboard,
+    .student-courses-container {
         padding-left: 0px !important;
         padding-right: 0px !important;
+    }
+
+    .student-hero {
+
+        padding: 28px 22px;
+
+    }
+
+    .hero-content {
+
+        flex-direction: column;
+
+    }
+
+    .hero-left {
+
+        text-align: center;
+
+    }
+
+    .hero-left h1 {
+
+        font-size: 1.8rem;
+
+    }
+
+    .hero-left h1 span {
+
+        display: inline;
+
+    }
+
+    .hero-left p {
+
+        margin: auto;
+
+    }
+
+    .hero-right {
+
+        width: 100%;
+
+        grid-template-columns: 1fr 1fr;
+
     }
 }

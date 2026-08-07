@@ -1,0 +1,506 @@
+/* =====================================================
+   ATTENDANCE LOCATION PANEL
+===================================================== */
+
+.attendance-location-panel {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 30px rgba(15, 23, 42, 0.06);
+}
+
+/* =====================================================
+   MAP HEADER
+===================================================== */
+
+.attendance-map-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 22px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
+}
+
+.attendance-map-title {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.attendance-map-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    background: #ecfdf3;
+    color: #0b6623;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+    flex-shrink: 0;
+}
+
+.attendance-map-title h4 {
+    margin: 0;
+    color: #1e293b;
+    font-size: 17px;
+    font-weight: 750;
+}
+
+.attendance-map-title span {
+    display: block;
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+/* =====================================================
+   LOCATION STATUS
+===================================================== */
+
+.location-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    white-space: nowrap;
+}
+
+.status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.location-locked {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.location-locked .status-dot {
+    background: #2563eb;
+}
+
+.location-inside {
+    background: #ecfdf3;
+    color: #15803d;
+}
+
+.location-inside .status-dot {
+    background: #16a34a;
+}
+
+.location-outside {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.location-outside .status-dot {
+    background: #dc2626;
+}
+
+/* =====================================================
+   MAP
+===================================================== */
+
+.attendance-map-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.attendance-map {
+    width: 100%;
+    height: 340px;
+    z-index: 1;
+}
+
+/* =====================================================
+   MAP RADIUS BADGE
+===================================================== */
+
+.map-radius-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 13px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    border-radius: 10px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12);
+    color: #2563eb;
+}
+
+.map-radius-badge>svg {
+    font-size: 16px;
+}
+
+.map-radius-badge div {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.map-radius-badge span {
+    font-size: 10px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.map-radius-badge strong {
+    color: #1e293b;
+    font-size: 13px;
+}
+
+/* =====================================================
+   INFORMATION GRID
+===================================================== */
+
+.location-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding: 18px 20px;
+}
+
+.location-info-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 74px;
+    padding: 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+}
+
+.info-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.info-icon.blue {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.info-icon.green {
+    background: #ecfdf3;
+    color: #16a34a;
+}
+
+.info-icon.purple {
+    background: #f5f3ff;
+    color: #7c3aed;
+}
+
+.info-icon.orange {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.location-info-card>div:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.location-info-card span {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.location-info-card strong {
+    color: #1e293b;
+    font-size: 16px;
+    font-weight: 750;
+}
+
+.location-info-card small {
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* =====================================================
+   TEXT STATUS COLORS
+===================================================== */
+
+.text-good,
+.gps-good {
+    color: #15803d !important;
+}
+
+.text-warning,
+.gps-warning {
+    color: #d97706 !important;
+}
+
+.text-danger,
+.gps-danger {
+    color: #dc2626 !important;
+}
+
+.gps-neutral {
+    color: #64748b !important;
+}
+
+/* =====================================================
+   STUDENT SECTION
+===================================================== */
+
+.student-location-section {
+    border-top: 1px solid #e2e8f0;
+}
+
+/* =====================================================
+   ATTENDANCE STATUS CARD
+===================================================== */
+
+.attendance-status-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin: 18px 20px 0;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid;
+}
+
+.status-inside {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+}
+
+.status-outside {
+    background: #fef2f2;
+    border-color: #fecaca;
+}
+
+.attendance-status-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 17px;
+}
+
+.status-inside .attendance-status-icon {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-outside .attendance-status-icon {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.attendance-status-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.attendance-status-content>span {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.35px;
+}
+
+.attendance-status-content strong {
+    color: #1e293b;
+    font-size: 14px;
+    font-weight: 750;
+}
+
+.attendance-status-content small {
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* =====================================================
+   GPS STABILITY
+===================================================== */
+
+.gps-stability {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 20px 20px;
+    padding: 14px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+}
+
+.stability-indicator {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 14px;
+}
+
+.stability-indicator.stable {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.stability-indicator.searching {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.gps-stability strong {
+    display: block;
+    color: #1e293b;
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.gps-stability p {
+    margin: 3px 0 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.attendance-map-empty {
+    min-height: 280px;
+    padding: 40px 25px;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.attendance-map-empty-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    background: #f1f5f9;
+    color: #64748b;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 15px;
+}
+
+.attendance-map-empty h4 {
+    margin: 0 0 6px;
+    color: #1e293b;
+    font-size: 17px;
+    font-weight: 750;
+}
+
+.attendance-map-empty p {
+    max-width: 340px;
+    margin: 0;
+    color: #64748b;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 700px) {
+
+    .attendance-map-header {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 16px;
+    }
+
+    .location-status {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .attendance-map {
+        height: 300px;
+    }
+
+    .location-info-grid {
+        padding: 14px;
+        gap: 10px;
+    }
+
+    .attendance-status-card {
+        margin: 14px 14px 0;
+    }
+
+    .gps-stability {
+        margin: 0 14px 14px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .attendance-map-title h4 {
+        font-size: 15px;
+    }
+
+    .attendance-map-title span {
+        font-size: 12px;
+    }
+
+    .attendance-map-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .attendance-map {
+        height: 270px;
+    }
+
+    .location-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .map-radius-badge {
+        top: 10px;
+        right: 10px;
+    }
+
+    .attendance-status-content strong {
+        font-size: 13px;
+    }
+}

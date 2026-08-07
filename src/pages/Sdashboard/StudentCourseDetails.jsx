@@ -13,6 +13,22 @@ import StudentAttendanceTable from "../../components/attChart/StudentAttendanceT
 import { AuthContext } from "../../context/AuthContext";
 import LoadingSpinner from "../../components/Loader/LoadingSpinner";
 import { Button, Spinner, Alert } from "react-bootstrap";
+import {
+  FaBookOpen,
+  FaChalkboardTeacher,
+  FaBuilding,
+  FaGraduationCap,
+  FaLayerGroup,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaChartLine,
+  FaStar,
+} from "react-icons/fa";
+
+import {
+  HiOutlineQrCode,
+  HiOutlineClock
+} from "react-icons/hi2";
 import "./studentCourseDetails.css";
 
 const StudentCourseDetails = () => {
@@ -23,6 +39,7 @@ const StudentCourseDetails = () => {
   const [course, setCourse] = useState(null);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetching, setFetching] = useState(false); // filter changes
   const [summary, setSummary] = useState({
     total: 0,
     present: 0,
@@ -42,8 +59,14 @@ const StudentCourseDetails = () => {
   const [error, setError] = useState(""); // new inline error state
 
   useEffect(() => {
-    fetchCourseData();
-  }, [id, filter, date]);
+    fetchCourseData(true);
+  }, [id]);
+
+  useEffect(() => {
+    if (course) {
+      fetchCourseData(false);
+    }
+  }, [filter, date]);
 
   useEffect(() => {
     fetchActiveSession();
@@ -51,10 +74,17 @@ const StudentCourseDetails = () => {
 
 
   // Fetch course + attendance records
-  const fetchCourseData = async () => {
+  const fetchCourseData = async (initialLoad = false) => {
     try {
-      setLoading(true);
+      if (initialLoad) {
+        setLoading(true);
+      } else {
+        setFetching(true);
+      }
+
       setError("");
+
+
 
       const { data: courseData } = await API.get(`/courses/${id}`);
       setCourse(courseData.course || courseData);
@@ -89,7 +119,11 @@ const StudentCourseDetails = () => {
         setError(err.response?.data?.msg || "Failed to fetch course/attendance data.");
       }
     } finally {
-      setLoading(false);
+      if (initialLoad) {
+        setLoading(false);
+      } else {
+        setFetching(false);
+      }
     }
   };
 
@@ -149,47 +183,80 @@ const StudentCourseDetails = () => {
   return (
     <div className="course-details-container">
       {/* HEADER SECTION */}
+
       <div className="course-header-card">
-        <div className="course-header-info">
-          <h2>{course?.name}</h2>
-          <p className="course-code">{course?.code}</p>
+
+        <div className="course-header-left">
+
+          <div className="course-title-row">
+
+            <div className="course-icon-box">
+              <FaBookOpen />
+            </div>
+
+            <div>
+              <h2>{course?.name}</h2>
+              <span className="course-code">
+                {course?.code}
+              </span>
+            </div>
+
+          </div>
 
           <div className="course-meta">
-            <span>
-              <strong>Lecturer:</strong> {course.teacher?.name || "N/A"}
-            </span>
-            <span>
-              <strong>Department:</strong> {course.department?.name || "N/A"}
-            </span>
-            <span>
-              <strong>Level:</strong> {course.level || "N/A"}
-            </span>
-            <span>
-              <strong>Unit:</strong> {course.unit || "N/A"}
-            </span>
+
+            <div className="meta-chip">
+              <FaChalkboardTeacher />
+              <span>{course.teacher?.name || "N/A"}</span>
+            </div>
+
+            <div className="meta-chip">
+              <FaBuilding />
+              <span>{course.department?.name || "N/A"}</span>
+            </div>
+
+            <div className="meta-chip">
+              <FaGraduationCap />
+              <span>{course.level || "N/A"} Level</span>
+            </div>
+
+            <div className="meta-chip">
+              <FaLayerGroup />
+              <span>{course.unit || "N/A"} Units</span>
+            </div>
+
           </div>
+
         </div>
 
-        {/* NEW QR SCAN BUTTON SECTION */}
         <div className="scan-section">
+
+          <small className={`scan-status ${isQrActive ? "active" : "inactive"}`}>
+            {isQrActive ? "QR Session Live" : "No Active Session"}
+          </small>
+
           {sessionLoading ? (
             <Spinner animation="border" size="sm" variant="success" />
           ) : (
             <Button
-              variant={isQrActive ? "success" : "secondary"}
+              className={`scan-btn ${isQrActive ? "active" : "disabled"}`}
               disabled={!isQrActive}
               onClick={handleScanClick}
             >
-              <img
-                src="/ranks/scanem.png"
-                alt="ScanQRCode Gen"
-                className="qricon scanX"
-              />
-              {isQrActive ? "Scan QR" : "No Active QR Session"}
-            </Button>
+              {isQrActive ? (
+                <HiOutlineQrCode size={22} />
+              ) : (
+                <HiOutlineClock size={22} />
+              )}
 
+              <span>
+                {isQrActive ? "Scan Attendance QR" : "Waiting for Lecturer"}
+              </span>
+            </Button>
           )}
+
         </div>
+
       </div>
 
       {/* Show inline error if exists */}
@@ -197,47 +264,112 @@ const StudentCourseDetails = () => {
 
       {/* FILTER + HEADER */}
       <div className="filter-section">
-        <AttendanceFilter
+
+        <div className="filter-header">
+          <AttendanceFilter
+            filter={filter}
+            setFilter={setFilter}
+            date={date}
+            setDate={setDate}
+          />
+
+          {fetching && (
+            <Spinner
+              animation="border"
+              size="sm"
+              variant="success"
+            />
+          )}
+        </div>
+
+        <AttendanceHeader
           filter={filter}
-          setFilter={setFilter}
           date={date}
-          setDate={setDate}
         />
-        <AttendanceHeader filter={filter} date={date} />
+
       </div>
 
       {/* SUMMARY SECTION */}
       <div className="summary-section">
+
         <div className="summary-card">
           <StudentAttendanceChart summary={summary} />
         </div>
-        <div className="summary-stats">
-          <h4>Summary</h4>
-          <p>
-            <strong>Total Classes:</strong> {summary.total}
-          </p>
-          <p>
-            <strong>Present:</strong> {summary.present}
-          </p>
-          <p>
-            <strong>Absent:</strong> {summary.absent}
-          </p>
-          <p>
-            <strong>Attendance %:</strong> {Number(summary.percentage).toFixed(1)}%
-          </p>
-          <p>
-            <strong>Score:</strong>{" "}
-            {Number.isFinite(summary.xp)
-              ? summary.xp.toFixed(2)
-              : "0.00"} XP
-          </p>
 
-          {summary.percentage < ATTENDANCE_THRESHOLD && summary.total > 0 && (
-            <p className="warning-text">
-              ⚠️ Attendance below {ATTENDANCE_THRESHOLD}%. You may be at risk.
-            </p>
+        <div className="summary-stats">
+
+          <div className="stat-box">
+            <FaBookOpen className="stat-icon" />
+            <div>
+              <span className="stat-value">{summary.total}</span>
+              <small>Total Classes</small>
+            </div>
+          </div>
+
+          <div className="stat-box">
+            <FaCheckCircle className="stat-icon success" />
+            <div>
+              <span className="stat-value">{summary.present}</span>
+              <small>Present</small>
+            </div>
+          </div>
+
+          <div className="stat-box">
+            <FaTimesCircle className="stat-icon danger" />
+            <div>
+              <span className="stat-value">{summary.absent}</span>
+              <small>Absent</small>
+            </div>
+          </div>
+
+          <div className="stat-box">
+            <FaChartLine className="stat-icon primary" />
+            <div>
+              <span className="stat-value">
+                {Number(summary.percentage).toFixed(1)}%
+              </span>
+              <small>Attendance</small>
+            </div>
+          </div>
+
+          <div className="stat-box">
+            <FaStar className="stat-icon gold" />
+            <div>
+              <span className="stat-value">
+                {Number.isFinite(summary.xp)
+                  ? summary.xp.toFixed(2)
+                  : "0.00"}
+              </span>
+              <small>XP Score</small>
+            </div>
+          </div>
+
+        </div>
+
+        <div className="summary-alert">
+          {summary.total === 0 ? (
+            <>
+              <FaBookOpen />
+              <span>No attendance records available yet.</span>
+            </>
+          ) : summary.percentage >= ATTENDANCE_THRESHOLD ? (
+            <>
+              <FaCheckCircle />
+              <span>
+                Great job! Your attendance meets the required {ATTENDANCE_THRESHOLD}%.
+              </span>
+            </>
+          ) : (
+            <>
+              <FaTimesCircle />
+              <span>
+                Your attendance is below the required {ATTENDANCE_THRESHOLD}%. Attend
+                more classes to avoid penalties.
+              </span>
+            </>
           )}
         </div>
+
       </div>
 
       {/* 

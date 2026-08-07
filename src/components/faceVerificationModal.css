@@ -1,7 +1,810 @@
-.login-face-video {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    transform: scaleX(-1);
-    /* flips horizontally */
+/* =========================================================
+   FACE VERIFICATION MODAL
+========================================================= */
+
+.face-verification-modal .modal-content {
+
+    border: none;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 25px 70px rgba(15, 23, 42, 0.20);
+
+    background: #ffffff;
 }
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.face-modal-header {
+
+    padding: 18px 22px;
+
+    border-bottom: 1px solid #eef2f7;
+
+    background: #ffffff;
+}
+
+
+.face-modal-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+}
+
+
+.face-modal-title-icon {
+
+    width: 44px;
+
+    height: 44px;
+
+    border-radius: 13px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b6623,
+            #18a34a
+        );
+
+    color: #ffffff;
+
+    font-size: 23px;
+
+    box-shadow:
+        0 8px 20px rgba(11, 102, 35, 0.20);
+}
+
+
+.face-modal-title span {
+
+    display: block;
+
+    color: #0b6623;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    margin-bottom: 2px;
+}
+
+
+.face-modal-title h5 {
+
+    margin: 0;
+
+    color: #172033;
+
+    font-size: 18px;
+
+    font-weight: 750;
+}
+
+
+/* =========================================================
+   INTRO
+========================================================= */
+
+.face-modal-intro {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 12px;
+
+    padding: 14px;
+
+    margin-bottom: 16px;
+
+    border-radius: 12px;
+
+    background: #f7faf8;
+
+    border: 1px solid #e6f0e9;
+}
+
+
+.face-modal-intro > svg {
+
+    color: #0b6623;
+
+    font-size: 24px;
+
+    flex-shrink: 0;
+
+    margin-top: 2px;
+}
+
+
+.face-modal-intro strong {
+
+    display: block;
+
+    color: #172033;
+
+    font-size: 14px;
+
+    margin-bottom: 3px;
+}
+
+
+.face-modal-intro p {
+
+    margin: 0;
+
+    color: #64748b;
+
+    font-size: 12px;
+
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   CAMERA
+========================================================= */
+
+.face-modal-camera {
+
+    position: relative;
+
+    width: 100%;
+
+    height: 350px;
+
+    overflow: hidden;
+
+    border-radius: 16px;
+
+    background: #0b0f0d;
+
+    border: 1px solid #dce5df;
+}
+
+
+.face-verification-video {
+
+    width: 100%;
+
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    transform: scaleX(-1);
+}
+
+
+.face-camera-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(0, 0, 0, 0.20),
+            transparent 30%,
+            transparent 70%,
+            rgba(0, 0, 0, 0.30)
+        );
+}
+
+
+/* =========================================================
+   FACE GUIDE
+========================================================= */
+
+.face-guide {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    pointer-events: none;
+}
+
+
+.face-outline {
+
+    width: 185px;
+
+    height: 245px;
+
+    border: 2px solid rgba(255, 255, 255, 0.85);
+
+    border-radius: 48% 48% 45% 45%;
+
+    box-shadow:
+        0 0 0 9999px rgba(0, 0, 0, 0.16);
+}
+
+
+/* =========================================================
+   CORNERS
+========================================================= */
+
+.face-corner {
+
+    position: absolute;
+
+    width: 28px;
+
+    height: 28px;
+
+    border-color: #ffffff;
+
+    border-style: solid;
+}
+
+
+.face-corner.top-left {
+
+    top: 18px;
+
+    left: 18px;
+
+    border-width: 3px 0 0 3px;
+
+    border-radius: 7px 0 0 0;
+}
+
+
+.face-corner.top-right {
+
+    top: 18px;
+
+    right: 18px;
+
+    border-width: 3px 3px 0 0;
+
+    border-radius: 0 7px 0 0;
+}
+
+
+.face-corner.bottom-left {
+
+    bottom: 18px;
+
+    left: 18px;
+
+    border-width: 0 0 3px 3px;
+
+    border-radius: 0 0 0 7px;
+}
+
+
+.face-corner.bottom-right {
+
+    bottom: 18px;
+
+    right: 18px;
+
+    border-width: 0 3px 3px 0;
+
+    border-radius: 0 0 7px 0;
+}
+
+
+/* =========================================================
+   CAMERA STATUS
+========================================================= */
+
+.camera-live {
+
+    position: absolute;
+
+    top: 14px;
+
+    left: 14px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    color: #ffffff;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    backdrop-filter: blur(8px);
+
+    font-size: 11px;
+
+    font-weight: 600;
+}
+
+
+.camera-live span {
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #22c55e;
+
+    box-shadow:
+        0 0 0 4px rgba(34, 197, 94, 0.18);
+}
+
+
+.camera-loading {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-direction: column;
+
+    gap: 10px;
+
+    color: #ffffff;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   FACE DETECTED
+========================================================= */
+
+.face-detected {
+
+    position: absolute;
+
+    right: 14px;
+
+    top: 14px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+
+    padding: 6px 10px;
+
+    border-radius: 999px;
+
+    background: rgba(22, 163, 74, 0.90);
+
+    color: #ffffff;
+
+    font-size: 11px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   SUCCESS OVERLAY
+========================================================= */
+
+.verification-success-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 10px;
+
+    color: #ffffff;
+
+    background: rgba(11, 102, 35, 0.78);
+
+    backdrop-filter: blur(3px);
+
+    font-weight: 700;
+
+    font-size: 15px;
+}
+
+
+.verification-success-overlay div {
+
+    width: 68px;
+
+    height: 68px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #ffffff;
+
+    color: #0b6623;
+
+    font-size: 38px;
+}
+
+
+/* =========================================================
+   STATUS
+========================================================= */
+
+.face-status {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    margin-top: 14px;
+
+    padding: 12px;
+
+    border-radius: 12px;
+
+    background: #f8fafc;
+
+    border: 1px solid #e5e7eb;
+}
+
+
+.face-status.active {
+
+    background: #f5faf7;
+
+    border-color: #d7eadc;
+}
+
+
+.face-status.success {
+
+    background: #f0fdf4;
+
+    border-color: #bbf7d0;
+}
+
+
+.face-status-icon {
+
+    width: 34px;
+
+    height: 34px;
+
+    border-radius: 10px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    background: #e8f5ec;
+
+    color: #0b6623;
+
+    font-size: 19px;
+}
+
+
+.face-status strong {
+
+    display: block;
+
+    color: #172033;
+
+    font-size: 12px;
+
+    margin-bottom: 2px;
+}
+
+
+.face-status span {
+
+    display: block;
+
+    color: #64748b;
+
+    font-size: 12px;
+
+    line-height: 1.45;
+}
+
+
+/* =========================================================
+   LIVENESS CHALLENGE
+========================================================= */
+
+.face-challenge {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    margin-top: 12px;
+
+    padding: 12px 14px;
+
+    border-radius: 12px;
+
+    background: #fffbeb;
+
+    border: 1px solid #fde68a;
+}
+
+
+.face-challenge > svg {
+
+    color: #d97706;
+
+    font-size: 22px;
+
+    flex-shrink: 0;
+}
+
+
+.face-challenge span {
+
+    display: block;
+
+    color: #92400e;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.8px;
+
+    margin-bottom: 2px;
+}
+
+
+.face-challenge strong {
+
+    color: #78350f;
+
+    font-size: 13px;
+}
+
+
+/* =========================================================
+   TIP
+========================================================= */
+
+.face-verification-tip {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 8px;
+
+    margin-top: 12px;
+
+    color: #64748b;
+
+    font-size: 11px;
+
+    line-height: 1.5;
+}
+
+
+.face-verification-tip svg {
+
+    color: #0b6623;
+
+    font-size: 17px;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.face-verification-modal .modal-footer {
+
+    padding: 15px 20px;
+
+    border-top: 1px solid #eef2f7;
+
+    display: flex;
+
+    gap: 10px;
+}
+
+
+.face-cancel-btn {
+
+    flex: 0 0 auto;
+
+    border: 1px solid #e2e8f0 !important;
+
+    background: #ffffff !important;
+
+    color: #475569 !important;
+
+    border-radius: 9px !important;
+
+    font-weight: 600;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 5px;
+}
+
+
+.face-verify-btn {
+
+    flex: 1;
+
+    border: none !important;
+
+    border-radius: 9px !important;
+
+    padding: 10px 15px !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b6623,
+            #15803d
+        ) !important;
+
+    color: #ffffff !important;
+
+    font-weight: 700;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    box-shadow:
+        0 8px 18px rgba(11, 102, 35, 0.20);
+}
+
+
+.face-verify-btn:hover:not(:disabled) {
+
+    transform: translateY(-1px);
+
+    box-shadow:
+        0 12px 22px rgba(11, 102, 35, 0.25);
+}
+
+
+.face-verify-btn:disabled {
+
+    opacity: 0.65;
+
+    cursor: not-allowed;
+}
+
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+.spin {
+
+    animation:
+        faceSpin 0.9s linear infinite;
+}
+
+
+@keyframes faceSpin {
+
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 576px) {
+
+    .face-verification-modal {
+
+        margin: 10px;
+    }
+
+
+    .face-modal-camera {
+
+        height: 330px;
+    }
+
+
+    .face-outline {
+
+        width: 170px;
+
+        height: 225px;
+    }
+
+
+    .face-modal-header {
+
+        padding: 15px;
+    }
+
+
+    .face-verification-modal .modal-body {
+
+        padding: 15px;
+    }
+
+
+    .face-verification-modal .modal-footer {
+
+        padding: 12px 15px;
+    }
+}
+

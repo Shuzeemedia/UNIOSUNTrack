@@ -1,4 +1,616 @@
-.float_left{
+:root {
+    --un-primary: #0b6623;
+    --un-primary-dark: #084d1b;
+    --un-primary-light: #eaf5ed;
+    --un-accent: #fbbf24;
+    --un-bg: #f5f7f6;
+    --un-text: #1e293b;
+    --un-muted: #64748b;
+    --un-border: #e2e8f0;
+    --un-danger: #dc2626;
+    --un-warning: #d97706;
+    --un-success: #15803d;
+}
+
+/* =====================================================
+   PAGE
+===================================================== */
+
+.transcript-page {
+    min-height: 100vh;
+    padding-top: 35px;
+    padding-bottom: 50px;
+    background: var(--un-bg);
+    color: var(--un-text);
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.transcript-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+.back-dashboard-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border: none;
+    background: transparent;
+    color: var(--un-primary);
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0;
+    margin-bottom: 15px;
+    cursor: pointer;
+}
+
+.back-dashboard-btn:hover {
+    color: var(--un-primary-dark);
+}
+
+.transcript-heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.transcript-heading-icon {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--un-primary-light);
+    color: var(--un-primary);
+    border-radius: 13px;
+    font-size: 24px;
+}
+
+.transcript-heading h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 750;
+    color: var(--un-text);
+}
+
+.transcript-heading p {
+    margin: 4px 0 0;
+    color: var(--un-muted);
+    font-size: 14px;
+}
+
+.verification-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 14px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.verification-success {
+    background: #ecfdf3;
+    color: var(--un-success);
+}
+
+.verification-pending {
+    background: #fff7ed;
+    color: var(--un-warning);
+}
+
+/* =====================================================
+   GENERAL CARD
+===================================================== */
+
+.transcript-card {
+    background: #fff;
+    border: 1px solid var(--un-border);
+    border-radius: 16px;
+    padding: 26px;
+    margin-bottom: 22px;
+    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+}
+
+.section-header {
+    margin-bottom: 24px;
+}
+
+.section-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    background: var(--un-primary-light);
+    color: var(--un-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 19px;
+}
+
+.section-title-wrapper h2 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--un-text);
+}
+
+.section-title-wrapper p {
+    margin: 3px 0 0;
+    font-size: 13px;
+    color: var(--un-muted);
+}
+
+/* =====================================================
+   STUDENT INFORMATION
+===================================================== */
+
+.student-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--un-border);
+    border: 1px solid var(--un-border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.student-info-item {
+    background: #fff;
+    padding: 17px;
+}
+
+.student-info-item span {
+    display: block;
+    color: var(--un-muted);
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.student-info-item strong {
+    color: var(--un-text);
+    font-size: 15px;
+    font-weight: 650;
+}
+
+/* =====================================================
+   VERIFICATION
+===================================================== */
+
+.record-verification {
+    margin-top: 20px;
+    padding: 16px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid var(--un-border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.record-verification-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--un-primary-light);
+    color: var(--un-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.record-verification-content {
+    flex: 1;
+}
+
+.record-verification-content span {
+    display: block;
+    font-size: 12px;
+    color: var(--un-muted);
+    margin-bottom: 3px;
+}
+
+.record-verification-content strong {
+    font-size: 14px;
+    color: var(--un-text);
+}
+
+.record-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.record-status-success {
+    color: var(--un-success);
+}
+
+.record-status-pending {
+    color: var(--un-warning);
+}
+
+.verification-warning {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin-top: 15px;
+    padding: 13px 15px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 10px;
+    color: #92400e;
+}
+
+.verification-warning svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.verification-warning p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* =====================================================
+   DOCUMENTS
+===================================================== */
+
+.document-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.document-download-btn {
     width: 100%;
-    text-align: start;
+    min-height: 76px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border: 1px solid var(--un-border);
+    background: #fff;
+    border-radius: 12px;
+    color: var(--un-text);
+    text-align: left;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.document-download-btn:hover:not(:disabled) {
+    border-color: var(--un-primary);
+    background: #f8fcf9;
+    transform: translateY(-1px);
+}
+
+.document-download-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.document-btn-icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--un-primary-light);
+    color: var(--un-primary);
+    border-radius: 10px;
+    font-size: 19px;
+}
+
+.document-btn-content {
+    flex: 1;
+}
+
+.document-btn-content strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 3px;
+}
+
+.document-btn-content small {
+    color: var(--un-muted);
+    font-size: 12px;
+}
+
+/* =====================================================
+   ATTENDANCE PERFORMANCE
+===================================================== */
+
+.attendance-performance {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 35px;
+    align-items: center;
+}
+
+.attendance-rank {
+    text-align: center;
+    padding-right: 30px;
+    border-right: 1px solid var(--un-border);
+}
+
+.rank-image-wrapper {
+    width: 145px;
+    height: 145px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.rank-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.attendance-rank h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 750;
+    color: var(--un-text);
+}
+
+.attendance-rank span {
+    display: block;
+    margin-top: 4px;
+    color: var(--un-muted);
+    font-size: 12px;
+}
+
+.attendance-score>span {
+    display: block;
+    color: var(--un-muted);
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.attendance-score>strong {
+    display: block;
+    font-size: 2.7rem;
+    line-height: 1.1;
+    margin-bottom: 16px;
+}
+
+.text-success {
+    color: var(--un-success) !important;
+}
+
+.text-warning {
+    color: var(--un-warning) !important;
+}
+
+.text-danger {
+    color: var(--un-danger) !important;
+}
+
+.attendance-progress {
+    width: 100%;
+    height: 9px;
+    background: #e2e8f0;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 18px;
+}
+
+.attendance-progress-bar {
+    height: 100%;
+    border-radius: inherit;
+    transition: width 0.7s ease;
+}
+
+.attendance-progress-bar.text-success {
+    background: var(--un-success);
+}
+
+.attendance-progress-bar.text-warning {
+    background: var(--un-warning);
+}
+
+.attendance-progress-bar.text-danger {
+    background: var(--un-danger);
+}
+
+.attendance-score p {
+    margin: 0;
+    max-width: 650px;
+    color: var(--un-muted);
+    font-size: 13px;
+    line-height: 1.7;
+}
+
+/* =====================================================
+   ERROR
+===================================================== */
+
+.transcript-error {
+    max-width: 500px;
+    margin: 80px auto;
+    background: #fff;
+    border: 1px solid var(--un-border);
+    border-radius: 16px;
+    padding: 40px 30px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+}
+
+.transcript-error-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    background: #fef2f2;
+    color: var(--un-danger);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.transcript-error h3 {
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.transcript-error p {
+    color: var(--un-muted);
+    margin-bottom: 20px;
+}
+
+/* =====================================================
+   SECONDARY BUTTON
+===================================================== */
+
+.transcript-secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border: 1px solid var(--un-border);
+    background: #fff;
+    color: var(--un-text);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.transcript-secondary-btn:hover {
+    border-color: var(--un-primary);
+    color: var(--un-primary);
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.transcript-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    color: var(--un-muted);
+    font-size: 12px;
+    padding-top: 10px;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 768px) {
+    .transcript-page {
+        padding: 22px 14px 40px;
+    }
+
+    .transcript-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .verification-badge {
+        align-self: flex-start;
+    }
+
+    .transcript-heading h1 {
+        font-size: 1.45rem;
+    }
+
+    .transcript-card {
+        padding: 20px 16px;
+    }
+
+    .student-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .record-verification {
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .record-status {
+        width: 100%;
+        padding-left: 52px;
+    }
+
+    .document-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .attendance-performance {
+        grid-template-columns: 1fr;
+        gap: 25px;
+    }
+
+    .attendance-rank {
+        padding-right: 0;
+        padding-bottom: 25px;
+        border-right: none;
+        border-bottom: 1px solid var(--un-border);
+    }
+
+    .attendance-score>strong {
+        font-size: 2.3rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .transcript-heading {
+        align-items: flex-start;
+    }
+
+    .transcript-heading-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 20px;
+    }
+
+    .transcript-heading h1 {
+        font-size: 1.3rem;
+    }
+
+    .student-info-item {
+        padding: 14px;
+    }
+
+    .record-verification-content strong {
+        font-size: 13px;
+    }
+
+    .document-download-btn {
+        min-height: 70px;
+    }
+
+    .transcript-footer {
+        text-align: center;
+        line-height: 1.5;
+    }
 }

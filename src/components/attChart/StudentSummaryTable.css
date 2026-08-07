@@ -1,0 +1,191 @@
+.risk-filter {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 10px 16px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    font-weight: 600;
+
+    background: #eef9f2;
+
+    color: #198754;
+
+    margin-bottom: 18px;
+
+    transition: .25s;
+
+}
+
+.risk-filter:hover {
+
+    transform: translateY(-2px);
+
+}
+
+.risk-filter.active {
+
+    background: #fee2e2;
+
+    color: #dc2626;
+
+}
+
+.attendance-pill {
+
+    padding: 6px 12px;
+
+    border-radius: 30px;
+
+    font-weight: 700;
+
+    display: inline-block;
+
+}
+
+.attendance-pill.good {
+
+    background: #dcfce7;
+
+    color: #15803d;
+
+}
+
+.attendance-pill.warning {
+
+    background: #fef3c7;
+
+    color: #b45309;
+
+}
+
+.attendance-pill.danger {
+
+    background: #fee2e2;
+
+    color: #b91c1c;
+
+}
+
+.xp-badge {
+
+    background: #fff7db;
+
+    color: #d97706;
+
+    padding: 6px 12px;
+
+    border-radius: 30px;
+
+    font-weight: 600;
+
+}
+
+.student-cell {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+}
+
+.student-avatar {
+
+    width: 36px;
+
+    height: 36px;
+
+    border-radius: 50%;
+
+    background: #198754;
+
+    color: #fff;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-weight: 700;
+
+}
+
+.rank-badges {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    padding: 6px 12px 6px 6px;
+
+    border-radius: 25px;
+
+    background: #f8fafc;
+
+}
+
+.summary-row {
+
+    background: #eef9f2;
+
+    font-weight: 700;
+
+}
+
+.summary-row td {
+
+    border-top: 2px solid #198754;
+
+}
+
+.attendance-table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.attendance-table tbody tr {
+    transition: all .2s ease;
+}
+
+.attendance-table tbody tr:hover {
+    background: #f5fff7;
+}
+
+.xp-badge{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:6px 12px;
+
+    border-radius:999px;
+
+    background:#eef9f2;
+
+    color:#0B6623;
+
+    font-weight:700;
+
+    font-size:.85rem;
+}
+
+.summary-row{
+    background:#f4fbf6 !important;
+    border-top:2px solid #198754;
+}
+
+.summary-row td{
+    font-weight:700;
+    color:#184d32;
+}

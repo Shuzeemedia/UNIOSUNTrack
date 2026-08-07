@@ -1,169 +1,1552 @@
+/* =========================================================
+   STUDENT SCAN PAGE
+========================================================= */
+
 .student-scan-wrapper {
-    padding: 80px 0;
-    background-color: var(--un-bg);
     min-height: 100vh;
+    width: 100%;
+    padding: 50px 20px;
+
     display: flex;
     justify-content: center;
     align-items: center;
+
+    background:
+        radial-gradient(
+            circle at 10% 10%,
+            rgba(11, 102, 35, 0.06),
+            transparent 30%
+        ),
+        radial-gradient(
+            circle at 90% 90%,
+            rgba(251, 191, 36, 0.05),
+            transparent 30%
+        ),
+        #f7f9f8;
 }
+
+
+/* =========================================================
+   MAIN CARD
+========================================================= */
 
 .student-scan-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
-    padding: 40px 30px;
     width: 100%;
-    max-width: 400px;
-    text-align: center;
-}
+    max-width: 620px;
 
-.student-scan-card h3 {
-    color: var(--un-text);
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 20px;
-}
+    background: rgba(255, 255, 255, 0.96);
 
-/* .video-wrapper {
+    border: 1px solid rgba(15, 23, 42, 0.06);
+
+    border-radius: 28px;
+
+    padding: 34px;
+
+    box-shadow:
+        0 30px 80px rgba(15, 23, 42, 0.10),
+        0 8px 25px rgba(15, 23, 42, 0.04);
+
     position: relative;
-    margin-bottom: 20px;
-} */
-
-#reader {
-    margin: 0 auto 20px;
+    overflow: hidden;
 }
 
-.scan-btn {
-    background: var(--un-primary);
-    border: none;
-    border-radius: 4px;
-    color: #fff;
-    font-weight: 600;
-    padding: 10px 12px;
+
+/* subtle top glow */
+
+.student-scan-card::before {
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+    left: 0;
+    right: 0;
+
+    height: 3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #0b6623,
+            #18a34a,
+            #fbbf24
+        );
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.scan-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    margin-bottom: 30px;
+}
+
+
+.scan-header-icon {
+    width: 64px;
+    height: 64px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 18px;
+
+    color: white;
+
+    font-size: 31px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b6623,
+            #18a34a
+        );
+
+    box-shadow:
+        0 14px 30px rgba(11, 102, 35, 0.22);
+}
+
+
+.scan-header-content {
+    min-width: 0;
+}
+
+
+.secure-label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    color: #0b6623;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+
+    margin-bottom: 4px;
+}
+
+
+.scan-header h2 {
+    margin: 0;
+
+    color: #0f172a;
+
+    font-size: 24px;
+    font-weight: 800;
+
+    letter-spacing: -0.025em;
+}
+
+
+.scan-header p {
+    margin: 5px 0 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    line-height: 1.55;
+}
+
+
+/* =========================================================
+   PROGRESS
+========================================================= */
+
+.verification-progress {
+    display: flex;
+    align-items: center;
+
     width: 100%;
-    transition: 0.15s ease;
-}
 
-.scan-btn:hover {
-    background-color: #09581e;
-    transform: translateY(-1px);
-    box-shadow: 0 0 10px #09581e;
-}
-
-.status-message {
-    font-size: 14px;
-    color: var(--un-text);
-    margin-top: 8px;
+    margin-bottom: 32px;
 }
 
 
-/* SUCCESS MODAL */
-.success-modal .modal-content {
-    border-radius: 16px;
-    padding: 20px;
-    text-align: center;
-    border: none;
-}
-
-.success-body {
+.progress-step {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+
+    gap: 7px;
+
+    min-width: 58px;
+
+    color: #94a3b8;
+
+    transition: 0.3s ease;
 }
 
-.success-icon {
-    width: 70px;
-    height: 70px;
-    background: #28a745;
-    color: white;
-    font-size: 36px;
-    font-weight: bold;
-    border-radius: 50%;
+
+.progress-step span {
+    font-size: 10px;
+    font-weight: 700;
+
+    white-space: nowrap;
+}
+
+
+.step-circle {
+    width: 38px;
+    height: 38px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
+    border-radius: 50%;
+
+    background: #f1f5f9;
+
+    border: 1px solid #e2e8f0;
+
+    color: #94a3b8;
+
+    font-size: 17px;
+
+    transition: 0.3s ease;
 }
 
-.success-title {
-    font-weight: 600;
-    margin-top: 10px;
+
+.progress-step.active {
+    color: #0b6623;
 }
 
-.success-text {
-    color: #555;
-    font-size: 15px;
+
+.progress-step.active .step-circle {
+    color: white;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b6623,
+            #18a34a
+        );
+
+    border-color: #0b6623;
+
+    box-shadow:
+        0 8px 20px rgba(11, 102, 35, 0.2);
 }
 
-.success-btn {
-    margin-top: 15px;
-    width: 100%;
-    padding: 10px;
-    font-weight: 600;
-    border-radius: 8px;
+
+.progress-step.completed .step-circle {
+    background: #ecfdf3;
+
+    border-color: #bbf7d0;
+
+    color: #15803d;
 }
 
-.video-wrapper {
+
+.step-line {
+    height: 2px;
+
+    flex: 1;
+
+    background: #e2e8f0;
+
+    margin: 0 7px;
+
+    margin-bottom: 24px;
+
     position: relative;
-    width: 100%;
-    height: 320px;
-    /* 🔥 Bigger by default */
-    border-radius: 12px;
+
     overflow: hidden;
-    background: #000;
-    margin-bottom: 20px;
 }
 
-/* Face verification video */
-.scan-video {
+
+.step-line span {
+    position: absolute;
+
+    inset: 0;
+
+    width: 0;
+
+    background: #0b6623;
+
+    transition: width 0.4s ease;
+}
+
+
+.step-line span.filled {
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    /* 🔥 Fill entire box */
 }
 
-/* QR Reader container */
-.qr-reader {
-    width: 100% !important;
-    height: 100% !important;
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.verification-section {
+    width: 100%;
 }
 
-/* QR Camera video injected by html5-qrcode */
-#reader video {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover;
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+
+    gap: 20px;
+
+    margin-bottom: 18px;
 }
 
-.scan-video,
-.qr-reader {
-    transition: opacity 0.3s ease;
+
+.section-kicker {
+    display: block;
+
+    color: #0b6623;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 0.12em;
+
+    margin-bottom: 5px;
 }
 
-.qr-reader {
-    margin-top: 20px;
+
+.section-heading h3 {
+    margin: 0;
+
+    color: #0f172a;
+
+    font-size: 20px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.02em;
+}
+
+
+.section-heading p {
+    margin: 6px 0 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    line-height: 1.55;
+
+    max-width: 430px;
+}
+
+
+.section-icon {
+    width: 44px;
+    height: 44px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 13px;
+
+    background: #f0fdf4;
+
+    color: #0b6623;
+
+    font-size: 22px;
+}
+
+
+.section-icon.success {
+    color: #15803d;
+
+    background: #dcfce7;
+}
+
+
+/* =========================================================
+   FACE CAMERA
+========================================================= */
+
+.face-camera-container {
+    width: 100%;
+
+    height: 340px;
+
+    border-radius: 22px;
+
+    overflow: hidden;
+
+    position: relative;
+
+    background: #07120b;
+
+    border: 1px solid rgba(15, 23, 42, 0.12);
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
 
 .login-face-video {
     width: 100%;
-    height: auto;
+    height: 100%;
+
     object-fit: cover;
+
     transform: scaleX(-1);
-    /* flips horizontally */
+
+    display: block;
 }
 
 
+.camera-gradient {
+    position: absolute;
 
+    inset: 0;
+
+    background:
+        linear-gradient(
+            to bottom,
+            rgba(0, 0, 0, 0.35),
+            transparent 25%,
+            transparent 65%,
+            rgba(0, 0, 0, 0.65)
+        );
+
+    pointer-events: none;
+}
+
+
+/* =========================================================
+   FACE GUIDE
+========================================================= */
+
+.face-guide {
+    position: absolute;
+
+    inset: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    pointer-events: none;
+}
+
+
+.face-outline {
+    width: 175px;
+    height: 230px;
+
+    border: 2px solid rgba(255, 255, 255, 0.7);
+
+    border-radius: 48% 48% 45% 45%;
+
+    box-shadow:
+        0 0 0 999px rgba(0, 0, 0, 0.12);
+
+    opacity: 0.9;
+}
+
+
+/* =========================================================
+   FACE CORNERS
+========================================================= */
+
+.face-corner {
+    position: absolute;
+
+    width: 30px;
+    height: 30px;
+
+    border-color: #fbbf24;
+    border-style: solid;
+}
+
+
+.face-corner.top-left {
+    top: 22px;
+    left: 22px;
+
+    border-width: 3px 0 0 3px;
+
+    border-radius: 8px 0 0 0;
+}
+
+
+.face-corner.top-right {
+    top: 22px;
+    right: 22px;
+
+    border-width: 3px 3px 0 0;
+
+    border-radius: 0 8px 0 0;
+}
+
+
+.face-corner.bottom-left {
+    bottom: 22px;
+    left: 22px;
+
+    border-width: 0 0 3px 3px;
+
+    border-radius: 0 0 0 8px;
+}
+
+
+.face-corner.bottom-right {
+    bottom: 22px;
+    right: 22px;
+
+    border-width: 0 3px 3px 0;
+
+    border-radius: 0 0 8px 0;
+}
+
+
+/* =========================================================
+   CAMERA STATUS
+========================================================= */
+
+.camera-top-status {
+    position: absolute;
+
+    top: 16px;
+    left: 16px;
+
+    display: flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 7px 11px;
+
+    border-radius: 50px;
+
+    background: rgba(0, 0, 0, 0.45);
+
+    backdrop-filter: blur(10px);
+
+    color: white;
+
+    font-size: 11px;
+    font-weight: 600;
+}
+
+
+.camera-live-dot {
+    width: 7px;
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #22c55e;
+
+    box-shadow:
+        0 0 0 4px rgba(34, 197, 94, 0.15);
+
+    animation: livePulse 1.6s infinite;
+}
+
+
+@keyframes livePulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.45;
+    }
+}
+
+
+/* =========================================================
+   CAMERA STATUS MESSAGE
+========================================================= */
+
+.login-status-overlay {
+    position: absolute;
+
+    left: 20px;
+    right: 20px;
+    bottom: 18px;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 11px 13px;
+
+    border-radius: 12px;
+
+    background: rgba(0, 0, 0, 0.55);
+
+    backdrop-filter: blur(12px);
+
+    color: white;
+
+    font-size: 12px;
+    font-weight: 500;
+
+    line-height: 1.4;
+}
+
+
+.login-status-overlay svg {
+    flex-shrink: 0;
+
+    color: #fbbf24;
+
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   VERIFICATION TIP
+========================================================= */
+
+.verification-tip {
+    display: flex;
+    align-items: center;
+
+    gap: 9px;
+
+    margin-top: 12px;
+
+    padding: 11px 13px;
+
+    border-radius: 12px;
+
+    background: #f8fafc;
+
+    color: #64748b;
+
+    font-size: 11px;
+}
+
+
+.verification-tip svg {
+    color: #0b6623;
+
+    font-size: 17px;
+
+    flex-shrink: 0;
+}
+
+
+/* =========================================================
+   PREMIUM BUTTON
+========================================================= */
+
+.premium-action-btn {
+    width: 100%;
+
+    height: 52px;
+
+    margin-top: 16px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b6623,
+            #159447
+        );
+
+    color: white;
+
+    font-size: 14px;
+    font-weight: 700;
+
+    box-shadow:
+        0 12px 24px rgba(11, 102, 35, 0.2);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+}
+
+
+.premium-action-btn:hover:not(:disabled) {
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 16px 30px rgba(11, 102, 35, 0.26);
+}
+
+
+.premium-action-btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+
+.premium-action-btn:disabled {
+    opacity: 0.65;
+
+    cursor: not-allowed;
+}
+
+
+.premium-action-btn svg {
+    font-size: 19px;
+}
+
+
+.spin {
+    animation: spin 0.8s linear infinite;
+}
+
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* =========================================================
+   LOCATION STATUS
+========================================================= */
+
+.location-status {
+    display: flex;
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 14px;
+
+    border-radius: 16px;
+
+    margin-bottom: 16px;
+
+    border: 1px solid transparent;
+}
+
+
+.location-warning {
+    background: #fffbeb;
+
+    border-color: #fde68a;
+}
+
+
+.location-success {
+    background: #f0fdf4;
+
+    border-color: #bbf7d0;
+}
+
+
+.location-status-icon {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    border-radius: 12px;
+
+    background: white;
+
+    font-size: 20px;
+}
+
+
+.location-warning .location-status-icon {
+    color: #d97706;
+}
+
+
+.location-success .location-status-icon {
+    color: #15803d;
+}
+
+
+.location-status-content {
+    flex: 1;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 3px;
+}
+
+
+.location-status-content strong {
+    color: #1e293b;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+
+.location-status-content span {
+    color: #64748b;
+
+    font-size: 10px;
+
+    line-height: 1.4;
+}
+
+
+.gps-dot {
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+
+    flex-shrink: 0;
+}
+
+
+.gps-dot.good {
+    background: #22c55e;
+
+    box-shadow:
+        0 0 0 5px rgba(34, 197, 94, 0.12);
+}
+
+
+.gps-dot.warning {
+    background: #f59e0b;
+
+    box-shadow:
+        0 0 0 5px rgba(245, 158, 11, 0.12);
+}
+
+
+/* =========================================================
+   MAP
+========================================================= */
+
+.attendance-map-container {
+
+    width: 100%;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    border: 1px solid #e2e8f0;
+
+    margin-bottom: 22px;
+
+    background: #f8fafc;
+}
+
+
+/* =========================================================
+   QR SECTION
+========================================================= */
+
+.qr-section {
+    margin-top: 10px;
+}
+
+
+.qr-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 13px;
+}
+
+
+.qr-section-header h4 {
+    margin: 0;
+
+    color: #0f172a;
+
+    font-size: 16px;
+    font-weight: 800;
+}
+
+
+.qr-ready-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 6px 9px;
+
+    border-radius: 50px;
+
+    background: #f0fdf4;
+
+    color: #15803d;
+
+    font-size: 9px;
+    font-weight: 700;
+}
+
+
+.qr-ready-badge span {
+    width: 6px;
+    height: 6px;
+
+    border-radius: 50%;
+
+    background: #22c55e;
+
+    animation: livePulse 1.5s infinite;
+}
+
+
+/* =========================================================
+   QR SCANNER
+========================================================= */
+
+.qr-scanner-shell {
+
+    position: relative;
+
+    width: 100%;
+
+    height: 310px;
+
+    overflow: hidden;
+
+    border-radius: 22px;
+
+    background: #07120b;
+
+    border: 1px solid rgba(15, 23, 42, 0.1);
+}
+
+
+#reader {
+
+    width: 100% !important;
+    height: 100% !important;
+
+    border: none !important;
+
+    margin: 0 !important;
+}
+
+
+#reader video {
+
+    width: 100% !important;
+    height: 100% !important;
+
+    object-fit: cover !important;
+}
+
+
+/* Hide html5-qrcode default UI */
+
+#reader__dashboard {
+    display: none !important;
+}
+
+
+#reader__scan_region {
+    border: none !important;
+}
+
+
+/* =========================================================
+   QR OVERLAY
+========================================================= */
+
+.qr-frame-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    pointer-events: none;
+
+    display: flex;
+
+    justify-content: center;
+    align-items: center;
+}
+
+
+.qr-frame-overlay::after {
+
+    content: "";
+
+    width: 220px;
+    height: 220px;
+
+    border-radius: 20px;
+
+    background: rgba(0, 0, 0, 0.08);
+
+    box-shadow:
+        0 0 0 999px rgba(0, 0, 0, 0.35);
+}
+
+
+/* =========================================================
+   QR CORNERS
+========================================================= */
+
+.qr-corner {
+
+    position: absolute;
+
+    width: 34px;
+    height: 34px;
+
+    z-index: 3;
+
+    border-color: #fbbf24;
+
+    border-style: solid;
+}
+
+
+.qr-corner.tl {
+
+    border-width: 4px 0 0 4px;
+
+    border-radius: 10px 0 0 0;
+
+    margin-right: 185px;
+
+    margin-bottom: 185px;
+}
+
+
+.qr-corner.tr {
+
+    border-width: 4px 4px 0 0;
+
+    border-radius: 0 10px 0 0;
+
+    margin-left: 185px;
+
+    margin-bottom: 185px;
+}
+
+
+.qr-corner.bl {
+
+    border-width: 0 0 4px 4px;
+
+    border-radius: 0 0 0 10px;
+
+    margin-right: 185px;
+
+    margin-top: 185px;
+}
+
+
+.qr-corner.br {
+
+    border-width: 0 4px 4px 0;
+
+    border-radius: 0 0 10px 0;
+
+    margin-left: 185px;
+
+    margin-top: 185px;
+}
+
+
+/* =========================================================
+   QR SCAN LINE
+========================================================= */
+
+.qr-scan-line {
+
+    position: absolute;
+
+    width: 215px;
+
+    height: 2px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #fbbf24,
+            transparent
+        );
+
+    z-index: 4;
+
+    animation: scanLine 2.2s ease-in-out infinite;
+}
+
+
+@keyframes scanLine {
+
+    0% {
+        transform: translateY(-105px);
+
+        opacity: 0;
+    }
+
+    15% {
+        opacity: 1;
+    }
+
+    50% {
+        transform: translateY(105px);
+
+        opacity: 1;
+    }
+
+    85% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(-105px);
+
+        opacity: 0;
+    }
+}
+
+
+/* =========================================================
+   QR INSTRUCTION
+========================================================= */
+
+.qr-instruction {
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 7px;
+
+    margin-top: 11px;
+
+    color: #64748b;
+
+    font-size: 11px;
+}
+
+
+.qr-instruction svg {
+
+    color: #0b6623;
+
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   SUCCESS MODAL
+========================================================= */
+
+.success-modal .modal-content {
+
+    border: none;
+
+    border-radius: 25px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 30px 80px rgba(15, 23, 42, 0.22);
+}
+
+
+.success-body {
+
+    padding: 38px 30px 30px;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+
+    text-align: center;
+}
+
+
+.success-animation {
+
+    position: relative;
+
+    margin-bottom: 18px;
+}
+
+
+.success-icon {
+
+    width: 78px;
+    height: 78px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #16a34a,
+            #22c55e
+        );
+
+    color: white;
+
+    font-size: 38px;
+
+    box-shadow:
+        0 15px 35px rgba(34, 197, 94, 0.25);
+}
+
+
+.success-kicker {
+
+    color: #15803d;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 0.13em;
+
+    margin-bottom: 5px;
+}
+
+
+.success-title {
+
+    margin: 0;
+
+    color: #0f172a;
+
+    font-size: 22px;
+
+    font-weight: 800;
+}
+
+
+.success-text {
+
+    margin: 9px 0 0;
+
+    color: #64748b;
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
+    max-width: 350px;
+}
+
+
+.success-btn {
+
+    width: 100%;
+
+    min-height: 48px;
+
+    margin-top: 24px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap: 8px;
+
+    border: none !important;
+
+    border-radius: 12px !important;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0b6623,
+            #159447
+        ) !important;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 10px 22px rgba(11, 102, 35, 0.2);
+}
+
+
+.success-btn svg {
+    font-size: 17px;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
 
 @media (max-width: 576px) {
+
+    .student-scan-wrapper {
+
+        padding: 20px 10px;
+
+        align-items: flex-start;
+    }
+
+
     .student-scan-card {
-        padding: 20px;
+
+        padding: 22px 16px;
+
+        border-radius: 22px;
+
+        margin-top: 10px;
     }
 
-    .video-wrapper {
-        height: 380px;
-        /* Big, clean, phone-friendly */
+
+    .scan-header {
+
+        gap: 12px;
+
+        margin-bottom: 24px;
     }
 
+
+    .scan-header-icon {
+
+        width: 52px;
+        height: 52px;
+
+        border-radius: 15px;
+
+        font-size: 25px;
+    }
+
+
+    .scan-header h2 {
+
+        font-size: 19px;
+    }
+
+
+    .scan-header p {
+
+        font-size: 11px;
+
+        margin-top: 3px;
+    }
+
+
+    .verification-progress {
+
+        margin-bottom: 26px;
+    }
+
+
+    .step-circle {
+
+        width: 34px;
+        height: 34px;
+
+        font-size: 15px;
+    }
+
+
+    .progress-step span {
+
+        font-size: 9px;
+    }
+
+
+    .step-line {
+
+        margin-bottom: 22px;
+
+        margin-left: 4px;
+        margin-right: 4px;
+    }
+
+
+    .section-heading h3 {
+
+        font-size: 18px;
+    }
+
+
+    .section-heading p {
+
+        font-size: 11px;
+    }
+
+
+    .section-icon {
+
+        width: 39px;
+        height: 39px;
+
+        border-radius: 11px;
+
+        font-size: 19px;
+    }
+
+
+    .face-camera-container {
+
+        height: 360px;
+
+        border-radius: 18px;
+    }
+
+
+    .face-outline {
+
+        width: 150px;
+        height: 205px;
+    }
+
+
+    .attendance-map-container {
+
+        border-radius: 15px;
+    }
+
+
+    .qr-scanner-shell {
+
+        height: 300px;
+
+        border-radius: 18px;
+    }
+
+
+    .qr-corner.tl {
+
+        margin-right: 160px;
+
+        margin-bottom: 160px;
+    }
+
+
+    .qr-corner.tr {
+
+        margin-left: 160px;
+
+        margin-bottom: 160px;
+    }
+
+
+    .qr-corner.bl {
+
+        margin-right: 160px;
+
+        margin-top: 160px;
+    }
+
+
+    .qr-corner.br {
+
+        margin-left: 160px;
+
+        margin-top: 160px;
+    }
+
+
+    .qr-frame-overlay::after {
+
+        width: 190px;
+
+        height: 190px;
+    }
+
+
+    .qr-scan-line {
+
+        width: 185px;
+    }
+
+
+    .location-status {
+
+        padding: 11px;
+    }
+
+
+    .location-status-icon {
+
+        width: 37px;
+        height: 37px;
+
+        font-size: 18px;
+    }
+
+
+    .location-status-content strong {
+
+        font-size: 11px;
+    }
+
+
+    .location-status-content span {
+
+        font-size: 9px;
+    }
+}
+
+
+/* =========================================================
+   VERY SMALL PHONES
+========================================================= */
+
+@media (max-width: 380px) {
+
+    .student-scan-card {
+
+        padding: 18px 13px;
+    }
+
+
+    .face-camera-container {
+
+        height: 330px;
+    }
+
+
+    .qr-scanner-shell {
+
+        height: 275px;
+    }
+
+
+    .scan-header h2 {
+
+        font-size: 17px;
+    }
+
+
+    .scan-header p {
+
+        font-size: 10px;
+    }
 }

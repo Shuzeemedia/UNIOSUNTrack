@@ -1,0 +1,75 @@
+body{
+    font-family: "Inter", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+/* Cards */
+
+.app-card{
+
+    background: var(--surface);
+
+    border-radius: var(--radius);
+
+    border:1px solid var(--border);
+
+    box-shadow: var(--shadow);
+
+    transition: var(--transition);
+
+}
+
+.app-card:hover{
+
+    transform: translateY(-4px);
+
+    box-shadow: var(--shadow-lg);
+
+}
+
+/* Buttons */
+
+.btn-primary{
+
+    background: var(--primary);
+
+    border:none;
+
+    border-radius:14px;
+
+    padding:.75rem 1.3rem;
+
+    font-weight:600;
+
+    transition:var(--transition);
+
+}
+
+.btn-primary:hover{
+
+    background:var(--primary-hover);
+
+    transform:translateY(-2px);
+
+}
+
+/* Inputs */
+
+.form-control{
+
+    border-radius:14px;
+
+    border:1px solid var(--border);
+
+    padding:.8rem 1rem;
+
+}
+
+.form-control:focus{
+
+    border-color:var(--primary);
+
+    box-shadow:0 0 0 .2rem rgba(37,99,235,.15);
+
+}

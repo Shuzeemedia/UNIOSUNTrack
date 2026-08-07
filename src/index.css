@@ -1,11 +1,24 @@
-*{
-    padding: 0;
-    margin: 0;
-    list-style: none;
-    text-decoration: none !important;
+*,
+*::before,
+*::after{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
 }
 
-.Toastify__toast-container {
-    z-index: 99999 !important;
-  }
-  
+html{
+    scroll-behavior:smooth;
+}
+
+body{
+    min-height:100vh;
+    background:var(--bg);
+}
+
+a{
+    text-decoration:none !important;
+}
+
+.Toastify__toast-container{
+    z-index:99999!important;
+}
