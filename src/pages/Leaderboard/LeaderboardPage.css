@@ -1,26 +1,51 @@
 :root {
     --un-primary: #0b6623;
+    --un-primary-light: #148f48;
     --un-accent: #fbbf24;
     --un-bg: #f9fafb;
     --un-text: #1e293b;
 
-    /* Badge Colors */
     --gold: #ffd700;
     --silver: #c0c0c0;
     --bronze: #cd7f32;
 }
 
-/* ranking description */
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+.leaderboard-wrapper {
+    position: relative;
+    z-index: 1;
+    background: var(--un-bg);
+    color: var(--un-text);
+    padding: 2rem;
+    min-height: 100vh;
+    font-family: "Poppins", sans-serif;
+    width: 100%;
+}
+
+/* =========================================================
+   RANKING DESCRIPTION
+========================================================= */
+
 .ranking-description {
     background: #f8fff4;
-    border-left: 5px solid #4CAF50;
+    border-left: 5px solid #4caf50;
     padding: 12px 14px;
     border-radius: 6px;
     font-size: 0.95rem;
     margin: 20px 0 10px;
 }
 
-/* hype block */
+/* =========================================================
+   RANK HYPE
+========================================================= */
+
 .rank-hype {
     background: linear-gradient(135deg, #fff, #f3faff);
     padding: 10px 14px;
@@ -34,14 +59,9 @@
     font-size: 0.9rem;
 }
 
-/* ===== MAIN WRAPPER ===== */
-.leaderboard-wrapper {
-    background: var(--un-bg);
-    color: var(--un-text);
-    padding: 2rem;
-    min-height: 100vh;
-    font-family: "Poppins", sans-serif;
-}
+/* =========================================================
+   TITLE
+========================================================= */
 
 .leaderboard-title {
     text-align: center;
@@ -51,357 +71,23 @@
     font-size: 1.8rem;
 }
 
-/* ===== FILTER SECTION ===== */
-/* ===========================
-        FILTER CARD
-=========================== */
-
-.leaderboard-filter-card {
-    background: #fff;
-    border-radius: 22px;
-    padding: 28px;
-
-    margin: 30px 0;
-
-    border: 1px solid #edf2f7;
-
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .06);
-}
-
-.filter-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-
-    margin-bottom: 25px;
-}
-
-.filter-header h3 {
-    margin: 0;
-    color: #0b6623;
-    font-size: 1.45rem;
-}
-
-.filter-header p {
-    margin-top: 6px;
-    color: #64748b;
-    font-size: .95rem;
-}
-
-.filter-grid {
-    display: grid;
-    grid-template-columns:
-        repeat(auto-fit, minmax(230px, 1fr));
-
-    gap: 20px;
-    align-items: end;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-}
-
-.filter-group label {
-    margin-bottom: 10px;
-    font-size: .9rem;
-    font-weight: 600;
-    color: #475569;
-}
-
-.filter-select {
-    height: 54px;
-
-    padding: 0 18px;
-
-    border-radius: 14px;
-
-    border: 2px solid #e2e8f0;
-
-    background: #fff;
-
-    font-size: .95rem;
-
-    transition: .25s;
-}
-
-.filter-select:hover {
-    border-color: #0b6623;
-}
-
-.filter-select:focus {
-    outline: none;
-
-    border-color: #0b6623;
-
-    box-shadow: 0 0 0 5px rgba(11, 102, 35, .12);
-}
-
-.filter-btn-wrapper {
-    display: flex;
-    align-items: end;
-}
-
-.load-btn {
-    width: 100%;
-    height: 54px;
-
-    border: none;
-
-    border-radius: 14px;
-
-    background: linear-gradient(135deg, #0b6623, #148f48);
-
-    color: #fff;
-
-    font-weight: 700;
-
-    font-size: .95rem;
-
-    cursor: pointer;
-
-    transition: .3s;
-}
-
-.load-btn:hover:not(:disabled) {
-    transform: translateY(-3px);
-
-    box-shadow: 0 12px 25px rgba(11, 102, 35, .28);
-}
-
-.load-btn:disabled {
-    opacity: .65;
-    cursor: not-allowed;
-}
-
-/* ===== TABLE STYLING ===== */
-.table-container {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.leaderboard-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 900px !important;
-    /* Prevents squishing */
-}
-
-.leaderboard-table th {
-    background: var(--un-primary);
-    color: #fff;
-    padding: 1rem;
-    text-align: left;
-    font-size: 0.95rem;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-}
-
-
-.leaderboard-table th,
-.leaderboard-table td {
-    padding: 0.9rem;
-    border-bottom: 1px solid #eee;
-    font-size: 0.95rem;
-    white-space: nowrap;
-}
-
-.leaderboard-table tr:hover {
-    background: rgba(11, 102, 35, 0.05);
-    transition: 0.2s;
-}
-
-/* .rank-icon {
-    width: 40px;
-    height: 40px;
-    vertical-align: middle;
-    margin-right: 6px;
-} */
-
-.rank-icon {
-    width: 40px;
-    height: 40px;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-
-.rank-icon:hover {
-    transform: scale(1.1);
-    /* slightly bigger on hover */
-}
-
-
-
-.no-data {
-    text-align: center;
-    padding: 1.5rem;
-    color: #999;
-}
-
-/* ===== RANK BADGE EFFECTS ===== */
-.rank-1 {
-    background: rgba(255, 215, 0, 0.08);
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.4);
-    animation: gold-glow 2s infinite alternate;
-}
-
-.rank-2 {
-    background: rgba(192, 192, 192, 0.08);
-    box-shadow: 0 0 12px rgba(192, 192, 192, 0.4);
-    animation: silver-glow 2s infinite alternate;
-}
-
-.rank-3 {
-    background: rgba(205, 127, 50, 0.08);
-    box-shadow: 0 0 12px rgba(205, 127, 50, 0.4);
-    animation: bronze-glow 2s infinite alternate;
-}
-
-.rank-tooltip {
-    position: absolute;
-    top: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #333;
-    color: #fff;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 12px;
-    white-space: nowrap;
-    z-index: 10;
-    pointer-events: none;
-    opacity: 0.9;
-}
-
-
-/* ===== GLOW ANIMATIONS ===== */
-@keyframes gold-glow {
-    from {
-        box-shadow: 0 0 5px rgba(255, 215, 0, 0.4);
-    }
-
-    to {
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
-    }
-}
-
-@keyframes silver-glow {
-    from {
-        box-shadow: 0 0 5px rgba(192, 192, 192, 0.4);
-    }
-
-    to {
-        box-shadow: 0 0 20px rgba(192, 192, 192, 0.8);
-    }
-}
-
-@keyframes bronze-glow {
-    from {
-        box-shadow: 0 0 5px rgba(205, 127, 50, 0.4);
-    }
-
-    to {
-        box-shadow: 0 0 20px rgba(205, 127, 50, 0.8);
-    }
-}
-
-
-/* .rank-cell {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-} */
-
-.rank-icon-small {
-    width: 18px;
-    height: 18px;
-    object-fit: contain;
-}
-
-.rank-legend {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.rank-legend-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 6px;
-    border-radius: 6px;
-    background: #f8f9ff;
-}
-
-/* Star Student League highlight */
-.star-league {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.star-league-icon {
-    width: 36px;
-    height: 36px;
-    object-fit: contain;
-    flex-shrink: 0;
-}
-
-.star-league-icon {
-    animation: starGlow 2s infinite alternate;
-}
-
-@keyframes starGlow {
-    from {
-        filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
-    }
-
-    to {
-        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.9));
-    }
-}
-
-/* .student-name-cell {
-    display: flex;
-    align-items: center;
-    padding: 0 !important;
-    height: 100% !;
-    gap: 5px;
-    background-color: red;
-} */
-
-.top-rank-crown {
-    color: gold;
-    font-size: 20px;
-    /* background-color: red; */
-    margin-bottom: 5px !important;
-    margin-right: 6px;
-}
+/* =========================================================
+   HERO
+========================================================= */
 
 .leaderboard-hero {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     gap: 60px;
-
     padding: 50px;
-
     border-radius: 24px;
-
     background: linear-gradient(135deg, #0b6623, #148f48);
-
     color: #fff;
-
     overflow: hidden;
-
     position: relative;
-
-    box-shadow: 0 20px 45px rgba(0, 0, 0, .18);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18);
+    z-index: 1;
 }
 
 .leaderboard-hero::before {
@@ -412,7 +98,7 @@
     right: -120px;
     top: -120px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .hero-left {
@@ -427,252 +113,143 @@
     z-index: 2;
 }
 
-.hero-badge {
+.hero-content {
+    position: relative;
+    z-index: 2;
+}
 
+.hero-badge {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-
-    background: rgba(255, 255, 255, .15);
-
-    padding: 10px 18px;
-
-    border-radius: 40px;
-
-    margin-bottom: 20px;
-
+    background: rgba(255, 255, 255, 0.15);
+    padding: 9px 16px;
+    border-radius: 30px;
+    font-size: 0.85rem;
     font-weight: 600;
+    margin-bottom: 18px;
+    backdrop-filter: blur(10px);
 }
 
-.hero-left h1 {
-
-    font-size: 3.2rem;
-
+.hero-left h1,
+.hero-content h1 {
+    font-size: 3rem;
     line-height: 1.1;
-
-    margin-bottom: 18px;
-
+    margin: 0 0 15px;
     font-weight: 800;
 }
 
-.hero-left h1 span {
-    color: #FFD54A;
+.hero-left h1 span,
+.hero-content h1 span {
+    color: #ffd54a;
 }
 
-.hero-left p {
-
-    font-size: 1.1rem;
-
-    line-height: 1.8;
-
+.hero-left p,
+.hero-content p {
     max-width: 650px;
+    line-height: 1.8;
+    font-size: 1.05rem;
+    opacity: 0.95;
+}
 
-    opacity: .95;
+.leaderboard-hero h2 {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.leaderboard-hero p {
+    opacity: 0.92;
+    max-width: 650px;
+    line-height: 1.6;
+}
+
+.hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
 }
 
 .hero-tag {
     display: flex;
     align-items: center;
     gap: 8px;
-
-    background: rgba(255, 255, 255, .12);
-    border: 1px solid rgba(255, 255, 255, .18);
-
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.18);
     padding: 10px 18px;
     border-radius: 30px;
-
     font-weight: 600;
-    font-size: .92rem;
-
+    font-size: 0.92rem;
     backdrop-filter: blur(8px);
-    transition: all .3s ease;
+    transition: all 0.3s ease;
 }
 
 .hero-tag svg {
     font-size: 18px;
-    color: #FFD54A;
+    color: #ffd54a;
 }
 
 .hero-tag:hover {
     background: #fff;
     color: #0b6623;
-    transform: translateY(-4px);
+    transform: translateY(-3px);
 }
 
 .hero-tag:hover svg {
     color: #0b6623;
 }
 
-.hero-tags span {
-
-    padding: 10px 18px;
-
-    border-radius: 30px;
-
-    background: rgba(255, 255, 255, .12);
-
-    backdrop-filter: blur(8px);
-
-    font-weight: 600;
-
-    border: 1px solid rgba(255, 255, 255, .15);
-}
-
-
 .hero-card {
-
-    background: white;
-
+    background: #fff;
     color: #1e293b;
-
     width: 260px;
-
     padding: 30px;
-
     border-radius: 20px;
-
     text-align: center;
-
-    box-shadow: 0 20px 40px rgba(0, 0, 0, .15);
-
-    transition: .35s;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transition: 0.35s;
 }
 
 .hero-card:hover {
-
     transform: translateY(-8px);
 }
 
 .hero-crown {
-
     font-size: 70px;
-
-    color: #FFD54A;
-
+    color: #ffd54a;
     margin-bottom: 18px;
-
     filter: drop-shadow(0 0 10px gold);
 }
 
 .hero-card h2 {
-
     margin-bottom: 12px;
-
     color: #0b6623;
 }
 
 .hero-card p {
-
     color: #64748b;
-
     line-height: 1.6;
 }
 
-.hero-badge {
-
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-
-    background: rgba(255, 255, 255, .15);
-
-    padding: 8px 16px;
-
-    border-radius: 30px;
-
-    font-size: .85rem;
-    font-weight: 600;
-
-    margin-bottom: 18px;
-
-    backdrop-filter: blur(10px);
-}
-
-.hero-content h1 {
-
-    font-size: 3rem;
-    line-height: 1.1;
-
-    margin-bottom: 15px;
-
-    font-weight: 800;
-}
-
-.hero-content h1 span {
-    color: #FFD54A;
-}
-
-.hero-content p {
-
-    max-width: 650px;
-
-    line-height: 1.8;
-
-    font-size: 1.05rem;
-
-    opacity: .95;
-}
-
-.hero-tags {
-
-    display: flex;
-    flex-wrap: wrap;
-
-    gap: 12px;
-
-    margin-top: 28px;
-}
-
-.hero-tag {
-
-    background: rgba(255, 255, 255, .12);
-
-    border: 1px solid rgba(255, 255, 255, .18);
-
-    padding: 10px 18px;
-
-    border-radius: 30px;
-
-    font-weight: 600;
-
-    backdrop-filter: blur(8px);
-
-    transition: .3s;
-}
-
-.hero-tag:hover {
-
-    background: white;
-    color: #0b6623;
-
-    transform: translateY(-3px);
-}
-
 .hero-icon {
-
     width: 180px;
     height: 180px;
-
     border-radius: 50%;
-
-    background: rgba(255, 255, 255, .12);
-
+    background: rgba(255, 255, 255, 0.12);
     display: flex;
     justify-content: center;
     align-items: center;
-
     backdrop-filter: blur(12px);
-
     animation: float 3s ease-in-out infinite;
 }
 
 .hero-icon svg {
-
     font-size: 90px;
-
-    color: #FFD54A;
-
-    filter: drop-shadow(0 0 15px rgba(255, 213, 74, .8));
+    color: #ffd54a;
+    filter: drop-shadow(0 0 15px rgba(255, 213, 74, 0.8));
 }
 
 @keyframes float {
@@ -685,22 +262,114 @@
     50% {
         transform: translateY(-12px);
     }
-
 }
 
-.leaderboard-hero h2 {
+/* =========================================================
+   FILTER CARD
+========================================================= */
+
+.leaderboard-filter-card {
+    position: relative;
+    z-index: 2;
+    background: #fff;
+    border-radius: 22px;
+    padding: 28px;
+    margin: 30px 0;
+    border: 1px solid #edf2f7;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.filter-header {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 12px;
-    font-size: 2rem;
-    margin-bottom: 8px;
+    margin-bottom: 25px;
 }
 
-.leaderboard-hero p {
-    opacity: .92;
-    max-width: 650px;
-    line-height: 1.6;
+.filter-header h3 {
+    margin: 0;
+    color: #0b6623;
+    font-size: 1.45rem;
 }
+
+.filter-header p {
+    margin-top: 6px;
+    color: #64748b;
+    font-size: 0.95rem;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 20px;
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #475569;
+}
+
+.filter-select {
+    width: 100%;
+    height: 54px;
+    padding: 0 18px;
+    border-radius: 14px;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    font-size: 0.95rem;
+    color: #1e293b;
+    transition: 0.25s;
+}
+
+.filter-select:hover {
+    border-color: #0b6623;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #0b6623;
+    box-shadow: 0 0 0 5px rgba(11, 102, 35, 0.12);
+}
+
+.filter-btn-wrapper {
+    display: flex;
+    align-items: end;
+}
+
+.load-btn {
+    width: 100%;
+    height: 54px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0b6623, #148f48);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.load-btn:hover:not(:disabled) {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(11, 102, 35, 0.28);
+}
+
+.load-btn:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+/* =========================================================
+   STATS
+========================================================= */
 
 .leaderboard-stats {
     display: grid;
@@ -714,22 +383,18 @@
     border-radius: 18px;
     padding: 28px 22px;
     text-align: center;
-
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     border: 1px solid #edf2f7;
-
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .06);
-
-    transition: all .3s ease;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
 }
 
 .stat-card:hover {
     transform: translateY(-8px);
-    box-shadow: 0 18px 35px rgba(0, 0, 0, .12);
+    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
 }
 
 .stat-card svg {
@@ -740,7 +405,7 @@
 
 .stat-card span {
     color: #64748b;
-    font-size: .9rem;
+    font-size: 0.9rem;
 }
 
 .stat-card h3 {
@@ -749,33 +414,144 @@
     color: #0b6623;
 }
 
+/* =========================================================
+   TABLE CONTAINER
+========================================================= */
+
+.table-container {
+    position: relative;
+
+    /*
+     * IMPORTANT:
+     * Do not create a stacking context above the table rows.
+     */
+    z-index: auto;
+
+    width: 100%;
+
+    /*
+     * Horizontal scrolling is needed on desktop.
+     * Vertical overflow must remain visible for tooltip.
+     */
+    overflow-x: auto;
+    overflow-y: visible;
+
+    -webkit-overflow-scrolling: touch;
+
+    background: #fff;
+    border-radius: 24px;
+    border: 1px solid #e5e7eb;
+
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
+
+    scrollbar-width: thin;
+}
+
+/* =========================================================
+   TABLE
+========================================================= */
+
+.leaderboard-table {
+    width: 100%;
+    min-width: 900px;
+
+    border-collapse: separate;
+    border-spacing: 0 12px;
+
+    /*
+     * Do NOT give the table a high z-index.
+     */
+    position: relative;
+    z-index: auto;
+}
+
+/* =========================================================
+   TABLE HEADER
+========================================================= */
+
+.leaderboard-table thead {
+    position: relative;
+    z-index: 2;
+}
+
 .leaderboard-table thead th {
     background: linear-gradient(135deg, #0b6623, #148f48);
     color: #fff;
+
     padding: 18px 22px;
+
     font-weight: 700;
-    font-size: .92rem;
+    font-size: 0.92rem;
     text-transform: uppercase;
     letter-spacing: 1px;
+    text-align: left;
+
+    white-space: nowrap;
+
     position: sticky;
     top: 0;
-    z-index: 10;
+
+    z-index: 2;
 }
 
-.leaderboard-table {
-    border-collapse: separate;
-    border-spacing: 0 12px;
+/* =========================================================
+   TABLE BODY
+========================================================= */
+
+.leaderboard-table tbody {
+    position: relative;
+
+    /*
+     * Keep this low so tooltip can sit above rows.
+     */
+    z-index: auto;
 }
 
 .leaderboard-table tbody tr {
+    position: relative;
+
+    /*
+     * IMPORTANT:
+     * Do NOT use z-index here.
+     * It creates stacking conflicts with the tooltip.
+     */
+    z-index: auto;
+
     background: #fff;
-    transition: .3s;
+    transition: background 0.25s ease, transform 0.25s ease;
+
+    animation: fadeUp 0.4s ease;
 }
 
 .leaderboard-table tbody tr:hover {
+    /*
+     * Keep hover effect but don't raise the entire row
+     * above the tooltip.
+     */
     transform: translateY(-3px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, .08);
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
     background: #f9fffb;
+}
+
+.leaderboard-table td {
+    padding: 18px 22px;
+
+    border: none;
+
+    font-weight: 500;
+
+    vertical-align: middle;
+
+    white-space: nowrap;
+
+    font-size: 0.95rem;
+
+    /*
+     * IMPORTANT:
+     * Do not assign z-index here.
+     */
+    position: static;
 }
 
 .leaderboard-table td:first-child {
@@ -786,12 +562,15 @@
     border-radius: 0 16px 16px 0;
 }
 
-.leaderboard-table td {
-    padding: 18px 22px;
-    border: none;
-    font-weight: 500;
-    vertical-align: middle;
+.no-data {
+    text-align: center;
+    padding: 1.5rem;
+    color: #999;
 }
+
+/* =========================================================
+   RANK COLORS
+========================================================= */
 
 .rank-1 {
     background: linear-gradient(90deg, #fff9df, #fff4ba);
@@ -808,15 +587,192 @@
     border-left: 6px solid #cd7f32;
 }
 
-.xp-badge {
+.first-place strong {
+    color: #9a6700;
+    font-size: 1.05rem;
+}
+
+.second-place strong {
+    color: #475569;
+}
+
+.third-place strong {
+    color: #8b4513;
+}
+
+/* =========================================================
+   RANK CELL
+========================================================= */
+
+/*
+ * This is the important part.
+ *
+ * The rank cell itself is the positioning reference,
+ * but it does NOT get an enormous z-index.
+ */
+
+.rank-cell {
+    position: relative !important;
+    text-align: center;
+    vertical-align: middle;
+    z-index: 4 !important;
+}
+
+/*
+ * When the tooltip is open, the rank cell is raised.
+ *
+ * This allows the tooltip to appear over the neighbouring
+ * table rows without raising every row.
+ */
+.rank-cell:has(.rank-tooltip) {
+    z-index: 100 !important;
+}
+
+.rank-icon-wrapper {
+    position: relative;
+
     display: inline-flex;
     align-items: center;
-    padding: 7px 14px;
-    border-radius: 30px;
-    background: #e8fff0;
-    color: #0b6623;
-    font-weight: 700;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    z-index: 5;
 }
+
+.rank-icon {
+    width: 40px;
+    height: 40px;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        filter 0.2s ease;
+
+    object-fit: contain;
+
+    position: relative;
+
+    z-index: 6;
+}
+
+.rank-icon:hover {
+    transform: scale(1.12);
+
+    filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.22));
+}
+
+.rank-icon-small {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+}
+
+/* =========================================================
+   TOOLTIP
+   FINAL FIX
+========================================================= */
+
+.rank-tooltip {
+    position: absolute;
+
+    /*
+     * Anchor to the rank cell/icon.
+     *
+     * bottom: 100% means the tooltip starts directly
+     * above the rank cell.
+     */
+    bottom: calc(100% + 8px);
+
+    top: auto;
+
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    /*
+     * Prevent tooltip from affecting table layout.
+     */
+    display: block;
+
+    width: max-content;
+    max-width: 180px;
+
+    /*
+     * Visual appearance
+     */
+    background: #1e293b;
+    color: #fff;
+
+    padding: 7px 11px;
+
+    border-radius: 7px;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    line-height: 1.2;
+
+    white-space: nowrap;
+
+    text-align: center;
+
+    /*
+     * IMPORTANT:
+     * Tooltip gets high z-index only AFTER
+     * its rank cell has been raised.
+     */
+    z-index: 10000 !important;
+
+    pointer-events: none;
+
+    /*
+     * NO DELAY
+     * NO FADE
+     * NO ANIMATION
+     */
+    opacity: 1;
+
+    visibility: visible;
+
+    animation: none !important;
+    transition: none !important;
+
+    /*
+     * Shadow separates it visually from the row.
+     */
+    box-shadow:
+        0 8px 20px rgba(0, 0, 0, 0.25),
+        0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* =========================================================
+   TOOLTIP ARROW
+========================================================= */
+
+.rank-tooltip::after {
+    content: "";
+
+    position: absolute;
+
+    top: 100%;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: 0;
+    height: 0;
+
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #1e293b;
+}
+
+/* =========================================================
+   STUDENT INFO
+========================================================= */
 
 .student-cell {
     vertical-align: middle;
@@ -830,10 +786,14 @@
 }
 
 .student-info strong {
-    font-size: .98rem;
+    font-size: 0.98rem;
     font-weight: 700;
     color: #1e293b;
 }
+
+/* =========================================================
+   LEADER BADGES
+========================================================= */
 
 .leader-badge {
     width: 44px;
@@ -849,178 +809,110 @@
 
     flex-shrink: 0;
 
-    transition: .35s ease;
+    transition: 0.35s ease;
 }
 
 .leader-badge svg {
     font-size: 22px;
 }
 
-/* Gold */
 .leader-badge.gold {
     color: #fff;
-    background: linear-gradient(135deg, #FFD700, #F59E0B);
+
+    background: linear-gradient(135deg,
+            #ffd700,
+            #f59e0b);
+
     box-shadow:
-        0 10px 24px rgba(245, 158, 11, .35),
-        inset 0 1px 3px rgba(255, 255, 255, .45);
+        0 10px 24px rgba(245, 158, 11, 0.35),
+        inset 0 1px 3px rgba(255, 255, 255, 0.45);
 }
 
 .leader-badge.gold:hover {
     transform: scale(1.08) rotate(-8deg);
 }
 
-/* Silver */
 .leader-badge.silver {
     color: #fff;
-    background: linear-gradient(135deg, #d7dce3, #9ca3af);
-    box-shadow: 0 8px 18px rgba(148, 163, 184, .3);
-}
 
-/* Bronze */
-.leader-badge.bronze {
-    color: #fff;
-    background: linear-gradient(135deg, #d08b52, #a45a1f);
-    box-shadow: 0 8px 18px rgba(164, 90, 31, .28);
-}
-
-.first-place strong {
-
-    color: #9a6700;
-
-    font-size: 1.05rem;
-
-}
-
-.second-place strong {
-
-    color: #475569;
-
-}
-
-.third-place strong {
-
-    color: #8b4513;
-
-}
-
-@keyframes leaderGlow {
-
-    from {
-        box-shadow:
-            0 0 0 rgba(255, 215, 0, .4),
-            0 8px 20px rgba(255, 193, 7, .35);
-    }
-
-    to {
-        box-shadow:
-            0 0 18px rgba(255, 215, 0, .7),
-            0 12px 28px rgba(255, 193, 7, .45);
-    }
-
-}
-
-.table-container {
-
-    border-radius: 24px;
-
-    overflow: hidden;
-
-    background: white;
-
-    border: 1px solid #e5e7eb;
+    background: linear-gradient(135deg,
+            #d7dce3,
+            #9ca3af);
 
     box-shadow:
-        0 15px 40px rgba(0, 0, 0, .06);
-
+        0 8px 18px rgba(148, 163, 184, 0.3);
 }
 
-.rank-icon {
+.leader-badge.bronze {
+    color: #fff;
 
-    transition: .35s;
+    background: linear-gradient(135deg,
+            #d08b52,
+            #a45a1f);
 
-    cursor: pointer;
-
+    box-shadow:
+        0 8px 18px rgba(164, 90, 31, 0.28);
 }
 
-.rank-icon:hover {
+/* =========================================================
+   XP BADGE
+========================================================= */
 
-    transform: scale(1.25) rotate(8deg);
+.xp-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 
-    filter: drop-shadow(0 8px 15px rgba(0, 0, 0, .25));
+    padding: 7px 14px;
 
+    border-radius: 30px;
+
+    background: #e8fff0;
+    color: #0b6623;
+
+    font-weight: 700;
+
+    white-space: nowrap;
 }
 
-.leaderboard-table tbody tr {
+/* =========================================================
+   CROWN
+========================================================= */
 
-    animation: fadeUp .4s ease;
-
+.top-rank-crown {
+    color: gold;
+    font-size: 20px;
+    margin-bottom: 5px !important;
+    margin-right: 6px;
 }
 
-@keyframes fadeUp {
-
-    from {
-
-        opacity: 0;
-
-        transform: translateY(10px);
-
-    }
-
-    to {
-
-        opacity: 1;
-
-        transform: none;
-
-    }
-
-}
-
-/* ==========================
-      LEADERBOARD INFO
-========================== */
+/* =========================================================
+   RANKING INFO
+========================================================= */
 
 .leaderboard-info {
-
     display: grid;
-
     grid-template-columns: 2fr 1fr;
-
     gap: 24px;
-
     margin-top: 35px;
 }
 
-/* Left Card */
-
 .ranking-card {
-
     background: #fff;
-
     border-radius: 24px;
-
     padding: 28px;
-
     border: 1px solid #edf2f7;
-
-    box-shadow: 0 15px 40px rgba(0, 0, 0, .06);
-
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.06);
 }
 
 .ranking-card-header {
-
     display: flex;
-
     align-items: flex-start;
-
     gap: 18px;
-
     margin-bottom: 25px;
-
 }
 
 .ranking-card-header svg {
-
     width: 55px;
     height: 55px;
 
@@ -1028,53 +920,39 @@
 
     border-radius: 16px;
 
-    background: rgba(11, 102, 35, .08);
-
+    background: rgba(11, 102, 35, 0.08);
     color: #0b6623;
 
     flex-shrink: 0;
-
 }
 
 .ranking-card-header h3 {
-
     margin: 0;
-
     font-size: 1.35rem;
-
     color: #0b6623;
-
 }
 
 .ranking-card-header p {
-
     margin-top: 8px;
-
     color: #64748b;
-
     line-height: 1.7;
-
 }
 
-
-/* Rank Grid */
+/* =========================================================
+   RANK LEGEND
+========================================================= */
 
 .rank-legend {
-
     display: grid;
-
-    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    grid-template-columns: repeat(auto-fit,
+            minmax(170px, 1fr));
 
     gap: 14px;
-
 }
 
 .rank-legend-item {
-
     display: flex;
-
     align-items: center;
-
     gap: 12px;
 
     padding: 14px 16px;
@@ -1082,48 +960,33 @@
     border-radius: 14px;
 
     background: #f8fafc;
-
     border: 1px solid #edf2f7;
 
-    transition: .3s;
-
+    transition: 0.3s;
 }
 
 .rank-legend-item:hover {
-
     transform: translateY(-3px);
 
     border-color: #0b6623;
 
-    box-shadow: 0 10px 25px rgba(11, 102, 35, .08);
-
-}
-
-.rank-icon-small {
-
-    width: 34px;
-
-    height: 34px;
-
+    box-shadow:
+        0 10px 25px rgba(11, 102, 35, 0.08);
 }
 
 .rank-legend-item span {
-
     font-weight: 600;
-
 }
 
-
-/* Bottom Notice */
+/* =========================================================
+   RANKING NOTE
+========================================================= */
 
 .ranking-note {
-
     margin-top: 22px;
 
     display: flex;
-
     align-items: center;
-
     justify-content: center;
 
     gap: 12px;
@@ -1132,27 +995,27 @@
 
     border-radius: 14px;
 
-    background: linear-gradient(135deg, #0b6623, #148f48);
+    background: linear-gradient(135deg,
+            #0b6623,
+            #148f48);
 
     color: white;
 
     font-weight: 700;
-
 }
 
 .ranking-note svg {
-
-    color: #FFD54A;
-
+    color: #ffd54a;
 }
 
-
-
-/* Right Card */
+/* =========================================================
+   STAR CARD
+========================================================= */
 
 .star-card {
-
-    background: linear-gradient(145deg, #0b6623, #148f48);
+    background: linear-gradient(145deg,
+            #0b6623,
+            #148f48);
 
     color: white;
 
@@ -1160,90 +1023,68 @@
 
     padding: 28px;
 
-    box-shadow: 0 20px 45px rgba(11, 102, 35, .25);
+    box-shadow:
+        0 20px 45px rgba(11, 102, 35, 0.25);
 
     display: flex;
-
     flex-direction: column;
-
     justify-content: space-between;
 
     overflow: hidden;
 
     position: relative;
-
 }
 
 .star-card::before {
-
     content: "";
 
     position: absolute;
 
     width: 220px;
-
     height: 220px;
 
     right: -70px;
-
     top: -70px;
 
     border-radius: 50%;
 
-    background: rgba(255, 255, 255, .08);
-
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .star-top {
-
     display: flex;
-
     align-items: center;
 
     gap: 18px;
 
     position: relative;
-
     z-index: 2;
-
 }
 
 .star-top h3 {
-
     margin: 0;
-
-    color: #FFD54A;
-
+    color: #ffd54a;
 }
 
 .star-top span {
-
-    opacity: .9;
-
-    font-size: .9rem;
-
+    opacity: 0.9;
+    font-size: 0.9rem;
 }
 
 .star-card p {
-
     margin: 24px 0;
 
     line-height: 1.8;
 
-    opacity: .95;
+    opacity: 0.95;
 
     position: relative;
-
     z-index: 2;
-
 }
 
 .star-footer {
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
 
     gap: 10px;
@@ -1252,54 +1093,81 @@
 
     border-radius: 14px;
 
-    background: rgba(255, 255, 255, .12);
+    background: rgba(255, 255, 255, 0.12);
 
     backdrop-filter: blur(10px);
 
     font-weight: 700;
 
     position: relative;
-
     z-index: 2;
-
 }
 
 .star-footer svg {
+    color: #ffd54a;
+}
 
-    color: #FFD54A;
-
+.star-league {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .star-league-icon {
-
     width: 72px;
-
     height: 72px;
+
+    object-fit: contain;
+
+    flex-shrink: 0;
 
     animation: starGlow 2s infinite alternate;
 }
 
-@media (max-width:900px){
-
-    .leaderboard-info{
-
-        grid-template-columns:1fr;
-
+@keyframes starGlow {
+    from {
+        filter: drop-shadow(0 0 4px rgba(255, 215, 0, 0.5));
     }
 
-}
-
-/* Mobile tuning */
-@media (max-width: 600px) {
-    .star-league-icon {
-        width: 28px;
-        height: 28px;
+    to {
+        filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.9));
     }
 }
 
+/* =========================================================
+   FADE
+========================================================= */
 
-/* ===== RESPONSIVE DESIGN ===== */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+/* =========================================================
+   TABLE SCROLL HINT
+========================================================= */
+
+.table-container::after {
+    display: none;
+}
+
+.rnk_nme {
+    font-size: 0.9rem;
+}
+
+/* =========================================================
+   992px
+========================================================= */
+
 @media (max-width: 992px) {
+
     .leaderboard-title {
         font-size: 1.6rem;
     }
@@ -1319,61 +1187,62 @@
     }
 }
 
-@media (max-width:900px) {
+/* =========================================================
+   900px
+========================================================= */
+
+@media (max-width: 900px) {
+
+    .leaderboard-info {
+        grid-template-columns: 1fr;
+    }
 
     .leaderboard-hero {
-
         flex-direction: column;
-
         text-align: center;
-
         padding: 35px;
     }
 
     .hero-tags {
-
         justify-content: center;
     }
 
-    .hero-left h1 {
-
+    .hero-left h1,
+    .hero-content h1 {
         font-size: 2.3rem;
     }
 
     .hero-card {
-
         width: 100%;
         max-width: 320px;
     }
 }
 
-@media (max-width:768px) {
+/* =========================================================
+   768px
+========================================================= */
+
+@media (max-width: 768px) {
 
     .leaderboard-hero {
-
-        flex-direction: column;
-        text-align: center;
         padding: 28px;
     }
 
-    .hero-content h1 {
-
+    .hero-content h1,
+    .hero-left h1 {
         font-size: 2.2rem;
     }
 
     .hero-tags {
-
         justify-content: center;
     }
 
     .hero-icon {
-
         width: 120px;
         height: 120px;
     }
 
     .hero-icon svg {
-
         font-size: 60px;
     }
 
@@ -1388,66 +1257,547 @@
     .filter-btn-wrapper {
         width: 100%;
     }
-
 }
 
+/* =========================================================
+   MOBILE TABLE
+========================================================= */
 
 @media (max-width: 600px) {
+
     .leaderboard-wrapper {
         padding: 1rem;
     }
 
-    .leaderboard-table {
-        font-size: 0.85rem;
-        min-width: 500px;
+    .leaderboard-title {
+        font-size: 1.5rem;
     }
 
-    .leaderboard-table th,
+    /* TABLE CONTAINER */
+
+    .table-container {
+        width: 100%;
+
+        /*
+         * IMPORTANT:
+         * Do not hide vertical overflow.
+         */
+        overflow-x: hidden;
+        overflow-y: visible;
+
+        border-radius: 14px;
+
+        box-shadow:
+            0 6px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    /* TABLE */
+
+    .leaderboard-table {
+        width: 100%;
+
+        min-width: 0;
+
+        table-layout: fixed;
+
+        border-collapse: collapse;
+        border-spacing: 0;
+
+        position: relative;
+        z-index: auto;
+    }
+
+    /* HEADER */
+
+    .leaderboard-table thead th {
+        padding: 10px 5px;
+
+        font-size: 0.55rem;
+
+        letter-spacing: 0.3px;
+
+        text-align: center;
+
+        white-space: normal;
+
+        line-height: 1.15;
+
+        height: 40px;
+
+        position: static;
+
+        z-index: auto;
+    }
+
+    .leaderboard-table thead th:first-child {
+        width: 8%;
+    }
+
+    .leaderboard-table thead th:nth-child(2) {
+        width: 25%;
+    }
+
+    .leaderboard-table thead th:nth-child(3) {
+        width: 17%;
+    }
+
+    .leaderboard-table thead th:nth-child(4) {
+        width: 20%;
+    }
+
+    .leaderboard-table thead th:nth-child(5) {
+        width: 9%;
+    }
+
+    .leaderboard-table thead th:nth-child(6) {
+        width: 11%;
+    }
+
+    .leaderboard-table thead th:nth-child(7) {
+        width: 10%;
+    }
+
+    /* ROWS */
+
+    .leaderboard-table tbody tr {
+        background: #fff;
+
+        border-bottom: 1px solid #eef2f4;
+
+        position: relative;
+
+        /*
+         * CRITICAL:
+         * No z-index here.
+         */
+        z-index: auto;
+    }
+
+    .leaderboard-table tbody tr:hover {
+        transform: none;
+
+        box-shadow: none;
+
+        background: #f9fffb;
+    }
+
+    /* CELLS */
+
     .leaderboard-table td {
-        padding: 0.7rem;
+        padding: 9px 4px;
+
+        font-size: 0.68rem;
+
+        font-weight: 500;
+
+        white-space: normal;
+
+        overflow: visible;
+
+        text-overflow: clip;
+
+        text-align: center;
+
+        vertical-align: middle;
+
+        line-height: 1.2;
+
+        /*
+         * No z-index.
+         */
+        position: static;
+    }
+
+    .leaderboard-table td:first-child {
+        border-radius: 0;
+    }
+
+    .leaderboard-table td:last-child {
+        border-radius: 0;
+    }
+
+    /* =====================================================
+       MOBILE RANK CELL
+    ===================================================== */
+
+    .rank-cell {
+        position: relative !important;
+
+        z-index: 4 !important;
+    }
+
+    .rank-cell:has(.rank-tooltip) {
+        z-index: 100 !important;
+    }
+
+    /* =====================================================
+       STUDENT
+    ===================================================== */
+
+    .student-cell {
+        text-align: left !important;
+    }
+
+    .student-info {
+        display: flex;
+
+        align-items: center;
+
+        justify-content: flex-start;
+
+        gap: 5px;
+
+        min-width: 0;
+    }
+
+    .student-info strong {
+        display: block;
+
+        max-width: 100%;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+
+        white-space: normal;
+
+        word-break: break-word;
+
+        font-size: 0.68rem;
+
+        line-height: 1.15;
+    }
+
+    /* =====================================================
+       LEADER BADGES
+    ===================================================== */
+
+    .leader-badge {
+        width: 25px;
+        height: 25px;
+
+        min-width: 25px;
+
+        flex-shrink: 0;
+    }
+
+    .leader-badge svg {
+        font-size: 12px;
+    }
+
+    /* =====================================================
+       MATRIC
+    ===================================================== */
+
+    .leaderboard-table td:nth-child(3) {
+        font-size: 0.6rem;
+
+        line-height: 1.1;
+
+        word-break: break-all;
+    }
+
+    /* =====================================================
+       DEPARTMENT
+    ===================================================== */
+
+    .leaderboard-table td:nth-child(4) {
+        font-size: 0.58rem;
+
+        line-height: 1.1;
+
+        word-break: break-word;
+    }
+
+    /* =====================================================
+       LEVEL
+    ===================================================== */
+
+    .leaderboard-table td:nth-child(5) {
+        font-size: 0.65rem;
+    }
+
+    /* =====================================================
+       XP
+    ===================================================== */
+
+    .xp-badge {
+        padding: 4px 5px;
+
+        border-radius: 20px;
+
+        font-size: 0.58rem;
+
+        line-height: 1;
+
+        white-space: nowrap;
+    }
+
+    /* =====================================================
+       RANK IMAGE
+    ===================================================== */
+
+    .rank-icon-wrapper {
+        width: 25px;
+        height: 25px;
+
+        position: relative !important;
+
+        z-index: 5 !important;
     }
 
     .rank-icon {
-        width: 30px;
-        height: 30px;
+        width: 25px;
+        height: 25px;
+
+        position: relative;
+
+        z-index: 6 !important;
     }
 
-    /* .rank-icon {
-        width: 22px;
-        height: 22px;
-        margin-right: 4px;
-    } */
+    /* =====================================================
+       MOBILE TOOLTIP
+    ===================================================== */
 
-    /* Add subtle scroll hint */
+    .rank-tooltip {
+        bottom: calc(100% + 7px);
+
+        top: auto;
+
+        left: 50%;
+
+        transform: translateX(-50%);
+
+        width: max-content;
+        max-width: 130px;
+
+        font-size: 10px;
+
+        padding: 6px 9px;
+
+        border-radius: 7px;
+
+        /*
+         * High only inside the raised rank cell.
+         */
+        z-index: 10000 !important;
+
+        opacity: 1;
+        visibility: visible;
+
+        animation: none !important;
+        transition: none !important;
+
+        box-shadow:
+            0 6px 15px rgba(0, 0, 0, 0.25),
+            0 2px 5px rgba(0, 0, 0, 0.12);
+    }
+
+    .rank-tooltip::after {
+        border-left-width: 5px;
+        border-right-width: 5px;
+        border-top-width: 5px;
+    }
+
+    /* =====================================================
+       RANK COLORS
+    ===================================================== */
+
+    .rank-1,
+    .rank-2,
+    .rank-3 {
+        border-left: none;
+    }
+
+    .rank-1 {
+        background: linear-gradient(90deg,
+                #fffdf1,
+                #fff8d9);
+    }
+
+    .rank-2 {
+        background: linear-gradient(90deg,
+                #fff,
+                #f5f5f5);
+    }
+
+    .rank-3 {
+        background: linear-gradient(90deg,
+                #fffaf6,
+                #fff0e5);
+    }
+
+    /* =====================================================
+       SCROLL MESSAGE
+    ===================================================== */
+
     .table-container::after {
         content: "↔ Scroll to view more";
+
         display: block;
+
         text-align: center;
+
         color: #888;
-        font-size: 0.8rem;
-        margin-top: 0.5rem;
+
+        font-size: 0.65rem;
+
+        padding: 6px 0 8px;
+
+        border-top: 1px solid #f0f0f0;
+    }
+
+    /* OTHER MOBILE SECTIONS */
+
+    .ranking-card,
+    .star-card {
+        padding: 22px;
     }
 }
+
+/* =========================================================
+   576px
+========================================================= */
 
 @media (max-width: 576px) {
-    .rank-icon-small {
-        width: 14px;
-        height: 14px;
+
+    .leaderboard-wrapper {
+        padding: 0.85rem;
     }
 
-    .rank-cell span {
-        font-size: 0.8rem;
+    .leaderboard-table thead th {
+        font-size: 0.52rem;
+        padding: 9px 3px;
+    }
+
+    .leaderboard-table td {
+        padding: 8px 3px;
+        font-size: 0.63rem;
+    }
+
+    .student-info {
+        gap: 4px;
+    }
+
+    .student-info strong {
+        font-size: 0.64rem;
+    }
+
+    .leader-badge {
+        width: 23px;
+        height: 23px;
+        min-width: 23px;
+    }
+
+    .leader-badge svg {
+        font-size: 11px;
+    }
+
+    .rank-icon-wrapper,
+    .rank-icon {
+        width: 23px;
+        height: 23px;
+    }
+
+    .xp-badge {
+        padding: 4px;
+        font-size: 0.55rem;
+    }
+
+    .leaderboard-table td:nth-child(3) {
+        font-size: 0.55rem;
+    }
+
+    .leaderboard-table td:nth-child(4) {
+        font-size: 0.54rem;
     }
 }
 
+/* =========================================================
+   400px
+========================================================= */
+
 @media (max-width: 400px) {
+
+    .leaderboard-wrapper {
+        padding: 0.65rem;
+    }
+
     .leaderboard-title {
         font-size: 1.3rem;
     }
 
+    .leaderboard-filter-card {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
     .filter-select,
     .load-btn {
+        height: 50px;
+
         font-size: 0.85rem;
-        padding: 0.5rem;
+
+        padding: 0 12px;
+    }
+
+    .hero-left h1,
+    .hero-content h1 {
+        font-size: 1.9rem;
+    }
+
+    .hero-left p,
+    .hero-content p {
+        font-size: 0.9rem;
+    }
+
+    /* TIGHTER TABLE */
+
+    .leaderboard-table thead th {
+        font-size: 0.48rem;
+        padding: 8px 2px;
+    }
+
+    .leaderboard-table td {
+        padding: 7px 2px;
+        font-size: 0.58rem;
+    }
+
+    .student-info strong {
+        font-size: 0.59rem;
+    }
+
+    .leader-badge {
+        width: 21px;
+        height: 21px;
+        min-width: 21px;
+    }
+
+    .leader-badge svg {
+        font-size: 10px;
+    }
+
+    .rank-icon-wrapper,
+    .rank-icon {
+        width: 21px;
+        height: 21px;
+    }
+
+    .xp-badge {
+        font-size: 0.5rem;
+        padding: 3px;
+    }
+
+    .leaderboard-table td:nth-child(3) {
+        font-size: 0.5rem;
+    }
+
+    .leaderboard-table td:nth-child(4) {
+        font-size: 0.49rem;
+    }
+
+    .rank-tooltip {
+        font-size: 9px;
+        padding: 5px 8px;
     }
 }

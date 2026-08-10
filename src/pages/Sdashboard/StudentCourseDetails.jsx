@@ -148,29 +148,40 @@ const StudentCourseDetails = () => {
     setError("");
 
     if (!activeSession) {
-      setError("No active QR session at the moment.");
+      toast.warning("No active QR session at the moment.");
       return;
     }
 
     try {
       const res = await API.get(`/sessions/check`, {
-        params: { sessionId: activeSession._id }
+        params: { sessionId: activeSession._id },
+        headers: {
+          "x-silent": "true",
+        },
       });
 
-      // ✅ If already marked → go to dashboard
+      // Student has already marked attendance
       if (res.data.alreadyMarked) {
-        navigate("/dashboard/student", {
-          replace: true,
-          state: { msg: "Attendance already marked for this session" }
-        });
+        toast.info(
+          "You have already marked attendance for this session.",
+          {
+            position: "top-right",
+            autoClose: 4000,
+            closeOnClick: true,
+            pauseOnHover: true,
+          }
+        );
+
         return;
       }
 
-      // ✅ Otherwise → go to scan page
+      // Student has not marked attendance yet
       navigate(`/student/scan/${activeSession.token}`);
 
     } catch (err) {
-      // fallback: allow scan if check fails
+      console.error("Attendance session check failed:", err);
+
+      // If the check itself fails, don't block the student unnecessarily.
       navigate(`/student/scan/${activeSession.token}`);
     }
   };

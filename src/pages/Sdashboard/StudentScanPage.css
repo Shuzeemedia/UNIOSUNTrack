@@ -5,11 +5,13 @@
 .student-scan-wrapper {
     min-height: 100vh;
     width: 100%;
-    padding: 50px 20px;
+    padding: 40px 20px;
 
     display: flex;
     justify-content: center;
     align-items: center;
+
+    box-sizing: border-box;
 
     background:
         radial-gradient(
@@ -34,10 +36,11 @@
     width: 100%;
     max-width: 620px;
 
-    background: rgba(255, 255, 255, 0.96);
+    box-sizing: border-box;
+
+    background: rgba(255, 255, 255, 0.97);
 
     border: 1px solid rgba(15, 23, 42, 0.06);
-
     border-radius: 28px;
 
     padding: 34px;
@@ -49,9 +52,6 @@
     position: relative;
     overflow: hidden;
 }
-
-
-/* subtle top glow */
 
 .student-scan-card::before {
     content: "";
@@ -86,7 +86,6 @@
     margin-bottom: 30px;
 }
 
-
 .scan-header-icon {
     width: 64px;
     height: 64px;
@@ -100,7 +99,6 @@
     border-radius: 18px;
 
     color: white;
-
     font-size: 31px;
 
     background:
@@ -114,11 +112,10 @@
         0 14px 30px rgba(11, 102, 35, 0.22);
 }
 
-
 .scan-header-content {
     min-width: 0;
+    flex: 1;
 }
-
 
 .secure-label {
     display: flex;
@@ -135,7 +132,6 @@
     margin-bottom: 4px;
 }
 
-
 .scan-header h2 {
     margin: 0;
 
@@ -145,8 +141,9 @@
     font-weight: 800;
 
     letter-spacing: -0.025em;
-}
 
+    line-height: 1.25;
+}
 
 .scan-header p {
     margin: 5px 0 0;
@@ -154,7 +151,6 @@
     color: #64748b;
 
     font-size: 13px;
-
     line-height: 1.55;
 }
 
@@ -172,7 +168,6 @@
     margin-bottom: 32px;
 }
 
-
 .progress-step {
     display: flex;
     flex-direction: column;
@@ -187,14 +182,12 @@
     transition: 0.3s ease;
 }
 
-
 .progress-step span {
     font-size: 10px;
     font-weight: 700;
 
     white-space: nowrap;
 }
-
 
 .step-circle {
     width: 38px;
@@ -203,6 +196,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    flex-shrink: 0;
 
     border-radius: 50%;
 
@@ -217,11 +212,9 @@
     transition: 0.3s ease;
 }
 
-
 .progress-step.active {
     color: #0b6623;
 }
-
 
 .progress-step.active .step-circle {
     color: white;
@@ -239,7 +232,6 @@
         0 8px 20px rgba(11, 102, 35, 0.2);
 }
 
-
 .progress-step.completed .step-circle {
     background: #ecfdf3;
 
@@ -248,7 +240,6 @@
     color: #15803d;
 }
 
-
 .step-line {
     height: 2px;
 
@@ -256,15 +247,12 @@
 
     background: #e2e8f0;
 
-    margin: 0 7px;
-
-    margin-bottom: 24px;
+    margin: 0 7px 24px;
 
     position: relative;
 
     overflow: hidden;
 }
-
 
 .step-line span {
     position: absolute;
@@ -278,20 +266,18 @@
     transition: width 0.4s ease;
 }
 
-
 .step-line span.filled {
     width: 100%;
 }
 
 
 /* =========================================================
-   SECTION
+   VERIFICATION SECTION
 ========================================================= */
 
 .verification-section {
     width: 100%;
 }
-
 
 .section-heading {
     display: flex;
@@ -302,7 +288,6 @@
 
     margin-bottom: 18px;
 }
-
 
 .section-kicker {
     display: block;
@@ -317,32 +302,29 @@
     margin-bottom: 5px;
 }
 
-
 .section-heading h3 {
     margin: 0;
 
     color: #0f172a;
 
     font-size: 20px;
-
     font-weight: 800;
 
     letter-spacing: -0.02em;
-}
 
+    line-height: 1.3;
+}
 
 .section-heading p {
     margin: 6px 0 0;
 
+    max-width: 430px;
+
     color: #64748b;
 
     font-size: 13px;
-
     line-height: 1.55;
-
-    max-width: 430px;
 }
-
 
 .section-icon {
     width: 44px;
@@ -363,10 +345,8 @@
     font-size: 22px;
 }
 
-
 .section-icon.success {
     color: #15803d;
-
     background: #dcfce7;
 }
 
@@ -377,14 +357,13 @@
 
 .face-camera-container {
     width: 100%;
-
     height: 340px;
 
-    border-radius: 22px;
+    position: relative;
 
     overflow: hidden;
 
-    position: relative;
+    border-radius: 22px;
 
     background: #07120b;
 
@@ -394,23 +373,22 @@
         inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 
-
 .login-face-video {
     width: 100%;
     height: 100%;
 
+    display: block;
+
     object-fit: cover;
 
     transform: scaleX(-1);
-
-    display: block;
 }
-
 
 .camera-gradient {
     position: absolute;
-
     inset: 0;
+
+    pointer-events: none;
 
     background:
         linear-gradient(
@@ -420,8 +398,6 @@
             transparent 65%,
             rgba(0, 0, 0, 0.65)
         );
-
-    pointer-events: none;
 }
 
 
@@ -431,7 +407,6 @@
 
 .face-guide {
     position: absolute;
-
     inset: 0;
 
     display: flex;
@@ -440,7 +415,6 @@
 
     pointer-events: none;
 }
-
 
 .face-outline {
     width: 175px;
@@ -469,45 +443,39 @@
 
     border-color: #fbbf24;
     border-style: solid;
-}
 
+    pointer-events: none;
+}
 
 .face-corner.top-left {
     top: 22px;
     left: 22px;
 
     border-width: 3px 0 0 3px;
-
     border-radius: 8px 0 0 0;
 }
-
 
 .face-corner.top-right {
     top: 22px;
     right: 22px;
 
     border-width: 3px 3px 0 0;
-
     border-radius: 0 8px 0 0;
 }
-
 
 .face-corner.bottom-left {
     bottom: 22px;
     left: 22px;
 
     border-width: 0 0 3px 3px;
-
     border-radius: 0 0 0 8px;
 }
-
 
 .face-corner.bottom-right {
     bottom: 22px;
     right: 22px;
 
     border-width: 0 3px 3px 0;
-
     border-radius: 0 0 8px 0;
 }
 
@@ -524,6 +492,7 @@
 
     display: flex;
     align-items: center;
+
     gap: 7px;
 
     padding: 7px 11px;
@@ -533,17 +502,21 @@
     background: rgba(0, 0, 0, 0.45);
 
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 
     color: white;
 
     font-size: 11px;
     font-weight: 600;
-}
 
+    z-index: 10;
+}
 
 .camera-live-dot {
     width: 7px;
     height: 7px;
+
+    flex-shrink: 0;
 
     border-radius: 50%;
 
@@ -555,9 +528,7 @@
     animation: livePulse 1.6s infinite;
 }
 
-
 @keyframes livePulse {
-
     0%,
     100% {
         opacity: 1;
@@ -582,6 +553,7 @@
 
     display: flex;
     align-items: center;
+
     gap: 9px;
 
     padding: 11px 13px;
@@ -591,6 +563,7 @@
     background: rgba(0, 0, 0, 0.55);
 
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
 
     color: white;
 
@@ -598,8 +571,9 @@
     font-weight: 500;
 
     line-height: 1.4;
-}
 
+    z-index: 10;
+}
 
 .login-status-overlay svg {
     flex-shrink: 0;
@@ -631,31 +605,32 @@
     color: #64748b;
 
     font-size: 11px;
+
+    line-height: 1.4;
 }
 
-
 .verification-tip svg {
+    flex-shrink: 0;
+
     color: #0b6623;
 
     font-size: 17px;
-
-    flex-shrink: 0;
 }
 
 
 /* =========================================================
-   PREMIUM BUTTON
+   ACTION BUTTON
 ========================================================= */
 
 .premium-action-btn {
     width: 100%;
-
     height: 52px;
 
     margin-top: 16px;
 
-    border: none;
+    padding: 0 16px;
 
+    border: none;
     border-radius: 14px;
 
     display: flex;
@@ -676,6 +651,8 @@
     font-size: 14px;
     font-weight: 700;
 
+    cursor: pointer;
+
     box-shadow:
         0 12px 24px rgba(11, 102, 35, 0.2);
 
@@ -685,37 +662,31 @@
         opacity 0.2s ease;
 }
 
-
 .premium-action-btn:hover:not(:disabled) {
-
     transform: translateY(-2px);
 
     box-shadow:
         0 16px 30px rgba(11, 102, 35, 0.26);
 }
 
-
 .premium-action-btn:active:not(:disabled) {
     transform: translateY(0);
 }
 
-
 .premium-action-btn:disabled {
     opacity: 0.65;
-
     cursor: not-allowed;
 }
 
-
 .premium-action-btn svg {
     font-size: 19px;
-}
 
+    flex-shrink: 0;
+}
 
 .spin {
     animation: spin 0.8s linear infinite;
 }
-
 
 @keyframes spin {
     to {
@@ -736,37 +707,34 @@
 
     padding: 14px;
 
-    border-radius: 16px;
-
     margin-bottom: 16px;
 
-    border: 1px solid transparent;
-}
+    border-radius: 16px;
 
+    border: 1px solid transparent;
+
+    box-sizing: border-box;
+}
 
 .location-warning {
     background: #fffbeb;
-
     border-color: #fde68a;
 }
 
-
 .location-success {
     background: #f0fdf4;
-
     border-color: #bbf7d0;
 }
-
 
 .location-status-icon {
     width: 42px;
     height: 42px;
 
+    flex-shrink: 0;
+
     display: flex;
     align-items: center;
     justify-content: center;
-
-    flex-shrink: 0;
 
     border-radius: 12px;
 
@@ -775,26 +743,23 @@
     font-size: 20px;
 }
 
-
 .location-warning .location-status-icon {
     color: #d97706;
 }
-
 
 .location-success .location-status-icon {
     color: #15803d;
 }
 
-
 .location-status-content {
     flex: 1;
+    min-width: 0;
 
     display: flex;
     flex-direction: column;
 
     gap: 3px;
 }
-
 
 .location-status-content strong {
     color: #1e293b;
@@ -803,25 +768,21 @@
     font-weight: 700;
 }
 
-
 .location-status-content span {
     color: #64748b;
 
     font-size: 10px;
-
     line-height: 1.4;
 }
-
 
 .gps-dot {
     width: 9px;
     height: 9px;
 
-    border-radius: 50%;
-
     flex-shrink: 0;
-}
 
+    border-radius: 50%;
+}
 
 .gps-dot.good {
     background: #22c55e;
@@ -829,7 +790,6 @@
     box-shadow:
         0 0 0 5px rgba(34, 197, 94, 0.12);
 }
-
 
 .gps-dot.warning {
     background: #f59e0b;
@@ -844,18 +804,19 @@
 ========================================================= */
 
 .attendance-map-container {
-
     width: 100%;
-
-    border-radius: 18px;
-
-    overflow: hidden;
-
-    border: 1px solid #e2e8f0;
 
     margin-bottom: 22px;
 
+    overflow: hidden;
+
+    border-radius: 18px;
+
+    border: 1px solid #e2e8f0;
+
     background: #f8fafc;
+
+    box-sizing: border-box;
 }
 
 
@@ -864,18 +825,20 @@
 ========================================================= */
 
 .qr-section {
+    width: 100%;
+
     margin-top: 10px;
 }
-
 
 .qr-section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 
+    gap: 12px;
+
     margin-bottom: 13px;
 }
-
 
 .qr-section-header h4 {
     margin: 0;
@@ -884,15 +847,19 @@
 
     font-size: 16px;
     font-weight: 800;
-}
 
+    line-height: 1.3;
+}
 
 .qr-ready-badge {
     display: flex;
     align-items: center;
+
     gap: 6px;
 
     padding: 6px 9px;
+
+    flex-shrink: 0;
 
     border-radius: 50px;
 
@@ -904,10 +871,11 @@
     font-weight: 700;
 }
 
-
 .qr-ready-badge span {
     width: 6px;
     height: 6px;
+
+    flex-shrink: 0;
 
     border-radius: 50%;
 
@@ -918,56 +886,138 @@
 
 
 /* =========================================================
-   QR SCANNER
+   QR SCANNER CONTAINER
 ========================================================= */
 
 .qr-scanner-shell {
-
     position: relative;
 
     width: 100%;
+    height: 320px;
 
-    height: 310px;
+    margin: 0 auto;
 
     overflow: hidden;
+
+    isolation: isolate;
 
     border-radius: 22px;
 
     background: #07120b;
 
     border: 1px solid rgba(15, 23, 42, 0.1);
+
+    box-shadow:
+        inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+
+    box-sizing: border-box;
 }
 
 
+/* =========================================================
+   HTML5 QR CODE
+========================================================= */
+
+/*
+   IMPORTANT:
+   The scanner is completely contained inside
+   .qr-scanner-shell.
+
+   These rules prevent html5-qrcode's generated
+   elements from making the page vertically huge.
+*/
+
 #reader {
+    position: absolute !important;
+
+    inset: 0 !important;
 
     width: 100% !important;
     height: 100% !important;
+
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
 
     border: none !important;
 
-    margin: 0 !important;
+    background: #07120b !important;
+
+    box-sizing: border-box !important;
 }
 
-
-#reader video {
+#reader__scan_region {
+    position: relative !important;
 
     width: 100% !important;
     height: 100% !important;
 
-    object-fit: cover !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    overflow: hidden !important;
+
+    border: none !important;
+
+    background: #07120b !important;
+
+    box-sizing: border-box !important;
 }
 
+#reader video {
+    display: block !important;
 
-/* Hide html5-qrcode default UI */
+    width: 100% !important;
+    height: 100% !important;
+
+    min-width: 100% !important;
+    min-height: 100% !important;
+
+    max-width: none !important;
+    max-height: none !important;
+
+    object-fit: cover !important;
+    object-position: center center !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border: none !important;
+
+    box-sizing: border-box !important;
+}
+
+#reader canvas {
+    position: absolute !important;
+
+    inset: 0 !important;
+
+    width: 100% !important;
+    height: 100% !important;
+
+    max-width: 100% !important;
+    max-height: 100% !important;
+
+    pointer-events: none !important;
+}
 
 #reader__dashboard {
     display: none !important;
 }
 
+#reader__scan_region img {
+    display: none !important;
+}
 
-#reader__scan_region {
-    border: none !important;
+#reader table {
+    display: none !important;
 }
 
 
@@ -976,33 +1026,37 @@
 ========================================================= */
 
 .qr-frame-overlay {
-
     position: absolute;
 
     inset: 0;
 
-    pointer-events: none;
+    z-index: 20;
 
     display: flex;
-
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+
+    pointer-events: none;
 }
 
-
 .qr-frame-overlay::after {
-
     content: "";
+
+    position: absolute;
 
     width: 220px;
     height: 220px;
 
     border-radius: 20px;
 
-    background: rgba(0, 0, 0, 0.08);
+    background: transparent;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
 
     box-shadow:
-        0 0 0 999px rgba(0, 0, 0, 0.35);
+        0 0 0 9999px rgba(0, 0, 0, 0.38);
+
+    box-sizing: border-box;
 }
 
 
@@ -1011,65 +1065,71 @@
 ========================================================= */
 
 .qr-corner {
-
     position: absolute;
+
+    z-index: 25;
 
     width: 34px;
     height: 34px;
 
-    z-index: 3;
-
     border-color: #fbbf24;
 
     border-style: solid;
+
+    filter:
+        drop-shadow(
+            0 0 5px rgba(251, 191, 36, 0.45)
+        );
+
+    box-sizing: border-box;
 }
 
-
 .qr-corner.tl {
+    top: 50%;
+    left: 50%;
+
+    transform:
+        translate(-110px, -110px);
 
     border-width: 4px 0 0 4px;
 
     border-radius: 10px 0 0 0;
-
-    margin-right: 185px;
-
-    margin-bottom: 185px;
 }
 
-
 .qr-corner.tr {
+    top: 50%;
+    left: 50%;
+
+    transform:
+        translate(76px, -110px);
 
     border-width: 4px 4px 0 0;
 
     border-radius: 0 10px 0 0;
-
-    margin-left: 185px;
-
-    margin-bottom: 185px;
 }
 
-
 .qr-corner.bl {
+    top: 50%;
+    left: 50%;
+
+    transform:
+        translate(-110px, 76px);
 
     border-width: 0 0 4px 4px;
 
     border-radius: 0 0 0 10px;
-
-    margin-right: 185px;
-
-    margin-top: 185px;
 }
 
-
 .qr-corner.br {
+    top: 50%;
+    left: 50%;
+
+    transform:
+        translate(76px, 76px);
 
     border-width: 0 4px 4px 0;
 
     border-radius: 0 0 10px 0;
-
-    margin-left: 185px;
-
-    margin-top: 185px;
 }
 
 
@@ -1078,11 +1138,11 @@
 ========================================================= */
 
 .qr-scan-line {
-
     position: absolute;
 
-    width: 215px;
+    z-index: 30;
 
+    width: 205px;
     height: 2px;
 
     background:
@@ -1093,17 +1153,18 @@
             transparent
         );
 
-    z-index: 4;
+    box-shadow:
+        0 0 8px rgba(251, 191, 36, 0.55);
 
-    animation: scanLine 2.2s ease-in-out infinite;
+    animation:
+        scanLine 2.2s ease-in-out infinite;
+
+    pointer-events: none;
 }
 
-
 @keyframes scanLine {
-
     0% {
-        transform: translateY(-105px);
-
+        transform: translateY(-100px);
         opacity: 0;
     }
 
@@ -1112,8 +1173,7 @@
     }
 
     50% {
-        transform: translateY(105px);
-
+        transform: translateY(100px);
         opacity: 1;
     }
 
@@ -1122,8 +1182,7 @@
     }
 
     100% {
-        transform: translateY(-105px);
-
+        transform: translateY(-100px);
         opacity: 0;
     }
 }
@@ -1134,7 +1193,6 @@
 ========================================================= */
 
 .qr-instruction {
-
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1146,10 +1204,14 @@
     color: #64748b;
 
     font-size: 11px;
+
+    line-height: 1.4;
+
+    text-align: center;
 }
 
-
 .qr-instruction svg {
+    flex-shrink: 0;
 
     color: #0b6623;
 
@@ -1162,123 +1224,98 @@
 ========================================================= */
 
 .success-modal .modal-content {
-
     border: none;
 
-    border-radius: 25px;
+    border-radius: 24px;
 
     overflow: hidden;
 
     box-shadow:
-        0 30px 80px rgba(15, 23, 42, 0.22);
+        0 30px 80px rgba(15, 23, 42, 0.20);
 }
 
-
 .success-body {
-
-    padding: 38px 30px 30px;
-
-    display: flex;
-    flex-direction: column;
-
-    align-items: center;
+    padding: 40px 30px;
 
     text-align: center;
 }
 
-
 .success-animation {
-
-    position: relative;
+    display: flex;
+    justify-content: center;
 
     margin-bottom: 18px;
 }
 
-
 .success-icon {
-
-    width: 78px;
-    height: 78px;
+    width: 76px;
+    height: 76px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
+    flex-shrink: 0;
+
     border-radius: 50%;
 
-    background:
-        linear-gradient(
-            135deg,
-            #16a34a,
-            #22c55e
-        );
+    background: #dcfce7;
 
-    color: white;
+    color: #15803d;
 
     font-size: 38px;
 
     box-shadow:
-        0 15px 35px rgba(34, 197, 94, 0.25);
+        0 0 0 10px #f0fdf4;
 }
-
 
 .success-kicker {
+    display: block;
 
-    color: #15803d;
+    margin-bottom: 7px;
 
-    font-size: 9px;
+    color: #0b6623;
 
+    font-size: 10px;
     font-weight: 800;
 
-    letter-spacing: 0.13em;
-
-    margin-bottom: 5px;
+    letter-spacing: 0.12em;
 }
 
-
 .success-title {
-
     margin: 0;
 
     color: #0f172a;
 
-    font-size: 22px;
-
+    font-size: 23px;
     font-weight: 800;
+
+    line-height: 1.3;
 }
 
-
 .success-text {
+    margin: 12px auto 22px;
 
-    margin: 9px 0 0;
+    max-width: 400px;
 
     color: #64748b;
 
     font-size: 13px;
-
     line-height: 1.6;
-
-    max-width: 350px;
 }
 
-
 .success-btn {
-
-    width: 100%;
-
-    min-height: 48px;
-
-    margin-top: 24px;
-
-    display: flex;
-
+    display: inline-flex;
     align-items: center;
     justify-content: center;
 
     gap: 8px;
 
-    border: none !important;
+    min-width: 190px;
 
+    padding: 11px 18px;
+
+    border: none !important;
     border-radius: 12px !important;
 
     background:
@@ -1288,17 +1325,38 @@
             #159447
         ) !important;
 
-    font-size: 13px;
+    color: white !important;
 
     font-weight: 700;
 
-    box-shadow:
-        0 10px 22px rgba(11, 102, 35, 0.2);
+    cursor: pointer;
+}
+
+.success-btn:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #09551d,
+            #117a3a
+        ) !important;
 }
 
 
-.success-btn svg {
-    font-size: 17px;
+/* =========================================================
+   GLOBAL SAFETY
+========================================================= */
+
+.student-scan-wrapper *,
+.student-scan-wrapper *::before,
+.student-scan-wrapper *::after {
+    box-sizing: border-box;
+}
+
+.student-scan-wrapper button,
+.student-scan-wrapper input,
+.student-scan-wrapper textarea,
+.student-scan-wrapper select {
+    font-family: inherit;
 }
 
 
@@ -1309,33 +1367,33 @@
 @media (max-width: 576px) {
 
     .student-scan-wrapper {
+        min-height: 100vh;
 
         padding: 20px 10px;
 
         align-items: flex-start;
     }
 
-
     .student-scan-card {
+        width: 100%;
 
         padding: 22px 16px;
 
-        border-radius: 22px;
-
         margin-top: 10px;
+
+        border-radius: 22px;
     }
 
 
-    .scan-header {
+    /* HEADER */
 
+    .scan-header {
         gap: 12px;
 
         margin-bottom: 24px;
     }
 
-
     .scan-header-icon {
-
         width: 52px;
         height: 52px;
 
@@ -1344,65 +1402,58 @@
         font-size: 25px;
     }
 
-
     .scan-header h2 {
-
         font-size: 19px;
     }
 
-
     .scan-header p {
+        margin-top: 3px;
 
         font-size: 11px;
-
-        margin-top: 3px;
     }
 
 
-    .verification-progress {
+    /* PROGRESS */
 
+    .verification-progress {
         margin-bottom: 26px;
     }
 
-
     .step-circle {
-
         width: 34px;
         height: 34px;
 
         font-size: 15px;
     }
 
+    .progress-step {
+        min-width: 45px;
+    }
 
     .progress-step span {
-
         font-size: 9px;
     }
 
-
     .step-line {
-
-        margin-bottom: 22px;
-
-        margin-left: 4px;
-        margin-right: 4px;
+        margin: 0 4px 22px;
     }
 
 
-    .section-heading h3 {
+    /* SECTION */
 
+    .section-heading {
+        gap: 10px;
+    }
+
+    .section-heading h3 {
         font-size: 18px;
     }
 
-
     .section-heading p {
-
         font-size: 11px;
     }
 
-
     .section-icon {
-
         width: 39px;
         height: 39px;
 
@@ -1412,105 +1463,165 @@
     }
 
 
-    .face-camera-container {
+    /* FACE CAMERA */
 
+    .face-camera-container {
         height: 360px;
 
         border-radius: 18px;
     }
 
-
     .face-outline {
-
         width: 150px;
         height: 205px;
     }
 
+    .camera-top-status {
+        top: 12px;
+        left: 12px;
 
-    .attendance-map-container {
+        padding: 6px 9px;
 
-        border-radius: 15px;
+        font-size: 10px;
+    }
+
+    .login-status-overlay {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+
+        font-size: 11px;
     }
 
 
-    .qr-scanner-shell {
-
-        height: 300px;
-
-        border-radius: 18px;
-    }
-
-
-    .qr-corner.tl {
-
-        margin-right: 160px;
-
-        margin-bottom: 160px;
-    }
-
-
-    .qr-corner.tr {
-
-        margin-left: 160px;
-
-        margin-bottom: 160px;
-    }
-
-
-    .qr-corner.bl {
-
-        margin-right: 160px;
-
-        margin-top: 160px;
-    }
-
-
-    .qr-corner.br {
-
-        margin-left: 160px;
-
-        margin-top: 160px;
-    }
-
-
-    .qr-frame-overlay::after {
-
-        width: 190px;
-
-        height: 190px;
-    }
-
-
-    .qr-scan-line {
-
-        width: 185px;
-    }
-
+    /* LOCATION */
 
     .location-status {
-
         padding: 11px;
+
+        gap: 9px;
     }
 
-
     .location-status-icon {
-
         width: 37px;
         height: 37px;
 
         font-size: 18px;
     }
 
-
     .location-status-content strong {
-
         font-size: 11px;
     }
 
-
     .location-status-content span {
-
         font-size: 9px;
+    }
+
+    .attendance-map-container {
+        border-radius: 15px;
+    }
+
+
+    /* QR HEADER */
+
+    .qr-section-header {
+        align-items: flex-start;
+    }
+
+    .qr-section-header h4 {
+        font-size: 15px;
+    }
+
+    .qr-ready-badge {
+        padding: 5px 8px;
+
+        font-size: 8px;
+    }
+
+
+    /* QR SCANNER */
+
+    .qr-scanner-shell {
+        width: 100%;
+        height: 285px;
+
+        border-radius: 18px;
+    }
+
+    #reader,
+    #reader__scan_region {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    #reader video {
+        width: 100% !important;
+        height: 100% !important;
+
+        object-fit: cover !important;
+    }
+
+    .qr-frame-overlay::after {
+        width: 190px;
+        height: 190px;
+
+        border-radius: 18px;
+    }
+
+    .qr-corner {
+        width: 29px;
+        height: 29px;
+    }
+
+    .qr-corner.tl {
+        transform:
+            translate(-95px, -95px);
+    }
+
+    .qr-corner.tr {
+        transform:
+            translate(66px, -95px);
+    }
+
+    .qr-corner.bl {
+        transform:
+            translate(-95px, 66px);
+    }
+
+    .qr-corner.br {
+        transform:
+            translate(66px, 66px);
+    }
+
+    .qr-scan-line {
+        width: 175px;
+    }
+
+
+    /* BUTTON */
+
+    .premium-action-btn {
+        height: 50px;
+
+        font-size: 13px;
+    }
+
+
+    /* SUCCESS MODAL */
+
+    .success-body {
+        padding: 32px 20px;
+    }
+
+    .success-icon {
+        width: 68px;
+        height: 68px;
+
+        font-size: 32px;
+    }
+
+    .success-title {
+        font-size: 20px;
     }
 }
 
@@ -1521,32 +1632,191 @@
 
 @media (max-width: 380px) {
 
+    .student-scan-wrapper {
+        padding: 14px 8px;
+    }
+
     .student-scan-card {
-
         padding: 18px 13px;
+
+        border-radius: 19px;
     }
 
 
-    .face-camera-container {
+    /* HEADER */
 
-        height: 330px;
+    .scan-header {
+        gap: 10px;
     }
 
+    .scan-header-icon {
+        width: 46px;
+        height: 46px;
 
-    .qr-scanner-shell {
+        border-radius: 13px;
 
-        height: 275px;
+        font-size: 22px;
     }
-
 
     .scan-header h2 {
-
         font-size: 17px;
     }
 
+    .scan-header p {
+        font-size: 10px;
+    }
+
+
+    /* PROGRESS */
+
+    .progress-step {
+        min-width: 40px;
+    }
+
+    .step-circle {
+        width: 31px;
+        height: 31px;
+
+        font-size: 14px;
+    }
+
+    .progress-step span {
+        font-size: 8px;
+    }
+
+
+    /* FACE */
+
+    .face-camera-container {
+        height: 330px;
+    }
+
+    .face-outline {
+        width: 135px;
+        height: 185px;
+    }
+
+
+    /* QR */
+
+    .qr-scanner-shell {
+        height: 260px;
+    }
+
+    .qr-frame-overlay::after {
+        width: 175px;
+        height: 175px;
+    }
+
+    .qr-corner {
+        width: 26px;
+        height: 26px;
+    }
+
+    .qr-corner.tl {
+        transform:
+            translate(-87px, -87px);
+    }
+
+    .qr-corner.tr {
+        transform:
+            translate(61px, -87px);
+    }
+
+    .qr-corner.bl {
+        transform:
+            translate(-87px, 61px);
+    }
+
+    .qr-corner.br {
+        transform:
+            translate(61px, 61px);
+    }
+
+    .qr-scan-line {
+        width: 160px;
+    }
+
+    .qr-instruction {
+        font-size: 10px;
+    }
+}
+
+
+/* =========================================================
+   EXTRA SMALL WIDTH
+========================================================= */
+
+@media (max-width: 340px) {
+
+    .student-scan-wrapper {
+        padding: 10px 6px;
+    }
+
+    .student-scan-card {
+        padding: 16px 11px;
+    }
+
+    .scan-header h2 {
+        font-size: 16px;
+    }
 
     .scan-header p {
+        font-size: 9px;
+    }
 
-        font-size: 10px;
+    .progress-step {
+        min-width: 36px;
+    }
+
+    .progress-step span {
+        font-size: 7px;
+    }
+
+    .step-line {
+        margin-left: 2px;
+        margin-right: 2px;
+    }
+
+    .face-camera-container {
+        height: 310px;
+    }
+
+    .qr-scanner-shell {
+        height: 245px;
+    }
+
+    .qr-frame-overlay::after {
+        width: 165px;
+        height: 165px;
+    }
+
+    .qr-corner {
+        width: 24px;
+        height: 24px;
+    }
+
+    .qr-corner.tl {
+        transform:
+            translate(-82px, -82px);
+    }
+
+    .qr-corner.tr {
+        transform:
+            translate(58px, -82px);
+    }
+
+    .qr-corner.bl {
+        transform:
+            translate(-82px, 58px);
+    }
+
+    .qr-corner.br {
+        transform:
+            translate(58px, 58px);
+    }
+
+    .qr-scan-line {
+        width: 150px;
     }
 }

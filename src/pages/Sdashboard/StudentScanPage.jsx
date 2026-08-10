@@ -900,15 +900,32 @@ const StudentScanPage = () => {
 
 
             await qr.start(
-
                 {
-                    facingMode:
-                        "environment",
+                    facingMode: {
+                        ideal: "environment",
+                    },
                 },
-
                 {
                     fps: 10,
-                    qrbox: 250,
+
+                    qrbox: (viewfinderWidth, viewfinderHeight) => {
+                        const size =
+                            Math.floor(
+                                Math.min(
+                                    viewfinderWidth,
+                                    viewfinderHeight
+                                ) * 0.60
+                            );
+
+                        return {
+                            width: size,
+                            height: size,
+                        };
+                    },
+
+                    aspectRatio: 1.777778,
+
+                    disableFlip: true,
                 },
 
                 async (decodedText) => {

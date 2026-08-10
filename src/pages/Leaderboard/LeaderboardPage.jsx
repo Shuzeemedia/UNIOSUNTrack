@@ -31,6 +31,10 @@ function LeaderboardPage() {
   const [loadingLeaderboard, setLoadingLeaderboard] = useState(false);
   const [accessBlocked, setAccessBlocked] = useState(false);
   const [visibleTooltip, setVisibleTooltip] = useState(null);
+  const [tooltipPosition, setTooltipPosition] = useState({
+    top: 0,
+    left: 0,
+  });
 
   const user = JSON.parse(localStorage.getItem("user"));
 
@@ -195,7 +199,6 @@ function LeaderboardPage() {
 
   const showTooltip = (index) => {
     setVisibleTooltip(index);
-    setTimeout(() => setVisibleTooltip(null), 2000);
   };
 
   if (pageLoading) return <LoadingSpinner />;
@@ -430,14 +433,34 @@ function LeaderboardPage() {
             </thead>
             <tbody>
               {leaderboard.map((student) => {
-                const ratio = ((student.totalPresent || 0) / (student.totalClasses || 1) * 10).toFixed(2);
-                const rank = getRank(student.totalPresent || 0, student.totalClasses || 0);
+                const ratio = (
+                  ((student.totalPresent || 0) /
+                    (student.totalClasses || 1)) *
+                  10
+                ).toFixed(2);
+
+                const rank = getRank(
+                  student.totalPresent || 0,
+                  student.totalClasses || 0
+                );
+
                 const deptName = student.department || "N/A";
 
                 return (
-                  <tr key={student.studentId} className={`rank-${student.rank}`}>
-                    <td>{student.rank}</td>
-                    <td className="student-cell">
+                  <tr
+                    key={student.studentId}
+                    className={`rank-${student.rank}`}
+                  >
+                    {/* RANK NUMBER */}
+                    <td data-label="#">
+                      {student.rank}
+                    </td>
+
+                    {/* STUDENT NAME */}
+                    <td
+                      className="student-cell"
+                      data-label="Student Name"
+                    >
                       <div
                         className={`student-info ${student.rank === 1
                           ? "first-place"
@@ -470,31 +493,50 @@ function LeaderboardPage() {
                       </div>
                     </td>
 
+                    {/* MATRIC NUMBER */}
+                    <td data-label="Matric No">
+                      {student.studentId ||
+                        student.matric ||
+                        "N/A"}
+                    </td>
 
+                    {/* DEPARTMENT */}
+                    <td data-label="Department">
+                      {deptName}
+                    </td>
 
-                    <td>{student.studentId || student.matric || "N/A"}</td>
-                    <td>{deptName}</td>
-                    <td>{student.level || "N/A"}</td>
-                    <td>
+                    {/* LEVEL */}
+                    <td data-label="Level">
+                      {student.level || "N/A"}
+                    </td>
+
+                    {/* XP */}
+                    <td data-label="XP Score">
                       <span className="xp-badge">
                         {ratio} XP
                       </span>
                     </td>
-                    <td style={{ position: "relative" }}>
-                      <img
-                        src={rank.img}
-                        alt={rank.name}
-                        className="rank-icon"
-                        onClick={() => showTooltip(student.rank)}
-                      />
-                      {visibleTooltip === student.rank && (
-                        <div className="rank-tooltip">{rank.name}</div>
-                      )}
+
+                    {/* RANK */}
+                    <td className="rank-cell">
+                      <div className="rank-icon-wrapper">
+                        <img
+                          src={rank.img}
+                          alt={rank.name}
+                          className="rank-icon"
+                          onClick={() => showTooltip(student.rank)}
+                        />
+
+                        {visibleTooltip === student.rank && (
+                          <div className="rank-tooltip">
+                            {rank.name}
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
               })}
-
             </tbody>
           </table>
         )}
@@ -535,7 +577,7 @@ function LeaderboardPage() {
                   className="rank-icon-small"
                 />
 
-                <span>{r}</span>
+                <span className="rnk_nme">{r}</span>
               </div>
             ))}
 
