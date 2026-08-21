@@ -878,28 +878,26 @@
 
 .qr-scanner-shell {
     position: relative;
-
     width: 100%;
     height: 320px;
-
-    margin: 0 auto;
-
-    overflow: hidden;
-
-    isolation: isolate;
-
+    overflow: hidden;        /* keep this — it's the real fix */
     border-radius: 22px;
-
     background: #07120b;
-
     border: 1px solid rgba(15, 23, 42, 0.1);
-
-    box-shadow:
-        inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-
     box-sizing: border-box;
 }
 
+#reader,
+.qr-reader {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+#reader video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+}
 
 /* =========================================================
    HTML5 QR CODE
@@ -914,86 +912,7 @@
    elements from making the page vertically huge.
 */
 
-#reader {
-    position: absolute !important;
 
-    inset: 0 !important;
-
-    width: 100% !important;
-    height: 100% !important;
-
-    min-width: 0 !important;
-    min-height: 0 !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    overflow: hidden !important;
-
-    border: none !important;
-
-    background: #07120b !important;
-
-    box-sizing: border-box !important;
-}
-
-#reader__scan_region {
-    position: relative !important;
-
-    width: 100% !important;
-    height: 100% !important;
-
-    min-width: 0 !important;
-    min-height: 0 !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    overflow: hidden !important;
-
-    border: none !important;
-
-    background: #07120b !important;
-
-    box-sizing: border-box !important;
-}
-
-#reader video {
-    display: block !important;
-
-    width: 100% !important;
-    height: 100% !important;
-
-    min-width: 100% !important;
-    min-height: 100% !important;
-
-    max-width: none !important;
-    max-height: none !important;
-
-    object-fit: cover !important;
-    object-position: center center !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    border: none !important;
-
-    box-sizing: border-box !important;
-}
-
-#reader canvas {
-    position: absolute !important;
-
-    inset: 0 !important;
-
-    width: 100% !important;
-    height: 100% !important;
-
-    max-width: 100% !important;
-    max-height: 100% !important;
-
-    pointer-events: none !important;
-}
 
 #reader__dashboard {
     display: none !important;
@@ -1005,22 +924,6 @@
 
 #reader table {
     display: none !important;
-}
-
-
-/* Kill html5-qrcode's built-in shaded overlay/border box —
-   we draw our own with .qr-frame-overlay */
-#qr-shaded-region {
-    display: none !important;
-}
-
-#reader>div {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    max-height: 100% !important;
-    position: absolute !important;
-    inset: 0 !important;
 }
 
 /* =========================================================

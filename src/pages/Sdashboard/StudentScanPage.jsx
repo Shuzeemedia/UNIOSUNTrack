@@ -872,14 +872,11 @@ const StudentScanPage = () => {
             html5QrCodeRef.current = qr;
 
             await qr.start(
-                { facingMode: { ideal: "environment" } },
+                { facingMode: "environment" },
                 {
                     fps: 10,
-                    qrbox: { width: 220, height: 220 }, // fixed, not a function
-                    aspectRatio: 1.777778,
-                    disableFlip: true,
+                    qrbox: 250,
                 },
-
                 async (decodedText) => {
 
                     if (
