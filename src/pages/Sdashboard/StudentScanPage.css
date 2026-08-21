@@ -1668,3 +1668,37 @@
 
    
 }
+
+
+/* =========================================================
+   FINAL QR SCANNER SPACING FIX
+========================================================= */
+
+.qr-scanner-shell {
+    height: 250px !important;
+    margin: 0 !important;
+}
+
+.qr-section {
+    margin-top: 0 !important;
+}
+
+.qr-section-header {
+    margin-bottom: 6px !important;
+}
+
+.qr-instruction {
+    margin-top: 6px !important;
+}
+
+@media (max-width: 380px) {
+    .qr-scanner-shell {
+        height: 220px !important;
+    }
+}
+
+@media (max-width: 340px) {
+    .qr-scanner-shell {
+        height: 210px !important;
+    }
+}
