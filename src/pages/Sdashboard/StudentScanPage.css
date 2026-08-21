@@ -267,6 +267,7 @@
 
 .verification-section {
     width: 100%;
+    height: fit-content;
 }
 
 .section-heading {
