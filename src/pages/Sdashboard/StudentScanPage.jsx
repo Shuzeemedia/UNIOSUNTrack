@@ -104,6 +104,8 @@ const StudentScanPage = () => {
 
     const geofenceGraceSeconds = 10;
 
+    const [showScanner, setShowScanner] = useState(false);
+
 
     /* =====================================================
        CURRENT STEP
@@ -356,46 +358,10 @@ const StudentScanPage = () => {
     ===================================================== */
 
     const fullCleanup = async () => {
-
         stopVideoStream();
-
-        if (html5QrCodeRef.current) {
-
-            try {
-
-                await html5QrCodeRef.current.stop();
-
-                html5QrCodeRef.current.clear();
-
-            } catch (err) {
-
-                console.warn(
-                    "QR cleanup error:",
-                    err
-                );
-            }
-
-            html5QrCodeRef.current = null;
-        }
-
-        if (geofenceExitTimeoutRef.current) {
-
-            clearTimeout(
-                geofenceExitTimeoutRef.current
-            );
-
-            geofenceExitTimeoutRef.current = null;
-        }
-
-        if (geofenceIntervalRef.current) {
-
-            clearInterval(
-                geofenceIntervalRef.current
-            );
-
-            geofenceIntervalRef.current = null;
-        }
-
+        await stopScanner();
+        if (geofenceExitTimeoutRef.current) { clearTimeout(geofenceExitTimeoutRef.current); geofenceExitTimeoutRef.current = null; }
+        if (geofenceIntervalRef.current) { clearInterval(geofenceIntervalRef.current); geofenceIntervalRef.current = null; }
         scanningLockedRef.current = true;
     };
 
@@ -775,51 +741,18 @@ const StudentScanPage = () => {
                 }, 1000);
 
 
-            geofenceExitTimeoutRef.current =
-                setTimeout(async () => {
+            geofenceExitTimeoutRef.current = setTimeout(async () => {
+                await stopScanner();          // fully release camera first
+                setShowScanner(false);        // THEN unmount #reader
+                setScannerReady(false);
+                setGraceCountdown(null);
+                setStatusMessage("You left the attendance zone. Move closer to continue.");
 
-                    if (
-                        html5QrCodeRef.current
-                    ) {
-
-                        try {
-
-                            await html5QrCodeRef.current.stop();
-
-                            html5QrCodeRef.current.clear();
-
-                        } catch (err) {
-
-                            console.warn(err);
-                        }
-
-                        html5QrCodeRef.current =
-                            null;
-                    }
-
-
-                    setScannerReady(false);
-
-                    setGraceCountdown(null);
-
-                    setStatusMessage(
-                        "You left the attendance zone. Move closer to continue."
-                    );
-
-
-                    if (
-                        geofenceIntervalRef.current
-                    ) {
-
-                        clearInterval(
-                            geofenceIntervalRef.current
-                        );
-
-                        geofenceIntervalRef.current =
-                            null;
-                    }
-
-                }, geofenceGraceSeconds * 1000);
+                if (geofenceIntervalRef.current) {
+                    clearInterval(geofenceIntervalRef.current);
+                    geofenceIntervalRef.current = null;
+                }
+            }, geofenceGraceSeconds * 1000);
         }
 
 
@@ -852,20 +785,43 @@ const StudentScanPage = () => {
     ]);
 
 
+    const stopScanner = async () => {
+        if (html5QrCodeRef.current) {
+            try {
+                await html5QrCodeRef.current.stop();
+            } catch (err) {
+                console.warn("QR stop error:", err);
+            }
+            try {
+                html5QrCodeRef.current.clear();
+            } catch (err) {
+                console.warn("QR clear error:", err);
+            }
+            html5QrCodeRef.current = null;
+        }
+        scanningLockedRef.current = false;
+    };
+
+
     /* =====================================================
        QR SCANNER
     ===================================================== */
 
     const startScanner = async () => {
-
         if (!insideGeofence || scanningLockedRef.current) return;
+
+        // defensive: never start on top of a lingering instance
+        if (html5QrCodeRef.current) {
+            await stopScanner();
+        }
+
+        setShowScanner(true);
+
+        // wait for the overlay's DOM to actually commit
+        await new Promise((resolve) => requestAnimationFrame(resolve));
 
         const readerEl = document.getElementById("reader");
         if (!readerEl) return;
-        if (html5QrCodeRef.current) return;
-
-        // wait one frame so the container has committed its real layout
-        await new Promise((resolve) => requestAnimationFrame(resolve));
 
         try {
             const qr = new Html5Qrcode("reader");
@@ -873,10 +829,7 @@ const StudentScanPage = () => {
 
             await qr.start(
                 { facingMode: "environment" },
-                {
-                    fps: 10,
-                    qrbox: 250,
-                },
+                { fps: 10, qrbox: 250 },
                 async (decodedText) => {
 
                     if (
@@ -1481,7 +1434,7 @@ const StudentScanPage = () => {
 
                             {/* QR */}
 
-                            {insideGeofence && (
+                            {showScanner && (
                                 <div className="qr-overlay">
                                     <div className="qr-overlay-card">
 
