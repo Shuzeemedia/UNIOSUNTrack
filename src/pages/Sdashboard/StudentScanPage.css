@@ -793,7 +793,7 @@
 .attendance-map-container {
     width: 100%;
 
-    margin-bottom: 22px;
+    margin-bottom: 8px;
 
     overflow: hidden;
 
@@ -811,20 +811,27 @@
    QR SECTION
 ========================================================= */
 
+.attendance-map-container {
+    width: 100%;
+    margin-bottom: 12px;   /* was 22px */
+    overflow: hidden;
+    border-radius: 18px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    box-sizing: border-box;
+}
+
 .qr-section {
     width: 100%;
-
-    margin-top: 10px;
+    margin-top: 0;   /* was 10px */
 }
 
 .qr-section-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     gap: 12px;
-
-    margin-bottom: 13px;
+    margin-bottom: 6px;   /* was 13px */
 }
 
 .qr-section-header h4 {
@@ -1040,53 +1047,6 @@
    QR SCAN LINE
 ========================================================= */
 
-.qr-scan-line {
-    position: absolute;
-
-    z-index: 30;
-
-    width: 205px;
-    height: 2px;
-
-    background:
-        linear-gradient(90deg,
-            transparent,
-            #fbbf24,
-            transparent);
-
-    box-shadow:
-        0 0 8px rgba(251, 191, 36, 0.55);
-
-    animation:
-        scanLine 2.2s ease-in-out infinite;
-
-    pointer-events: none;
-}
-
-@keyframes scanLine {
-    0% {
-        transform: translateY(-100px);
-        opacity: 0;
-    }
-
-    15% {
-        opacity: 1;
-    }
-
-    50% {
-        transform: translateY(100px);
-        opacity: 1;
-    }
-
-    85% {
-        opacity: 1;
-    }
-
-    100% {
-        transform: translateY(-100px);
-        opacity: 0;
-    }
-}
 
 
 /* =========================================================
@@ -1490,9 +1450,6 @@
             translate(66px, 66px);
     }
 
-    .qr-scan-line {
-        width: 175px;
-    }
 
 
     /* BUTTON */
@@ -1630,10 +1587,6 @@
             translate(61px, 61px);
     }
 
-    .qr-scan-line {
-        width: 160px;
-    }
-
     .qr-instruction {
         font-size: 10px;
     }
@@ -1713,7 +1666,5 @@
             translate(58px, 58px);
     }
 
-    .qr-scan-line {
-        width: 150px;
-    }
+   
 }

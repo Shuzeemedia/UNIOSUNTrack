@@ -1520,17 +1520,6 @@ const StudentScanPage = () => {
                                             className="qr-reader"
                                         />
 
-                                        <div className="qr-frame-overlay">
-
-                                            <span className="qr-corner tl" />
-                                            <span className="qr-corner tr" />
-                                            <span className="qr-corner bl" />
-                                            <span className="qr-corner br" />
-
-                                            <div className="qr-scan-line" />
-
-                                        </div>
-
                                     </div>
 
 

@@ -29,6 +29,8 @@ import {
   HiOutlineQrCode,
   HiOutlineClock
 } from "react-icons/hi2";
+
+import { toast } from "react-toastify";
 import "./studentCourseDetails.css";
 
 const StudentCourseDetails = () => {
@@ -153,25 +155,21 @@ const StudentCourseDetails = () => {
     }
 
     try {
-      const res = await API.get(`/sessions/check`, {
-        params: { sessionId: activeSession._id },
-        headers: {
-          "x-silent": "true",
+      const res = await API.get("/sessions/check", {
+        params: {
+          sessionId: activeSession._id,
         },
       });
 
       // Student has already marked attendance
-      if (res.data.alreadyMarked) {
-        toast.info(
-          "You have already marked attendance for this session.",
-          {
-            position: "top-right",
-            autoClose: 4000,
-            closeOnClick: true,
-            pauseOnHover: true,
-          }
-        );
+      if (res.data?.alreadyMarked) {
+        toast.info("Attendance already marked for this session.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
 
+        // IMPORTANT:
+        // Stay on the current course details page.
         return;
       }
 
@@ -179,9 +177,10 @@ const StudentCourseDetails = () => {
       navigate(`/student/scan/${activeSession.token}`);
 
     } catch (err) {
-      console.error("Attendance session check failed:", err);
+      console.error("Session attendance check failed:", err);
 
-      // If the check itself fails, don't block the student unnecessarily.
+      // If the check itself fails, don't block the student
+      // from accessing the scanner.
       navigate(`/student/scan/${activeSession.token}`);
     }
   };
