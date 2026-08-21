@@ -108,6 +108,8 @@ const StudentScanPage = () => {
     const [scannerReady, setScannerReady] =
         useState(false);
 
+    const [showScanner, setShowScanner] = useState(false);
+
     const geofenceGraceSeconds = 10;
 
 
@@ -439,6 +441,7 @@ const StudentScanPage = () => {
         stopVideoStream();
 
         await stopScanner();
+        setShowScanner(false);
 
         if (geofenceExitTimeoutRef.current) {
 
@@ -837,31 +840,19 @@ const StudentScanPage = () => {
                 }, 1000);
 
 
-            geofenceExitTimeoutRef.current =
-                setTimeout(async () => {
+            geofenceExitTimeoutRef.current = setTimeout(async () => {
 
-                    await stopScanner();
+                await stopScanner();      // camera released while #reader still mounted
+                setShowScanner(false);    // NOW it's safe to unmount
 
-                    setGraceCountdown(null);
+                setGraceCountdown(null);
+                setStatusMessage("You left the attendance zone. Move closer to continue.");
 
-                    setStatusMessage(
-                        "You left the attendance zone. Move closer to continue."
-                    );
-
-
-                    if (
-                        geofenceIntervalRef.current
-                    ) {
-
-                        clearInterval(
-                            geofenceIntervalRef.current
-                        );
-
-                        geofenceIntervalRef.current =
-                            null;
-                    }
-
-                }, geofenceGraceSeconds * 1000);
+                if (geofenceIntervalRef.current) {
+                    clearInterval(geofenceIntervalRef.current);
+                    geofenceIntervalRef.current = null;
+                }
+            }, geofenceGraceSeconds * 1000);
         }
 
 
@@ -901,36 +892,24 @@ const StudentScanPage = () => {
     const startScanner = async () => {
 
         if (!insideGeofence || scanningLockedRef.current) return;
-
-        // Already running, or another start/stop transition is mid-flight.
         if (html5QrCodeRef.current || scannerTransitionRef.current) return;
 
         scannerTransitionRef.current = true;
+        setShowScanner(true);   // <-- mount #reader now
 
         try {
-
-            // Give the camera hardware a beat to fully release after a
-            // previous stop(). Restarting too soon is what causes the
-            // "camera indicator on, frame stays black" bug on re-entry.
             const MIN_SETTLE_MS = 600;
-            const elapsedSinceStop =
-                Date.now() - lastScannerStopRef.current;
+            const elapsedSinceStop = Date.now() - lastScannerStopRef.current;
 
-            if (
-                lastScannerStopRef.current &&
-                elapsedSinceStop < MIN_SETTLE_MS
-            ) {
-
+            if (lastScannerStopRef.current && elapsedSinceStop < MIN_SETTLE_MS) {
                 await new Promise((resolve) =>
-                    setTimeout(
-                        resolve,
-                        MIN_SETTLE_MS - elapsedSinceStop
-                    )
+                    setTimeout(resolve, MIN_SETTLE_MS - elapsedSinceStop)
                 );
             }
 
-            // Student may have left the fence again during the wait.
             if (!insideGeofence) return;
+
+            if (!insideGeofence || html5QrCodeRef.current) return;
 
             const readerEl = document.getElementById("reader");
             if (!readerEl) return;
@@ -988,6 +967,7 @@ const StudentScanPage = () => {
 
 
                         await stopScanner();
+                        setShowScanner(false);
 
                     } catch (err) {
 
@@ -1549,7 +1529,7 @@ const StudentScanPage = () => {
 
                             {/* QR */}
 
-                            {insideGeofence && (
+                            {showScanner && (
                                 <div className="qr-overlay">
                                     <div className="qr-overlay-card">
 
