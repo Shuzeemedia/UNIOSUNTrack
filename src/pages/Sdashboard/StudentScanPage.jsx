@@ -1487,7 +1487,7 @@ const StudentScanPage = () => {
 
                                     <div className="qr-section-header">
 
-                                        <div>
+                                        <div className="inne-manCam">
 
                                             <span className="section-kicker">
                                                 FINAL STEP

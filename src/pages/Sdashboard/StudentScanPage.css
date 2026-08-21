@@ -825,7 +825,7 @@
 .qr-section {
     width: 100%;
     margin-top: 0;
-    /* was 10px */
+    height: fit-content;
 }
 
 .qr-section-header {
@@ -834,7 +834,12 @@
     align-items: center;
     gap: 12px;
     margin-bottom: 6px;
+    height: fit-content;
     /* was 13px */
+}
+
+.inne-manCam{
+    height: fit-content;
 }
 
 .qr-section-header h4 {
