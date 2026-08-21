@@ -54,12 +54,16 @@ const StudentScanPage = () => {
     const videoRef = useRef(null);
     const html5QrCodeRef = useRef(null);
     const streamRef = useRef(null);
-    const scannerStartingRef = useRef(false);
-    const scannerStopPromiseRef = useRef(null);
 
     const scanningLockedRef = useRef(false);
     const geofenceExitTimeoutRef = useRef(null);
     const geofenceIntervalRef = useRef(null);
+
+    // Guards against the QR camera "black frame, indicator still on" bug
+    // that happens when a new Html5Qrcode instance is started before the
+    // previous one has fully released the physical camera device.
+    const scannerTransitionRef = useRef(false);
+    const lastScannerStopRef = useRef(0);
 
     /* =====================================================
        STATE
@@ -339,7 +343,7 @@ const StudentScanPage = () => {
 
 
     /* =====================================================
-       STOP VIDEO
+       STOP VIDEO (FACE CAM)
     ===================================================== */
 
     const stopVideoStream = () => {
@@ -354,65 +358,107 @@ const StudentScanPage = () => {
 
 
     /* =====================================================
-       FULL CLEANUP
+       STOP QR SCANNER (shared by exit-timeout, success
+       callback, and unmount cleanup)
     ===================================================== */
 
     const stopScanner = async () => {
-        // If another stop is already running, wait for it instead of
-        // trying to stop/clear the same Html5Qrcode instance twice.
-        if (scannerStopPromiseRef.current) {
-            return scannerStopPromiseRef.current;
-        }
 
-        const qr = html5QrCodeRef.current;
+        if (html5QrCodeRef.current) {
 
-        if (!qr) {
-            scannerStartingRef.current = false;
-            return;
-        }
-
-        scannerStopPromiseRef.current = (async () => {
             try {
-                await qr.stop();
+
+                await html5QrCodeRef.current.stop();
+
             } catch (err) {
-                // The scanner may already be stopped.
-                console.warn("QR scanner stop error:", err);
+
+                console.warn(
+                    "QR stop error:",
+                    err
+                );
             }
 
             try {
-                qr.clear();
+
+                html5QrCodeRef.current.clear();
+
             } catch (err) {
-                console.warn("QR scanner clear error:", err);
+
+                console.warn(
+                    "QR clear error:",
+                    err
+                );
             }
 
-            if (html5QrCodeRef.current === qr) {
-                html5QrCodeRef.current = null;
-            }
-
-            scannerStartingRef.current = false;
-        })();
-
-        try {
-            await scannerStopPromiseRef.current;
-        } finally {
-            scannerStopPromiseRef.current = null;
+            html5QrCodeRef.current = null;
         }
+
+        // Failsafe: some browsers/versions of html5-qrcode leave the
+        // underlying camera track technically "live" (camera indicator
+        // stays lit) even after stop() resolves. Manually stop any
+        // leftover video track sitting inside the reader container so
+        // the hardware is actually released before we try to restart.
+        const readerEl = document.getElementById("reader");
+
+        if (readerEl) {
+
+            const videoEl = readerEl.querySelector("video");
+
+            if (videoEl && videoEl.srcObject) {
+
+                try {
+
+                    videoEl.srcObject
+                        .getTracks()
+                        .forEach((track) => track.stop());
+
+                } catch (err) {
+
+                    console.warn(
+                        "Manual QR track stop error:",
+                        err
+                    );
+                }
+
+                videoEl.srcObject = null;
+            }
+        }
+
+        lastScannerStopRef.current = Date.now();
+
+        setScannerReady(false);
     };
 
+
+    /* =====================================================
+       FULL CLEANUP
+    ===================================================== */
+
     const fullCleanup = async () => {
+
         stopVideoStream();
 
         await stopScanner();
 
         if (geofenceExitTimeoutRef.current) {
-            clearTimeout(geofenceExitTimeoutRef.current);
+
+            clearTimeout(
+                geofenceExitTimeoutRef.current
+            );
+
             geofenceExitTimeoutRef.current = null;
         }
 
         if (geofenceIntervalRef.current) {
-            clearInterval(geofenceIntervalRef.current);
+
+            clearInterval(
+                geofenceIntervalRef.current
+            );
+
             geofenceIntervalRef.current = null;
         }
+
+        scanningLockedRef.current = true;
     };
 
 
@@ -796,8 +842,6 @@ const StudentScanPage = () => {
 
                     await stopScanner();
 
-                    setScannerReady(false);
-
                     setGraceCountdown(null);
 
                     setStatusMessage(
@@ -855,115 +899,135 @@ const StudentScanPage = () => {
     ===================================================== */
 
     const startScanner = async () => {
-        if (!insideGeofence) return;
 
-        // Prevent duplicate starts while Html5Qrcode is acquiring the camera.
-        if (scannerStartingRef.current) return;
+        if (!insideGeofence || scanningLockedRef.current) return;
 
-        // A scanner is already active.
-        if (html5QrCodeRef.current) return;
+        // Already running, or another start/stop transition is mid-flight.
+        if (html5QrCodeRef.current || scannerTransitionRef.current) return;
 
-        // Wait until any previous scanner has completely released the camera.
-        if (scannerStopPromiseRef.current) {
-            await scannerStopPromiseRef.current;
-        }
-
-        // The student may have left the geofence while we were waiting.
-        if (!insideGeofence) return;
-
-        const readerEl = document.getElementById("reader");
-        if (!readerEl) return;
-
-        scannerStartingRef.current = true;
-        setScannerReady(false);
-
-        // Remove stale Html5Qrcode DOM left by a previous instance.
-        readerEl.innerHTML = "";
+        scannerTransitionRef.current = true;
 
         try {
+
+            // Give the camera hardware a beat to fully release after a
+            // previous stop(). Restarting too soon is what causes the
+            // "camera indicator on, frame stays black" bug on re-entry.
+            const MIN_SETTLE_MS = 600;
+            const elapsedSinceStop =
+                Date.now() - lastScannerStopRef.current;
+
+            if (
+                lastScannerStopRef.current &&
+                elapsedSinceStop < MIN_SETTLE_MS
+            ) {
+
+                await new Promise((resolve) =>
+                    setTimeout(
+                        resolve,
+                        MIN_SETTLE_MS - elapsedSinceStop
+                    )
+                );
+            }
+
+            // Student may have left the fence again during the wait.
+            if (!insideGeofence) return;
+
+            const readerEl = document.getElementById("reader");
+            if (!readerEl) return;
+
+            // wait one frame so the container has committed its real layout
+            await new Promise((resolve) => requestAnimationFrame(resolve));
+
+            // Re-check after the frame wait too — state can change while we yield.
+            if (!insideGeofence || html5QrCodeRef.current) return;
+
             const qr = new Html5Qrcode("reader");
             html5QrCodeRef.current = qr;
 
             await qr.start(
-                {
-                    facingMode: { ideal: "environment" },
-                },
+                { facingMode: "environment" },
                 {
                     fps: 10,
                     qrbox: 250,
                 },
                 async (decodedText) => {
-                    if (scanningLockedRef.current) {
+
+                    if (
+                        scanningLockedRef.current
+                    ) {
                         return;
                     }
 
-                    scanningLockedRef.current = true;
 
-                    const scannedToken = decodedText
-                        .split("/")
-                        .pop();
+                    scanningLockedRef.current =
+                        true;
+
+
+                    const scannedToken =
+                        decodedText
+                            .split("/")
+                            .pop();
+
 
                     try {
-                        const res = await markAttendance(
-                            scannedToken
-                        );
+
+                        const res =
+                            await markAttendance(
+                                scannedToken
+                            );
+
 
                         setModalMsg(
                             res.msg ||
                             "Attendance recorded successfully."
                         );
 
-                        setModalShow(true);
+                        setModalShow(
+                            true
+                        );
+
 
                         await stopScanner();
 
-                        setScannerReady(false);
                     } catch (err) {
+
                         toast.error(
                             err?.response?.data?.msg ||
                             err?.message ||
                             "Failed to mark attendance."
                         );
 
-                        scanningLockedRef.current = false;
+                        scanningLockedRef.current =
+                            false;
                     }
                 }
             );
 
-            // If the student leaves while the camera is starting, immediately
-            // release the camera instead of leaving a black/stale preview.
-            if (!insideGeofence) {
-                await stopScanner();
-                setScannerReady(false);
-                return;
-            }
 
             setScannerReady(true);
+
         } catch (err) {
+
             console.error(
                 "QR scanner error:",
                 err
             );
 
-            // Clean up the instance if start() partially created it.
-            if (html5QrCodeRef.current) {
-                try {
-                    await stopScanner();
-                } catch (cleanupErr) {
-                    console.warn(
-                        "QR scanner cleanup error:",
-                        cleanupErr
-                    );
-                }
-            }
-
             toast.error(
                 "Unable to start QR scanner."
             );
 
+            html5QrCodeRef.current =
+                null;
+
+            scanningLockedRef.current =
+                false;
+
             setScannerReady(false);
+
         } finally {
-            scannerStartingRef.current = false;
+
+            scannerTransitionRef.current = false;
         }
     };
 
