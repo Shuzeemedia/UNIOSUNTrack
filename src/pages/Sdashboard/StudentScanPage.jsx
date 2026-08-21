@@ -341,18 +341,11 @@ const StudentScanPage = () => {
     ===================================================== */
 
     const stopVideoStream = () => {
-
         if (streamRef.current) {
-
-            streamRef.current
-                .getTracks()
-                .forEach((track) => track.stop());
-
+            streamRef.current.getTracks().forEach((track) => track.stop());
             streamRef.current = null;
         }
-
         if (videoRef.current) {
-
             videoRef.current.srcObject = null;
         }
     };
@@ -638,15 +631,14 @@ const StudentScanPage = () => {
                                 }
                             );
 
-                            setFaceVerified(
-                                true
-                            );
-
-                            toast.success(
-                                "Face verified successfully"
-                            );
-
                             stopVideoStream();
+
+                            // give the browser/OS a beat to fully release the camera
+                            // before the QR scanner tries to claim it
+                            setTimeout(() => {
+                                setFaceVerified(true);
+                                toast.success("Face verified successfully");
+                            }, 400);
 
                         } catch (err) {
 
@@ -866,65 +858,25 @@ const StudentScanPage = () => {
 
     const startScanner = async () => {
 
-        if (
-            !insideGeofence ||
-            scanningLockedRef.current
-        ) {
-            return;
-        }
+        if (!insideGeofence || scanningLockedRef.current) return;
 
-
-        const readerEl =
-            document.getElementById(
-                "reader"
-            );
-
+        const readerEl = document.getElementById("reader");
         if (!readerEl) return;
+        if (html5QrCodeRef.current) return;
 
-        if (
-            html5QrCodeRef.current
-        ) {
-            return;
-        }
-
+        // wait one frame so the container has committed its real layout
+        await new Promise((resolve) => requestAnimationFrame(resolve));
 
         try {
-
-            const qr =
-                new Html5Qrcode(
-                    "reader"
-                );
-
-            html5QrCodeRef.current =
-                qr;
-
+            const qr = new Html5Qrcode("reader");
+            html5QrCodeRef.current = qr;
 
             await qr.start(
-                {
-                    facingMode: {
-                        ideal: "environment",
-                    },
-                },
+                { facingMode: { ideal: "environment" } },
                 {
                     fps: 10,
-
-                    qrbox: (viewfinderWidth, viewfinderHeight) => {
-                        const size =
-                            Math.floor(
-                                Math.min(
-                                    viewfinderWidth,
-                                    viewfinderHeight
-                                ) * 0.60
-                            );
-
-                        return {
-                            width: size,
-                            height: size,
-                        };
-                    },
-
+                    qrbox: { width: 220, height: 220 }, // fixed, not a function
                     aspectRatio: 1.777778,
-
                     disableFlip: true,
                 },
 
