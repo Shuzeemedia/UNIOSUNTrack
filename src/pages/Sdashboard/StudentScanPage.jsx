@@ -1482,60 +1482,32 @@ const StudentScanPage = () => {
                             {/* QR */}
 
                             {insideGeofence && (
+                                <div className="qr-overlay">
+                                    <div className="qr-overlay-card">
 
-                                <div className="qr-section">
+                                        <div className="qr-section-header">
+                                            <div className="inne-manCam">
+                                                <span className="section-kicker">FINAL STEP</span>
+                                                <h4>Scan attendance QR</h4>
+                                            </div>
 
-                                    <div className="qr-section-header">
-
-                                        <div className="inne-manCam">
-
-                                            <span className="section-kicker">
-                                                FINAL STEP
-                                            </span>
-
-                                            <h4>
-                                                Scan attendance QR
-                                            </h4>
-
+                                            <div className="qr-ready-badge">
+                                                <span />
+                                                {scannerReady ? "Scanner ready" : "Starting scanner..."}
+                                            </div>
                                         </div>
 
+                                        <div className="qr-scanner-shell">
+                                            <div id="reader" className="qr-reader" />
+                                        </div>
 
-                                        <div className="qr-ready-badge">
-
-                                            <span />
-
-                                            {scannerReady
-                                                ? "Scanner ready"
-                                                : "Starting scanner..."}
-
+                                        <div className="qr-instruction">
+                                            <RiQrScan2Line />
+                                            <span>Place the lecturer's QR code inside the frame</span>
                                         </div>
 
                                     </div>
-
-
-                                    <div className="qr-scanner-shell">
-
-                                        <div
-                                            id="reader"
-                                            className="qr-reader"
-                                        />
-
-                                    </div>
-
-
-                                    <div className="qr-instruction">
-
-                                        <RiQrScan2Line />
-
-                                        <span>
-                                            Place the lecturer's QR code
-                                            inside the frame
-                                        </span>
-
-                                    </div>
-
                                 </div>
-
                             )}
 
                         </div>
